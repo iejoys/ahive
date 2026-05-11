@@ -1,0 +1,254 @@
+import { useEffect, useState } from 'react';
+import { Sidebar } from './components/ui/Sidebar';
+import { Header } from './components/ui/Header';
+import { AgentWorld } from './components/3d/AgentWorld';
+import { SkillTree } from './components/skill-tree/SkillTree';
+import { TaskPanel } from './components/task/TaskPanel';
+import { useStore } from './store/useStore';
+import { translations } from './i18n';
+import type { Agent, Skill, Task } from './types';
+
+// 发送到WPF桌面端
+export function sendToWPF(data: object) {
+  try {
+    // @ts-ignore
+    window.chrome?.webview?.postMessage(JSON.stringify(data));
+  } catch (e) {
+    // 非桌面环境，忽略
+  }
+}
+
+// Mock data for initial development
+const MOCK_AGENTS: Agent[] = [
+  {
+    id: '1',
+    name: 'Coder',
+    description: '代码生成与调试专家',
+    status: 'idle',
+    avatar: 'coder',
+    position: { x: 0, y: 0, z: 0 },
+    skills: ['code-gen', 'debug', 'refactor'],
+    type: 'opencode',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: '2',
+    name: 'Searcher',
+    description: '网络搜索与信息收集',
+    status: 'idle',
+    avatar: 'searcher',
+    position: { x: 2, y: 0, z: 1 },
+    skills: ['web-search', 'summarize'],
+    type: 'mcp',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: '3',
+    name: 'Analyzer',
+    description: '数据分析与可视化',
+    status: 'idle',
+    avatar: 'analyzer',
+    position: { x: -2, y: 0, z: 2 },
+    skills: ['data-analysis', 'visualize'],
+    type: 'mock',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+];
+
+const MOCK_SKILLS: Skill[] = [
+  {
+    id: 'web-search',
+    name: '网络搜索',
+    description: '在互联网上搜索信息',
+    category: 'web',
+    icon: '🔍',
+    dependencies: [],
+    installs: 32500,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 'summarize',
+    name: '文档摘要',
+    description: '总结长文档和文本内容',
+    category: 'core',
+    icon: '📝',
+    dependencies: ['web-search'],
+    installs: 28000,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 'code-gen',
+    name: '代码生成',
+    description: '用多种编程语言生成代码',
+    category: 'core',
+    icon: '💻',
+    dependencies: [],
+    installs: 45000,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 'debug',
+    name: '调试',
+    description: '发现并修复代码中的bug',
+    category: 'core',
+    icon: '🐛',
+    dependencies: ['code-gen'],
+    installs: 21000,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 'refactor',
+    name: '重构',
+    description: '重构和改进代码质量',
+    category: 'core',
+    icon: '🔧',
+    dependencies: ['code-gen'],
+    installs: 18000,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 'data-analysis',
+    name: '数据分析',
+    description: '分析和处理数据',
+    category: 'data',
+    icon: '📊',
+    dependencies: [],
+    installs: 22000,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 'visualize',
+    name: '数据可视化',
+    description: '从数据创建可视化图表',
+    category: 'data',
+    icon: '📈',
+    dependencies: ['data-analysis'],
+    installs: 15000,
+    createdAt: new Date().toISOString(),
+  },
+];
+
+function App() {
+  const { setAgents, setSkills, setTasks, addTask, language, activeTab } = useStore();
+  const [isLoading, setIsLoading] = useState(true);
+  const tr = translations[language];
+
+  // WPF桌面端消息监听
+  useEffect(() => {
+    // @ts-ignore - WPF WebView2消息
+    const wpf = window.chrome?.webview;
+    if (!wpf) return;
+    
+    const handler = (event: any) => {
+      try {
+        const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+        console.log('[WPF消息]', data);
+        
+        switch (data.type) {
+          case 'task_complete':
+            const completedTask: Task = {
+              id: `task-${Date.now()}`,
+              agentId: '1',
+              task: data.task,
+              status: 'completed',
+              output: (data.output || '').split('\n'),
+              createdAt: new Date().toISOString(),
+              completedAt: new Date().toISOString(),
+            };
+            addTask(completedTask);
+            break;
+          case 'task_error':
+            const failedTask: Task = {
+              id: `task-${Date.now()}`,
+              agentId: '1',
+              task: data.task,
+              status: 'failed',
+              output: [data.error || '执行失败'],
+              createdAt: new Date().toISOString(),
+            };
+            addTask(failedTask);
+            break;
+        }
+      } catch (e) {
+        console.error('[WPF消息解析失败]', e);
+      }
+    };
+    
+    // @ts-ignore
+    window.chrome?.webview?.addEventListener('message', handler);
+    
+    return () => {
+      // @ts-ignore
+      window.chrome?.webview?.removeEventListener('message', handler);
+    };
+  }, [addTask]);
+
+  useEffect(() => {
+    // 从URL参数获取agents（Electron传入）
+    const params = new URLSearchParams(window.location.search);
+    const agentsParam = params.get('agents');
+    
+    if (agentsParam) {
+      const agentNames = agentsParam.split(',').filter(n => n);
+      const agents = agentNames.map((name, i) => ({
+        id: `agent-${name}`,
+        name: name,
+        description: 'AI Assistant',
+        status: 'idle' as const,
+        avatar: '🤖',
+        position: { x: Math.cos(i * 2 * Math.PI / agentNames.length) * 5, y: 0, z: Math.sin(i * 2 * Math.PI / agentNames.length) * 5 },
+        skills: [],
+        type: 'openclaw' as const,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }));
+      setAgents(agents);
+      console.log('Loaded agents from URL:', agents.length);
+      setIsLoading(false);
+      return;
+    }
+    
+    // 默认加载mock数据
+    setAgents(MOCK_AGENTS);
+    setSkills(MOCK_SKILLS);
+    setIsLoading(false);
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-hive-bg">
+        <div className="text-hive-text text-xl">{tr.loading}</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex h-screen bg-hive-bg overflow-hidden">
+      <Sidebar />
+      <div className="flex-1 flex flex-col">
+        <Header />
+        <main className="flex-1 flex overflow-hidden">
+          {/* 3D World / Workflow - 统一入口 */}
+          <div className={`flex-1 ${(activeTab !== 'world' && activeTab !== 'workflow') ? 'hidden' : ''}`}>
+            <AgentWorld />
+          </div>
+          
+          {/* Skill Tree */}
+          <div className={`flex-1 ${activeTab !== 'skills' ? 'hidden' : ''}`}>
+            <SkillTree />
+          </div>
+          
+          {/* Task Panel */}
+          <div className={`flex-1 ${activeTab !== 'tasks' ? 'hidden' : ''}`}>
+            <TaskPanel />
+          </div>
+        </main>
+      </div>
+    </div>
+  );
+}
+
+export default App;

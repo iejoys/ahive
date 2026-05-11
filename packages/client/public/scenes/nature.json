@@ -1,0 +1,64 @@
+{
+  "id": "nature",
+  "name": "户外自然",
+  "name_en": "Outdoor Nature",
+  "version": "1.0.0",
+  "author": "AHIVE Team",
+  "description": "阳光明媚的自然户外环境",
+  
+  "elements": {
+    "sky": {
+      "type": "gradient",
+      "params": {
+        "topColor": "#4a90d9",
+        "bottomColor": "#87ceeb"
+      }
+    },
+    "ground": {
+      "type": "plane",
+      "params": {
+        "size": 50,
+        "color": "#4a7c3f",
+        "roughness": 0.9,
+        "metalness": 0.0
+      }
+    },
+    "lights": [
+      {
+        "type": "ambient",
+        "intensity": 0.6,
+        "color": "#ffffff"
+      },
+      {
+        "type": "directional",
+        "position": [20, 30, 20],
+        "intensity": 1.2,
+        "color": "#fffaf0",
+        "castShadow": true
+      },
+      {
+        "type": "point",
+        "position": [-10, 10, -10],
+        "intensity": 0.3,
+        "color": "#ffd700",
+        "distance": 20,
+        "decay": 2
+      }
+    ],
+    "effects": {
+      "fog": {
+        "enabled": true,
+        "color": "#e0f0ff",
+        "near": 30,
+        "far": 80
+      }
+    }
+  },
+  
+  "camera": {
+    "position": [20, 15, 20],
+    "fov": 55,
+    "minDistance": 5,
+    "maxDistance": 60
+  }
+}

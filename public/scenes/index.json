@@ -1,0 +1,18 @@
+{
+  "scenes": [
+    {
+      "id": "default",
+      "name": "太空星域",
+      "name_en": "Space Nebula",
+      "thumbnail": "",
+      "version": "1.0.0"
+    },
+    {
+      "id": "cyberpunk",
+      "name": "赛博朋克",
+      "name_en": "Cyberpunk",
+      "thumbnail": "",
+      "version": "1.0.0"
+    }
+  ]
+}

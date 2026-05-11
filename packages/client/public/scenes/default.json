@@ -1,0 +1,13 @@
+{
+  "id": "default",
+  "name": "太空星域",
+  "name_en": "Space Nebula",
+  "version": "1.0.0",
+  "elements": {
+    "sky": { "type": "stars" },
+    "ground": { "type": "grid" },
+    "lights": [
+      { "type": "ambient", "intensity": 0.4 }
+    ]
+  }
+}

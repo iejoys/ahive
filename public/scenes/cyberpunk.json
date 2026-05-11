@@ -1,0 +1,59 @@
+{
+  "id": "cyberpunk",
+  "name": "赛博朋克",
+  "name_en": "Cyberpunk",
+  "version": "1.0.0",
+  "author": "Test",
+  "description": "霓虹灯光的赛博朋克风格",
+  
+  "elements": {
+    "sky": {
+      "type": "gradient",
+      "params": {
+        "colors": ["#0f0c29", "#302b63", "#24243e"],
+        "topColor": "#0f0c29",
+        "bottomColor": "#24243e"
+      }
+    },
+    "ground": {
+      "type": "grid",
+      "params": {
+        "size": 30,
+        "cellSize": 1,
+        "cellThickness": 0.5,
+        "cellColor": "#ff00ff",
+        "sectionSize": 5,
+        "sectionColor": "#00ffff",
+        "fadeDistance": 50
+      }
+    },
+    "lights": [
+      {
+        "type": "ambient",
+        "intensity": 0.2,
+        "color": "#1a1a2e"
+      },
+      {
+        "type": "point",
+        "position": [5, 3, 5],
+        "intensity": 1,
+        "color": "#ff00ff",
+        "distance": 20
+      },
+      {
+        "type": "point",
+        "position": [-5, 3, -5],
+        "intensity": 1,
+        "color": "#00ffff",
+        "distance": 20
+      }
+    ]
+  },
+  
+  "camera": {
+    "position": [15, 12, 15],
+    "fov": 50,
+    "minDistance": 3,
+    "maxDistance": 50
+  }
+}

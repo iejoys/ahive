@@ -1,0 +1,128 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --hive-bg: #0a0a0f;
+  --hive-surface: #12121a;
+  --hive-border: #1e1e2e;
+  --hive-primary: #6366f1;
+  --hive-primary-hover: #4f46e5;
+  --hive-text: #e0e0e0;
+  --hive-text-secondary: #71717a;
+  --hive-hover: #1e1e2e;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  width: 100%;
+  height: 100vh;
+  background-color: var(--hive-bg);
+  color: var(--hive-text);
+}
+
+@layer utilities {
+  .bg-hive-bg {
+    background-color: var(--hive-bg);
+  }
+  
+  .bg-hive-surface {
+    background-color: var(--hive-surface);
+  }
+  
+  .border-hive-border {
+    border-color: var(--hive-border);
+  }
+  
+  .bg-hive-primary {
+    background-color: var(--hive-primary);
+  }
+  
+  .bg-hive-primary-hover {
+    background-color: var(--hive-primary-hover);
+  }
+  
+  .text-hive-text {
+    color: var(--hive-text);
+  }
+  
+  .text-hive-text-secondary {
+    color: var(--hive-text-secondary);
+  }
+  
+  .hover-hive-hover:hover {
+    background-color: var(--hive-hover);
+  }
+  
+  .ring-hive-primary {
+    --tw-ring-color: var(--hive-primary);
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--hive-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--hive-border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--hive-text-secondary);
+}
+
+/* React Flow customizations */
+.react-flow__node {
+  font-family: inherit;
+}
+
+.react-flow__edge-path {
+  stroke-width: 2;
+}
+
+.react-flow__controls {
+  background: var(--hive-surface);
+  border: 1px solid var(--hive-border);
+  border-radius: 8px;
+}
+
+.react-flow__controls-button {
+  background: var(--hive-surface);
+  border-bottom: 1px solid var(--hive-border);
+}
+
+.react-flow__controls-button:hover {
+  background: var(--hive-hover);
+}
+
+.react-flow__minimap {
+  background: var(--hive-surface);
+  border: 1px solid var(--hive-border);
+  border-radius: 8px;
+}
+
+/* Vertical text for collapsed panels */
+.writing-mode-vertical {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+}

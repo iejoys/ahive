@@ -1,0 +1,40 @@
+{
+  "scenes": [
+    {
+      "id": "default",
+      "name": "太空星域",
+      "name_en": "Space Nebula",
+      "thumbnail": "",
+      "version": "1.0.0",
+      "author": "AHIVE Team",
+      "description": "深邃的星空场景"
+    },
+    {
+      "id": "cyberpunk",
+      "name": "赛博朋克",
+      "name_en": "Cyberpunk",
+      "thumbnail": "",
+      "version": "1.0.0",
+      "author": "AHIVE Team",
+      "description": "霓虹灯光的赛博朋克风格"
+    },
+    {
+      "id": "office",
+      "name": "科技办公室",
+      "name_en": "Tech Office",
+      "thumbnail": "",
+      "version": "1.0.0",
+      "author": "AHIVE Team",
+      "description": "现代科技风格的办公环境"
+    },
+    {
+      "id": "nature",
+      "name": "户外自然",
+      "name_en": "Outdoor Nature",
+      "thumbnail": "",
+      "version": "1.0.0",
+      "author": "AHIVE Team",
+      "description": "阳光明媚的自然户外环境"
+    }
+  ]
+}

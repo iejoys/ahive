@@ -1,0 +1,64 @@
+{
+  "id": "office",
+  "name": "科技办公室",
+  "name_en": "Tech Office",
+  "version": "1.0.0",
+  "author": "AHIVE Team",
+  "description": "现代科技风格的办公环境",
+  
+  "elements": {
+    "sky": {
+      "type": "gradient",
+      "params": {
+        "topColor": "#1a1a2e",
+        "bottomColor": "#2d2d44"
+      }
+    },
+    "ground": {
+      "type": "grid",
+      "params": {
+        "size": 30,
+        "cellSize": 1,
+        "cellThickness": 0.5,
+        "cellColor": "#3d3d5c",
+        "sectionSize": 5,
+        "sectionColor": "#4d4d6c",
+        "fadeDistance": 30
+      }
+    },
+    "lights": [
+      {
+        "type": "ambient",
+        "intensity": 0.5,
+        "color": "#ffffff"
+      },
+      {
+        "type": "directional",
+        "position": [10, 15, 10],
+        "intensity": 0.8,
+        "color": "#ffffff",
+        "castShadow": true
+      },
+      {
+        "type": "point",
+        "position": [0, 5, 0],
+        "intensity": 0.5,
+        "color": "#6366f1",
+        "distance": 15,
+        "decay": 2
+      }
+    ],
+    "effects": {
+      "fog": {
+        "enabled": false
+      }
+    }
+  },
+  
+  "camera": {
+    "position": [10, 8, 10],
+    "fov": 60,
+    "minDistance": 2,
+    "maxDistance": 30
+  }
+}

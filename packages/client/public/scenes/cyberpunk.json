@@ -1,0 +1,89 @@
+{
+  "id": "cyberpunk",
+  "name": "赛博朋克",
+  "name_en": "Cyberpunk",
+  "version": "1.0.0",
+  "author": "AHIVE Team",
+  "description": "霓虹灯光的赛博朋克风格",
+  
+  "elements": {
+    "sky": {
+      "type": "gradient",
+      "params": {
+        "colors": ["#0f0c29", "#302b63", "#24243e"],
+        "topColor": "#0f0c29",
+        "bottomColor": "#24243e"
+      }
+    },
+    "ground": {
+      "type": "plane",
+      "params": {
+        "size": 50,
+        "color": "#0a0a0a",
+        "roughness": 0.8,
+        "metalness": 0.3
+      }
+    },
+    "lights": [
+      {
+        "type": "ambient",
+        "intensity": 0.2,
+        "color": "#1a1a2e"
+      },
+      {
+        "type": "point",
+        "position": [5, 3, 5],
+        "intensity": 1,
+        "color": "#ff00ff",
+        "distance": 20,
+        "decay": 2
+      },
+      {
+        "type": "point",
+        "position": [-5, 3, -5],
+        "intensity": 1,
+        "color": "#00ffff",
+        "distance": 20,
+        "decay": 2
+      },
+      {
+        "type": "point",
+        "position": [5, 3, -5],
+        "intensity": 0.8,
+        "color": "#ff0080",
+        "distance": 15,
+        "decay": 2
+      },
+      {
+        "type": "point",
+        "position": [-5, 3, 5],
+        "intensity": 0.8,
+        "color": "#00ff80",
+        "distance": 15,
+        "decay": 2
+      },
+      {
+        "type": "directional",
+        "position": [0, 10, 0],
+        "intensity": 0.3,
+        "color": "#ffffff",
+        "castShadow": true
+      }
+    ],
+    "effects": {
+      "fog": {
+        "enabled": true,
+        "color": "#0f0c29",
+        "near": 10,
+        "far": 50
+      }
+    }
+  },
+  
+  "camera": {
+    "position": [15, 12, 15],
+    "fov": 50,
+    "minDistance": 3,
+    "maxDistance": 50
+  }
+}

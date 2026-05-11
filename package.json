@@ -1,0 +1,29 @@
+{
+  "name": "ahive",
+  "version": "1.0.0",
+  "description": "AHIVE - 智能体集群管理器 - 一人多智能体协作可视化管理系统",
+  "private": true,
+  "workspaces": [
+    "packages/client"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=@ahive/client",
+    "build": "npm run build --workspace=@ahive/client",
+    "lint": "npm run lint --workspace=@ahive/client"
+  },
+  "dependencies": {
+    "@react-three/drei": "^9.97.0",
+    "@react-three/fiber": "^8.15.16",
+    "cron-parser": "^5.5.0",
+    "reactflow": "^11.11.3",
+    "three": "^0.161.0",
+    "uuid": "^13.0.0",
+    "zustand": "^4.5.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.2.2",
+    "autoprefixer": "^10.4.18",
+    "concurrently": "^8.2.2",
+    "tailwindcss": "^3.4.1"
+  }
+}
