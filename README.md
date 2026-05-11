@@ -516,6 +516,364 @@ MIT License
 
 **主页**: https://www.ahive.cn
 
-星未来软件工作室
+=====================================================================================
+# AHIVE - Multi-Agent Collaboration System
 
-**主页**: https://ahive.starsfuture.cn
+> **AHIVE** (Agent Hive) is an intelligent multi-agent collaboration platform that enables one person to orchestrate multiple AI agents working together visually.
+
+## 📋 Overview
+
+AHIVE is a comprehensive multi-agent orchestration system consisting of three core projects:
+
+| Project | Description | Role |
+|---------|-------------|------|
+| **ahive-core** | Core Engine | Agent system, tool execution, memory, gateway |
+| **ahive-desktop** | Desktop Application | Electron app, workflow engine, A2A/MCP protocols |
+| **ahive-web** | Web Frontend | React 3D visualization, workflow editor |
+
+## 🏗️ Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                      ahive-web (Frontend)                    │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐  │
+│  │  3D Agent   │  │  Workflow   │  │  Real-time Monitor  │  │
+│  │  World      │  │  Editor     │  │  (WebSocket)        │  │
+│  └─────────────┘  └─────────────┘  └─────────────────────┘  │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              │ WebSocket / HTTP
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                   ahive-desktop (Desktop App)                │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐  │
+│  │  Workflow   │  │  A2A/MCP    │  │  Local Storage      │  │
+│  │  Engine     │  │  Protocols  │  │  (JSON/SQLite)      │  │
+│  └─────────────┘  └─────────────┘  └─────────────────────┘  │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              │ IPC / WebSocket
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    ahive-core (Core Engine)                  │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐  │
+│  │  Unified    │  │  Tool       │  │  Memory System      │  │
+│  │  Agent Sys  │  │  Registry   │  │  (Vector Search)    │  │
+│  └─────────────┘  └─────────────┘  └─────────────────────┘  │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐  │
+│  │  Commander  │  │  Webot      │  │  Knowledge Base     │  │
+│  │  Agent      │  │  (WeCom)    │  │  (Expert System)    │  │
+│  └─────────────┘  └─────────────┘  └─────────────────────┘  │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 📦 Project Details
+
+### 1. ahive-core - Core Engine
+
+**The brain of AHIVE system**, providing all core capabilities.
+
+#### Key Features
+
+| Module | Description |
+|--------|-------------|
+| **UnifiedAgentSystem** | Unified agent framework supporting ahive-worker and ahive-coder types |
+| **Commander Agent** | Knowledge-based agent for autonomous workflow orchestration, task distribution, and execution monitoring |
+| **Webot Agent** | Enterprise WeChat bot integration for remote communication and notifications |
+| **Tool Registry** | Built-in tools: file operations, shell execution, web search/fetch, LSP, Glob/Grep |
+| **Memory System** | Session memory, vector search, memory compaction, knowledge retrieval |
+| **Knowledge Base** | Document import, chunking, semantic search, citation tracking |
+| **Provider Manager** | Multi-provider support: OpenAI, Ollama, Local GGUF, Bailian, Custom |
+| **Sandbox Executor** | Secure execution with approval policies and command filtering |
+| **Gateway** | HTTP server, authentication, quota management, logging middleware |
+
+#### Agent Types
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                    Agent Types                           │
+├─────────────────────────────────────────────────────────┤
+│  ahive-worker  │ General conversational agent           │
+│  ahive-coder   │ Code execution agent with tool calling │
+│  commander     │ Workflow orchestration & task dispatch │
+│  webot         │ Enterprise WeChat communication bridge │
+└─────────────────────────────────────────────────────────┘
+```
+
+#### Commander Agent Capabilities
+
+- **Page Control**: Navigate UI, open dialogs, toggle panels
+- **Workflow Generation**: Decompose user intent into executable workflows
+- **Agent Orchestration**: Dispatch tasks to agents, monitor execution status
+- **Configuration Management**: View and modify system settings
+- **MCP Tool Management**: Enable/disable MCP capabilities
+
+#### Directory Structure
+
+```
+ahive-core/
+├── src/
+│   ├── agents/           # Agent implementations
+│   │   ├── core/         # UnifiedAgentSystem
+│   │   ├── ahive-coder/  # Code execution agent
+│   │   ├── ahive-worker/ # Conversational agent
+│   │   └── ahive-webot/  # Enterprise WeChat bot
+│   ├── prompts/
+│   │   └── commander/    # Commander prompts & skills
+│   ├── executor/         # Tool execution system
+│   ├── memory/           # Memory & vector search
+│   ├── knowledge/        # Knowledge base (expert system)
+│   ├── providers/        # LLM providers
+│   ├── gateway/          # HTTP gateway & auth
+│   ├── sandbox/          # Secure execution
+│   └── routes/           # API routes
+├── config/               # Configuration files
+├── skills/               # Skill definitions
+└── templates/            # Memory templates
+```
+
+---
+
+### 2. ahive-desktop - Desktop Application
+
+**Electron-based desktop client** for local workflow execution.
+
+#### Key Features
+
+| Module | Description |
+|--------|-------------|
+| **Workflow Engine** | Execute workflows with interrupt/resume, state persistence |
+| **Workflow Scheduler** | Cron-based scheduling, interval tasks, one-time execution |
+| **A2A Protocol** | Agent-to-Agent communication (AHIVECORE, OpenClaw, A2A-Standard) |
+| **MCP Integration** | Model Context Protocol tool management |
+| **Blackboard System** | Global variables, workflow variables, event tracking |
+| **State Persistence** | SQLite-based execution state and log storage |
+| **Department Management** | Agent grouping and role assignment |
+
+#### Workflow Node Types
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                  Workflow Nodes                          │
+├─────────────────────────────────────────────────────────┤
+│  executor      │ Execute task with specified agent      │
+│  planner       │ Decompose complex task into subtasks   │
+│  department    │ Group agents by function               │
+│  dynamic-parallel │ Parallel execution with batching   │
+│  review        │ Human review checkpoint                │
+└─────────────────────────────────────────────────────────┘
+```
+
+#### Directory Structure
+
+```
+ahive-desktop/
+├── electron/
+│   ├── main.ts           # Electron main process
+│   ├── preload.ts        # IPC bridge
+│   ├── workflow/         # Workflow engine & scheduler
+│   │   ├── core/         # WorkflowEngine, CommanderChannel
+│   │   ├── dynamic/      # Planner, DynamicParallel
+│   │   └── persistence/  # StateManager, OutputCollector
+│   ├── a2a/              # A2A protocol clients
+│   ├── mcp/              # MCP tool management
+│   └── services/         # AHIVECORE service, WebSocket
+├── data/                 # Local data storage
+│   ├── workflows/        # Workflow definitions
+│   ├── agents.json       # Agent configurations
+│   └── protocol-config.json
+└── src/                  # React frontend
+```
+
+---
+
+### 3. ahive-web - Web Frontend
+
+**Browser-based visualization interface** for agent monitoring and workflow editing.
+
+#### Key Features
+
+| Module | Description |
+|--------|-------------|
+| **3D Agent World** | Three.js visualization of agent positions and status |
+| **Workflow Editor** | ReactFlow-based drag-and-drop workflow design |
+| **Capability Hub** | MCP tool panel, server status, tool cards |
+| **Task Panel** | Task creation, execution monitoring, output display |
+| **Log Center** | System logs, workflow execution logs |
+| **Department Manager** | Agent grouping and assignment |
+| **Blackboard Panel** | Variable management, event timeline |
+
+#### 3D Visualization
+
+- **Agent Characters**: Customizable 3D avatars for each agent type
+- **Status Effects**: Visual indicators for idle/working/error states
+- **Workflow Execution**: Animated flow showing task progression
+- **Memory Monitor**: Real-time memory usage visualization
+- **Scene Selection**: Multiple 3D scenes (cyberpunk, nature, office)
+
+#### Directory Structure
+
+```
+ahive-web/
+├── src/
+│   ├── client/
+│   │   ├── components/
+│   │   │   ├── 3d/           # Three.js components
+│   │   │   ├── workflow/     # Workflow editor
+│   │   │   ├── capability-hub/
+│   │   │   ├── dialogs/      # Modal dialogs
+│   │   │   └── logs/         # Log panels
+│   │   ├── scheduler/        # Client-side task scheduling
+│   │   ├── store/            # Zustand state management
+│   │   └── utils/            # WebSocket manager
+│   ├── server/               # Express backend
+│   └── shared/               # Shared types & protocols
+└── public/                   # Static assets
+```
+
+---
+
+## 🔧 Tech Stack
+
+| Category | ahive-core | ahive-desktop | ahive-web |
+|----------|------------|---------------|-----------|
+| **Runtime** | Node.js 20+ | Electron 32 | Vite 5 |
+| **Language** | TypeScript | TypeScript | TypeScript |
+| **Framework** | Express | Electron | React 18 |
+| **3D/UI** | - | React | Three.js, ReactFlow |
+| **State** | - | SQLite | Zustand |
+| **Communication** | WebSocket | IPC, WebSocket | Socket.io |
+| **LLM** | node-llama-cpp, OpenAI | OpenClaw | - |
+
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- Node.js 20+
+- pnpm (recommended)
+- Ollama (optional, for local LLM)
+
+### Installation
+
+```bash
+# Clone repository
+git clone https://github.com/iejoys/ahive.git
+cd ahive
+
+# Install dependencies for each project
+cd ahive-core && pnpm install
+cd ahive-desktop && pnpm install
+cd ahive-web && pnpm install
+```
+
+### Running
+
+```bash
+# Start core engine
+cd ahive-core
+pnpm dev
+
+# Start desktop app
+cd ahive-desktop
+pnpm dev
+
+# Start web frontend
+cd ahive-web
+pnpm dev
+```
+
+---
+
+## ⚙️ Configuration
+
+### ahive-core Configuration
+
+Edit `ahive-core/config/providers.json`:
+
+```json
+{
+  "currentProvider": "bailian",
+  "currentConfig": {
+    "apiEndpoint": "https://api.example.com/v1",
+    "apiKey": "YOUR_API_KEY_HERE",
+    "apiModel": "qwen3.6-plus"
+  }
+}
+```
+
+### Enterprise WeChat Configuration
+
+Edit `ahive-core/config/wecom.json` (create if needed):
+
+```json
+{
+  "botId": "YOUR_BOT_ID",
+  "secret": "YOUR_BOT_SECRET",
+  "enabled": true
+}
+```
+
+### ahive-desktop Configuration
+
+Edit `ahive-desktop/config.json`:
+
+```json
+{
+  "webUrl": "http://localhost:5173",
+  "apiUrl": "http://localhost:18790"
+}
+```
+
+---
+
+## 📡 Communication Protocols
+
+### A2A (Agent-to-Agent)
+
+Supports multiple protocol types:
+
+| Protocol | Description |
+|----------|-------------|
+| **ahivecore** | Native AHIVE protocol via WebSocket |
+| **openclaw** | OpenClaw CLI integration |
+| **a2a-standard** | Standard A2A HTTP protocol |
+
+### MCP (Model Context Protocol)
+
+- Tool discovery and registration
+- Capability pushing to agents
+- HTTP server for external tool access
+
+---
+
+## 🛡️ Security
+
+### Sandbox Execution
+
+- **Approval Policies**: on-request, never, workspace-write
+- **Denied Commands**: rm -rf, format, fdisk, mkfs
+- **Denied Paths**: .git/hooks, .ssh, .env
+
+### Authentication
+
+- API key based agent authentication
+- Token hash verification
+- Quota management per agent
+
+---
+
+## 📝 License
+
+MIT License - See LICENSE file for details.
+
+---
+
+## 👥 Author
+
+**星未来软件工作室** (Star Future Software Studio)
+
+Homepage: https://www.ahive.cn
