@@ -1,0 +1,66 @@
+{
+  "appName": "AHIVE Mother",
+  "version": "0.1.0",
+  "environment": "development",
+  "logLevel": "debug",
+  "server": {
+    "host": "127.0.0.1",
+    "port": 18790
+  },
+  "llm": {
+    "default": "ollama",
+    "provider": "ollama",
+    "ollamaHost": "http://localhost:11434",
+    "model": "qwen2.5:3b",
+    "temperature": 0.7,
+    "maxTokens": 2048
+  },
+  "memory": {
+    "type": "memory",
+    "maxMemories": 1000,
+    "sessionTimeout": 3600000
+  },
+  "auth": {
+    "type": "api-key",
+    "requireAuth": false
+  },
+  "features": {
+    "enableWebUI": true,
+    "enableVoiceCall": false,
+    "enableFileUpload": true,
+    "enableThinkingStream": false
+  },
+  
+  "websocket": {
+    "enabled": true,
+    "url": "ws://127.0.0.1:3005",
+    "autoReconnect": true,
+    "reconnectInterval": 5000,
+    "maxReconnectInterval": 60000,
+    "heartbeatInterval": 30000,
+    "heartbeatTimeout": 10000,
+    "connectionTimeout": 10000,
+    "maxReconnectAttempts": 0,
+    "gracefulDegradation": true
+  },
+  
+  "sandbox": {
+    "enabled": true,
+    "mode": "workspace-write",
+    "approvalPolicy": "on-request",
+    "networkAccess": true,
+    "writableRoots": [],
+    "deniedCommands": [
+      "rm -rf /",
+      "format",
+      "fdisk",
+      "mkfs",
+      "dd if="
+    ],
+    "deniedPaths": [
+      ".git/hooks",
+      ".ssh",
+      ".env"
+    ]
+  }
+}

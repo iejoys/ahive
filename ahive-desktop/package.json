@@ -1,0 +1,108 @@
+{
+  "name": "ahive-desktop",
+  "version": "1.0.0",
+  "description": "AHIVE 智能体集群管理器 - 桌面版",
+  "main": "dist-electron/main.js",
+  "config": {
+    "webPort": 5173
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "electron",
+      "esbuild"
+    ]
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build && electron-builder",
+    "build:vite": "tsc && vite build",
+    "electron:dev": "concurrently \"vite\" \"wait-on http://localhost:5173 && electron .\"",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "ahive-llm-center": "link:..\\ahive-llm-center",
+    "electron-log": "^5.1.1",
+    "openclaw": "^2026.2.26",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "yaml": "^2.3.4"
+  },
+  "devDependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.2.1",
+    "autoprefixer": "^10.4.27",
+    "concurrently": "^8.2.2",
+    "electron": "32.3.3",
+    "electron-builder": "^25.0.5",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.2.1",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.10",
+    "vite-plugin-electron": "^0.28.0",
+    "vite-plugin-electron-renderer": "^0.14.5",
+    "wait-on": "^7.2.0"
+  },
+  "build": {
+    "appId": "com.ahive.desktop",
+    "productName": "AHIVE",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "dist-electron/**/*",
+      "config.json"
+    ],
+    "npmRebuild": false,
+    "extraResources": [
+      {
+        "from": "node_modules/openclaw",
+        "to": "openclaw",
+        "filter": [
+          "**/*",
+          "!node_modules/openclaw/docs/**/*",
+          "!node_modules/openclaw/extensions/**/*",
+          "!node_modules/openclaw/*.md",
+          "!node_modules/openclaw/node_modules/@whiskeysockets/**/*",
+          "!node_modules/openclaw/node_modules/discord.js/**/*",
+          "!node_modules/openclaw/node_modules/@discordjs/**/*",
+          "!node_modules/openclaw/node_modules/.cache/**/*",
+          "!node_modules/openclaw/node_modules/*/test/**/*",
+          "!node_modules/openclaw/node_modules/*/tests/**/*",
+          "!node_modules/openclaw/node_modules/*/*.md",
+          "!node_modules/openclaw/node_modules/*/LICENSE*",
+          "!node_modules/openclaw/node_modules/*/README*",
+          "!node_modules/openclaw/node_modules/*/example*",
+          "!node_modules/openclaw/node_modules/*/demo*"
+        ]
+      }
+    ],
+    "asar": true,
+    "asarUnpack": [
+      "node_modules/openclaw/node_modules/sharp/**/*",
+      "node_modules/openclaw/node_modules/@lydell/node-pty/**/*",
+      "node_modules/openclaw/node_modules/@napi-rs/**/*",
+      "node_modules/openclaw/node_modules/sqlite-vec/**/*",
+      "node_modules/openclaw/node_modules/koffi/**/*"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "public/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true
+    }
+  }
+}

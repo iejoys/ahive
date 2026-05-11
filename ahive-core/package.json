@@ -1,0 +1,82 @@
+{
+  "name": "ahive-core",
+  "version": "0.1.0",
+  "description": "AHIVECORE - 智能体核心引擎，内嵌本地模型",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "author": "星未来软件工作室",
+  "license": "MIT",
+  "homepage": "https://ahive.starsfuture.cn",
+  "exports": {
+    ".": "./dist/index.js",
+    "./plugin-sdk": "./dist/plugin-sdk/index.js",
+    "./memory": "./dist/memory/index.js",
+    "./agents": "./dist/agents/index.js",
+    "./agents/core": "./dist/agents/core/UnifiedAgentSystem.js",
+    "./agents/codex": "./dist/agents/codex/index.js",
+    "./executor": "./dist/executor/index.js",
+    "./executor/tools": "./dist/executor/builtin-tools.js",
+    "./providers": "./dist/providers/index.js",
+    "./gateway": "./dist/gateway/index.js",
+    "./config": "./dist/config/index.js",
+    "./sandbox": "./dist/sandbox/index.js",
+    "./orchestrator": "./dist/orchestrator/index.js",
+    "./asta": "./dist/asta/index.js"
+  },
+  "scripts": {
+    "dev": "npx tsx src/main.ts",
+    "start": "npx tsx src/main.ts",
+    "build": "npx tsc",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.config.cjs",
+    "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config tests/jest.config.js --watch",
+    "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config tests/jest.config.js --coverage",
+    "clean": "rm -rf dist release",
+    "download-model": "node scripts/download-model.cjs",
+    "postinstall": "node scripts/download-model.cjs",
+    "electron:dev": "npx tsx electron/main.ts",
+    "electron:build": "npm run build && electron-builder",
+    "electron:build:win": "npm run build && electron-builder --win",
+    "package:lite": "node scripts/package-lite.cjs",
+    "package:standard": "node scripts/package-standard.cjs",
+    "package:full": "npm run electron:build",
+    "start:isolated": "npx tsx src/start-isolated.ts",
+    "dev:isolated": "npx tsx src/start-isolated.ts",
+    "build:service": "node scripts/build-service-exe.cjs",
+    "build:exe": "npm run build && npm run build:service"
+  },
+  "keywords": [
+    "ahive",
+    "ai-agent",
+    "local-llm",
+    "qwen",
+    "llama.cpp"
+  ],
+  "dependencies": {
+    "@mozilla/readability": "^0.6.0",
+    "@node-llama-cpp/win-x64-cuda": "^3.17.1",
+    "@wecom/aibot-node-sdk": "file:wecom-aibot-node-sdk-1.0.6.tgz",
+    "amep-protocol": "^1.0.0",
+    "better-sqlite3": "^11.0.0",
+    "linkedom": "^0.18.12",
+    "node-llama-cpp": "^3.17.1",
+    "ws": "^8.20.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.11",
+    "@types/jest": "^29.5.0",
+    "@types/node": "^20.10.0",
+    "@types/ws": "^8.18.1",
+    "electron": "^32.3.3",
+    "electron-builder": "^25.1.8",
+    "jest": "^29.7.0",
+    "sharp": "^0.34.5",
+    "ts-jest": "^29.1.0",
+    "tsx": "^4.6.2",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

@@ -1,0 +1,1017 @@
+{
+  "workflows": [
+    {
+      "id": "workflow-1773152251517",
+      "name": "新工作流",
+      "nodes": [
+        {
+          "id": "node-1773152264306",
+          "type": "agent",
+          "name": "审核评分",
+          "position": {
+            "x": 428.28693868123173,
+            "y": 34.65237094812551
+          },
+          "createdAt": "2026-03-10T14:17:44.306Z",
+          "updatedAt": "2026-03-16T01:48:41.291Z",
+          "description": "",
+          "agentId": "agent-ashi",
+          "config": {
+            "agentId": "agent-ashi",
+            "taskTemplate": "",
+            "inputs": [],
+            "outputs": [],
+            "timeout": 60000,
+            "retryCount": 0,
+            "executor": {
+              "mode": "all",
+              "executors": [],
+              "failureStrategy": {
+                "action": "abort"
+              }
+            }
+          }
+        },
+        {
+          "id": "node-1773567370849",
+          "type": "agent",
+          "name": "变量设置",
+          "position": {
+            "x": 144.73728338920603,
+            "y": -234.22750179766018
+          },
+          "createdAt": "2026-03-15T09:36:10.849Z",
+          "updatedAt": "2026-03-16T01:49:10.520Z",
+          "description": "",
+          "config": {
+            "executor": {
+              "mode": "round-robin",
+              "executors": [
+                {
+                  "type": "agent",
+                  "id": "agent-main",
+                  "weight": 1
+                },
+                {
+                  "type": "agent",
+                  "id": "agent-ashi",
+                  "weight": 1
+                }
+              ],
+              "failureStrategy": {
+                "action": "fallback",
+                "fallbackExecutorId": "a2a-e045efd1-8d00-4e65-bee8-6834bcf6783f"
+              }
+            },
+            "taskTemplate": "## 任务\n{{taskDescription}}\n\n## 输入\n{{inputs}}\n\n## 要求\n请根据以上信息执行任务，确保结果准确、完整。\n\n请开始执行。"
+          }
+        },
+        {
+          "id": "node-1773567375069",
+          "type": "agent",
+          "name": "条件分支",
+          "position": {
+            "x": -278.2486901448354,
+            "y": -208.06899276994199
+          },
+          "createdAt": "2026-03-15T09:36:15.069Z",
+          "updatedAt": "2026-03-15T15:16:35.991Z",
+          "description": "",
+          "config": {
+            "executor": {
+              "mode": "round-robin",
+              "executors": [
+                {
+                  "type": "agent",
+                  "id": "agent-main",
+                  "weight": 1
+                },
+                {
+                  "type": "agent",
+                  "id": "agent-ashi",
+                  "weight": 1
+                }
+              ],
+              "failureStrategy": {
+                "action": "abort"
+              }
+            },
+            "taskTemplate": ""
+          }
+        },
+        {
+          "id": "node-1773567384064",
+          "type": "agent",
+          "name": "新智能体",
+          "position": {
+            "x": 649.3442600000284,
+            "y": -264.14381400137995
+          },
+          "createdAt": "2026-03-15T09:36:24.064Z",
+          "updatedAt": "2026-03-15T14:10:57.327Z"
+        },
+        {
+          "id": "node-1773567388821",
+          "type": "agent",
+          "name": "新智能体",
+          "position": {
+            "x": 915.038525784938,
+            "y": -261.33408146625584
+          },
+          "createdAt": "2026-03-15T09:36:28.821Z",
+          "updatedAt": "2026-03-16T01:12:13.445Z",
+          "description": "",
+          "config": {
+            "executor": {
+              "mode": "single",
+              "executors": [],
+              "failureStrategy": {
+                "action": "abort"
+              }
+            },
+            "taskTemplate": ""
+          }
+        },
+        {
+          "id": "node-1773583760465",
+          "type": "loop",
+          "name": "循环节点",
+          "position": {
+            "x": -39.93619071216449,
+            "y": 193.8994723506417
+          },
+          "createdAt": "2026-03-15T14:09:20.465Z",
+          "updatedAt": "2026-03-16T01:49:36.120Z",
+          "config": {}
+        },
+        {
+          "id": "node-1773583784353",
+          "type": "agent",
+          "name": "循环节点",
+          "position": {
+            "x": -271.25872124384193,
+            "y": 52.124674194073265
+          },
+          "createdAt": "2026-03-15T14:09:44.353Z",
+          "updatedAt": "2026-03-16T01:49:44.423Z",
+          "config": {
+            "executor": {
+              "mode": "single",
+              "executors": [],
+              "failureStrategy": {
+                "action": "abort"
+              }
+            },
+            "taskTemplate": "## 任务\n{{taskDescription}}\n\n## 输入\n{{inputs}}\n\n## 要求\n请根据以上信息执行任务，确保结果准确、完整。\n\n请开始执行。"
+          },
+          "description": ""
+        },
+        {
+          "id": "node-1773583802974",
+          "type": "department",
+          "name": "部门节点",
+          "position": {
+            "x": 918.6775471046994,
+            "y": 60.01063306684625
+          },
+          "createdAt": "2026-03-15T14:10:02.974Z",
+          "updatedAt": "2026-03-16T01:53:37.040Z",
+          "config": {}
+        },
+        {
+          "id": "node-1773584363759",
+          "type": "loop",
+          "name": "循环节点",
+          "position": {
+            "x": -287.36930479203096,
+            "y": 243.68391673109937
+          },
+          "createdAt": "2026-03-15T14:19:23.759Z",
+          "updatedAt": "2026-03-16T01:49:37.559Z",
+          "config": {}
+        },
+        {
+          "id": "node-1773585988552",
+          "type": "condition",
+          "name": "条件分支",
+          "position": {
+            "x": -274.48623120595926,
+            "y": -80.96972479484191
+          },
+          "createdAt": "2026-03-15T14:46:28.552Z",
+          "updatedAt": "2026-03-16T01:12:21.798Z",
+          "config": {
+            "defaultNode": "node-1773152264306"
+          },
+          "description": ""
+        },
+        {
+          "id": "node-1773588156936",
+          "type": "output",
+          "name": "输出节点",
+          "position": {
+            "x": 114.93669259401486,
+            "y": 42.74859256370016
+          },
+          "createdAt": "2026-03-15T15:22:36.936Z",
+          "updatedAt": "2026-03-16T01:12:07.705Z",
+          "config": {}
+        },
+        {
+          "id": "node-1773624962249",
+          "type": "email",
+          "name": "邮件节点",
+          "position": {
+            "x": 369.9730438102473,
+            "y": 271.0747734388897
+          },
+          "createdAt": "2026-03-16T01:36:02.249Z",
+          "updatedAt": "2026-03-16T01:48:26.723Z",
+          "config": {}
+        },
+        {
+          "id": "node-1773624985557",
+          "type": "message",
+          "name": "消息节点",
+          "position": {
+            "x": 123.57301879958207,
+            "y": 396.7553231087592
+          },
+          "createdAt": "2026-03-16T01:36:25.557Z",
+          "updatedAt": "2026-03-16T01:36:26.143Z",
+          "config": {}
+        },
+        {
+          "id": "node-1773625008533",
+          "type": "webhook",
+          "name": "Webhook",
+          "position": {
+            "x": -129.44177198318164,
+            "y": 433.6024316649988
+          },
+          "createdAt": "2026-03-16T01:36:48.533Z",
+          "updatedAt": "2026-03-16T01:36:49.127Z",
+          "config": {}
+        },
+        {
+          "id": "node-1773625714382",
+          "type": "human",
+          "name": "人工审核",
+          "position": {
+            "x": 694.096566643069,
+            "y": 194.0501208312811
+          },
+          "createdAt": "2026-03-16T01:48:34.382Z",
+          "updatedAt": "2026-03-16T01:48:35.489Z",
+          "config": {}
+        },
+        {
+          "id": "node-1773625717035",
+          "type": "review",
+          "name": "审核评分",
+          "position": {
+            "x": 679.2133436558477,
+            "y": 30.33466797184576
+          },
+          "createdAt": "2026-03-16T01:48:37.035Z",
+          "updatedAt": "2026-03-16T01:54:24.157Z",
+          "config": {
+            "reviewConfig": {
+              "reviewType": "agent",
+              "title": "审核任务",
+              "instruction": "",
+              "scoreMethod": "score",
+              "passCondition": {
+                "variableName": "review_score",
+                "operator": "gte",
+                "threshold": 80
+              },
+              "failAction": {
+                "type": "return"
+              }
+            }
+          },
+          "description": ""
+        },
+        {
+          "id": "node-1773625731762",
+          "type": "variable",
+          "name": "变量设置",
+          "position": {
+            "x": 444.38915874635427,
+            "y": 435.4890715128726
+          },
+          "createdAt": "2026-03-16T01:48:51.762Z",
+          "updatedAt": "2026-03-16T01:48:53.657Z",
+          "config": {}
+        },
+        {
+          "id": "node-1773626087490",
+          "type": "condition",
+          "name": "条件分支",
+          "position": {
+            "x": 8.048403688329188,
+            "y": -104.34705761389696
+          },
+          "createdAt": "2026-03-16T01:54:47.490Z",
+          "updatedAt": "2026-03-16T01:54:49.870Z",
+          "config": {}
+        }
+      ],
+      "edges": [
+        {
+          "id": "edge-node-1773567370849-node-1773152264306-1773567373667",
+          "source": "node-1773567370849",
+          "sourceHandle": "bottom",
+          "target": "node-1773152264306",
+          "targetHandle": "top",
+          "createdAt": "2026-03-15T09:36:13.667Z"
+        },
+        {
+          "id": "edge-node-1773567384064-node-1773152264306-1773567386819",
+          "source": "node-1773567384064",
+          "sourceHandle": "bottom",
+          "target": "node-1773152264306",
+          "targetHandle": "top",
+          "createdAt": "2026-03-15T09:36:26.819Z"
+        },
+        {
+          "id": "edge-node-1773567388821-node-1773152264306-1773567407204",
+          "source": "node-1773567388821",
+          "sourceHandle": "bottom",
+          "target": "node-1773152264306",
+          "targetHandle": "top",
+          "createdAt": "2026-03-15T09:36:47.204Z"
+        },
+        {
+          "id": "edge-node-1773567388821-node-1773583802974-1773583862693",
+          "source": "node-1773567388821",
+          "sourceHandle": "bottom",
+          "target": "node-1773583802974",
+          "targetHandle": "top",
+          "createdAt": "2026-03-15T14:11:02.693Z"
+        },
+        {
+          "id": "edge-node-1773583784353-node-1773583760465-1773583867309",
+          "source": "node-1773583784353",
+          "sourceHandle": "bottom",
+          "target": "node-1773583760465",
+          "targetHandle": "top",
+          "createdAt": "2026-03-15T14:11:07.309Z"
+        },
+        {
+          "id": "edge-node-1773567375069-node-1773585988552-1773587223920",
+          "source": "node-1773567375069",
+          "sourceHandle": "bottom",
+          "target": "node-1773585988552",
+          "targetHandle": "top",
+          "createdAt": "2026-03-15T15:07:03.920Z"
+        },
+        {
+          "id": "edge-node-1773585988552-node-1773583784353-1773587253795",
+          "source": "node-1773585988552",
+          "sourceHandle": "bottom",
+          "target": "node-1773583784353",
+          "targetHandle": "top",
+          "createdAt": "2026-03-15T15:07:33.795Z"
+        }
+      ],
+      "isActive": true,
+      "createdAt": "2026-03-10T14:17:31.517Z",
+      "updatedAt": "2026-03-16T01:54:49.872Z"
+    },
+    {
+      "id": "workflow-1773152256371",
+      "name": "新工作流",
+      "nodes": [],
+      "edges": [],
+      "isActive": true,
+      "createdAt": "2026-03-10T14:17:36.371Z",
+      "updatedAt": "2026-03-10T14:17:38.349Z"
+    },
+    {
+      "id": "workflow-simple-demo",
+      "name": "简单任务流程",
+      "description": "基础工作流示例",
+      "nodes": [
+        {
+          "id": "s-node-1",
+          "type": "variable",
+          "name": "输入参数",
+          "position": {
+            "x": -34.89877441942548,
+            "y": 124.21417167448004
+          },
+          "config": {
+            "variableConfig": {
+              "name": "inputData",
+              "value": "{\"task\":\"示例任务\"}",
+              "type": "json"
+            }
+          },
+          "updatedAt": "2026-03-20T07:06:44.630Z"
+        },
+        {
+          "id": "s-node-2",
+          "type": "agent",
+          "name": "任务执行",
+          "position": {
+            "x": -34.973361198798045,
+            "y": 256.0815129608847
+          },
+          "config": {
+            "executor": {
+              "mode": "single",
+              "executors": [
+                {
+                  "type": "agent",
+                  "id": "agent-pm",
+                  "weight": 1
+                }
+              ],
+              "failureStrategy": {
+                "action": "abort"
+              }
+            },
+            "taskTemplate": "执行任务",
+            "outputs": [
+              {
+                "name": "result",
+                "extractPath": "$.result"
+              }
+            ]
+          },
+          "updatedAt": "2026-03-20T07:06:45.525Z"
+        },
+        {
+          "id": "s-node-3",
+          "type": "output",
+          "name": "输出结果",
+          "position": {
+            "x": -66.87799587488905,
+            "y": 398.55887021286213
+          },
+          "config": {
+            "outputConfig": {
+              "name": "taskResult",
+              "type": "json",
+              "isFinalOutput": true
+            }
+          },
+          "updatedAt": "2026-03-20T07:06:46.739Z"
+        },
+        {
+          "id": "node-1773990384044",
+          "type": "department",
+          "name": "输入参数",
+          "position": {
+            "x": 195.32677054211314,
+            "y": 400.96144453562925
+          },
+          "createdAt": "2026-03-20T07:06:24.044Z",
+          "updatedAt": "2026-03-20T07:07:01.772Z",
+          "config": {
+            "departmentConfig": {
+              "departmentId": "",
+              "triggerInternalWorkflow": true,
+              "waitForResult": true,
+              "resultTimeout": 300
+            }
+          },
+          "description": ""
+        }
+      ],
+      "edges": [
+        {
+          "id": "s-edge-1",
+          "source": "s-node-1",
+          "target": "s-node-2"
+        },
+        {
+          "id": "s-edge-2",
+          "source": "s-node-2",
+          "target": "s-node-3"
+        }
+      ],
+      "isActive": true,
+      "updatedAt": "2026-03-20T07:07:01.775Z"
+    },
+    {
+      "id": "workflow-2d-game-dev-demo",
+      "name": "2D游戏开发流程",
+      "description": "由智能体团队协作完成2D游戏开发的完整工作流示例",
+      "nodes": [
+        {
+          "id": "node-init",
+          "type": "variable",
+          "name": "项目初始化",
+          "description": "初始化游戏项目参数",
+          "position": {
+            "x": 239.92759626012025,
+            "y": -10.035654458697707
+          },
+          "config": {
+            "variableConfig": {
+              "name": "projectConfig",
+              "value": "{\"gameName\":\"星际冒险\",\"gameType\":\"2D横版动作游戏\",\"targetPlatform\":\"Web/Mobile\"}",
+              "type": "json"
+            }
+          },
+          "updatedAt": "2026-03-20T07:07:09.947Z"
+        },
+        {
+          "id": "node-requirement",
+          "type": "agent",
+          "name": "需求分析",
+          "description": "产品经理分析游戏需求",
+          "position": {
+            "x": 201.22757911050348,
+            "y": 234.15171940700225
+          },
+          "config": {
+            "executor": {
+              "mode": "single",
+              "executors": [
+                {
+                  "type": "agent",
+                  "id": "agent-pm",
+                  "weight": 1
+                }
+              ],
+              "failureStrategy": {
+                "action": "abort"
+              }
+            },
+            "taskTemplate": "## 任务：游戏需求分析\n\n### 项目信息\n游戏名称：星际冒险\n游戏类型：2D横版动作游戏\n\n### 要求\n1. 分析目标用户群体\n2. 定义核心玩法机制\n3. 列出功能需求清单",
+            "outputs": [
+              {
+                "name": "requirementDoc",
+                "extractPath": "$.requirementDoc"
+              },
+              {
+                "name": "featureList",
+                "extractPath": "$.features"
+              }
+            ]
+          },
+          "updatedAt": "2026-03-20T07:07:10.580Z"
+        },
+        {
+          "id": "node-review-req",
+          "type": "review",
+          "name": "需求审核",
+          "description": "审核需求文档",
+          "position": {
+            "x": 209.17009404759324,
+            "y": 475.5954149146606
+          },
+          "config": {
+            "reviewConfig": {
+              "reviewType": "auto",
+              "title": "需求审核",
+              "instruction": "审核需求文档质量",
+              "scoreMethod": "score",
+              "passCondition": {
+                "variableName": "reviewScore",
+                "operator": "gte",
+                "threshold": 70
+              },
+              "failAction": {
+                "type": "return"
+              }
+            }
+          },
+          "updatedAt": "2026-03-20T07:07:11.192Z"
+        },
+        {
+          "id": "node-design",
+          "type": "agent",
+          "name": "游戏设计",
+          "description": "游戏设计师输出设计文档",
+          "position": {
+            "x": 461.299982850383,
+            "y": 596.3172626684899
+          },
+          "config": {
+            "executor": {
+              "mode": "single",
+              "executors": [
+                {
+                  "type": "agent",
+                  "id": "agent-game-designer",
+                  "weight": 1
+                }
+              ],
+              "failureStrategy": {
+                "action": "abort"
+              }
+            },
+            "taskTemplate": "## 任务：游戏设计\n\n### 设计内容\n1. 游戏世界观和剧情\n2. 角色设计\n3. 关卡设计",
+            "outputs": [
+              {
+                "name": "designDoc",
+                "extractPath": "$.designDoc"
+              },
+              {
+                "name": "characterList",
+                "extractPath": "$.characters"
+              }
+            ]
+          },
+          "updatedAt": "2026-03-20T07:07:11.893Z"
+        },
+        {
+          "id": "node-parallel",
+          "type": "parallel",
+          "name": "并行开发",
+          "description": "美术、程序、音效团队同时开发",
+          "position": {
+            "x": 707.94251493709,
+            "y": 590.8299059524066
+          },
+          "config": {
+            "branches": [
+              "node-art",
+              "node-code",
+              "node-audio"
+            ],
+            "mergeType": "all"
+          },
+          "updatedAt": "2026-03-20T07:07:12.659Z"
+        },
+        {
+          "id": "node-art",
+          "type": "agent",
+          "name": "美术设计",
+          "description": "美术团队制作游戏资源",
+          "position": {
+            "x": 1100,
+            "y": 150
+          },
+          "config": {
+            "executor": {
+              "mode": "all",
+              "executors": [
+                {
+                  "type": "agent",
+                  "id": "agent-character-artist",
+                  "weight": 1
+                },
+                {
+                  "type": "agent",
+                  "id": "agent-bg-artist",
+                  "weight": 1
+                }
+              ],
+              "failureStrategy": {
+                "action": "continue"
+              }
+            },
+            "taskTemplate": "## 任务：美术资源制作\n\n### 制作清单\n1. 主角精灵图\n2. 敌人精灵图\n3. 背景图层",
+            "outputs": [
+              {
+                "name": "artAssets",
+                "extractPath": "$.assets"
+              }
+            ]
+          }
+        },
+        {
+          "id": "node-code",
+          "type": "agent",
+          "name": "程序开发",
+          "description": "程序员实现游戏核心逻辑",
+          "position": {
+            "x": 1100,
+            "y": 300
+          },
+          "config": {
+            "executor": {
+              "mode": "all",
+              "executors": [
+                {
+                  "type": "agent",
+                  "id": "agent-gameplay-dev",
+                  "weight": 1
+                },
+                {
+                  "type": "agent",
+                  "id": "agent-ui-dev",
+                  "weight": 1
+                }
+              ],
+              "failureStrategy": {
+                "action": "continue"
+              }
+            },
+            "taskTemplate": "## 任务：程序开发\n\n### 开发任务\n1. 玩家控制模块\n2. 物理碰撞系统\n3. 敌人AI系统",
+            "outputs": [
+              {
+                "name": "codeModules",
+                "extractPath": "$.modules"
+              }
+            ]
+          }
+        },
+        {
+          "id": "node-audio",
+          "type": "agent",
+          "name": "音效制作",
+          "description": "音效师制作游戏音效",
+          "position": {
+            "x": 1100,
+            "y": 450
+          },
+          "config": {
+            "executor": {
+              "mode": "single",
+              "executors": [
+                {
+                  "type": "agent",
+                  "id": "agent-sound-designer",
+                  "weight": 1
+                }
+              ],
+              "failureStrategy": {
+                "action": "continue"
+              }
+            },
+            "taskTemplate": "## 任务：音效制作\n\n### 制作清单\n1. 背景音乐\n2. 音效",
+            "outputs": [
+              {
+                "name": "audioAssets",
+                "extractPath": "$.assets"
+              }
+            ]
+          }
+        },
+        {
+          "id": "node-integrate",
+          "type": "agent",
+          "name": "资源集成",
+          "description": "技术负责人集成所有资源",
+          "position": {
+            "x": 1300,
+            "y": 300
+          },
+          "config": {
+            "executor": {
+              "mode": "single",
+              "executors": [
+                {
+                  "type": "agent",
+                  "id": "agent-tech-lead",
+                  "weight": 1
+                }
+              ],
+              "failureStrategy": {
+                "action": "abort"
+              }
+            },
+            "taskTemplate": "## 任务：资源集成\n\n### 集成任务\n1. 资源导入配置\n2. 模块联调\n3. 构建测试版本",
+            "outputs": [
+              {
+                "name": "buildVersion",
+                "extractPath": "$.version"
+              }
+            ]
+          }
+        },
+        {
+          "id": "node-test",
+          "type": "agent",
+          "name": "测试执行",
+          "description": "测试工程师执行测试",
+          "position": {
+            "x": 1500,
+            "y": 300
+          },
+          "config": {
+            "executor": {
+              "mode": "all",
+              "executors": [
+                {
+                  "type": "agent",
+                  "id": "agent-qa-tester",
+                  "weight": 1
+                },
+                {
+                  "type": "agent",
+                  "id": "agent-qa-automation",
+                  "weight": 1
+                }
+              ],
+              "failureStrategy": {
+                "action": "continue"
+              }
+            },
+            "taskTemplate": "## 任务：游戏测试\n\n### 测试范围\n1. 功能测试\n2. 兼容性测试\n3. 性能测试",
+            "outputs": [
+              {
+                "name": "testReport",
+                "extractPath": "$.report"
+              },
+              {
+                "name": "bugCount",
+                "extractPath": "$.bugCount"
+              }
+            ]
+          }
+        },
+        {
+          "id": "node-condition",
+          "type": "condition",
+          "name": "Bug检查",
+          "description": "检查是否还有未修复的Bug",
+          "position": {
+            "x": 1700,
+            "y": 300
+          },
+          "config": {
+            "conditions": [
+              {
+                "label": "有Bug需修复",
+                "expression": "bugCount > 0",
+                "targetNode": "node-fix"
+              },
+              {
+                "label": "测试通过",
+                "expression": "bugCount == 0",
+                "targetNode": "node-final-review"
+              }
+            ],
+            "defaultNode": "node-final-review"
+          }
+        },
+        {
+          "id": "node-fix",
+          "type": "agent",
+          "name": "Bug修复",
+          "description": "开发团队修复Bug",
+          "position": {
+            "x": 1700,
+            "y": 450
+          },
+          "config": {
+            "executor": {
+              "mode": "any",
+              "executors": [
+                {
+                  "type": "agent",
+                  "id": "agent-gameplay-dev",
+                  "weight": 1
+                },
+                {
+                  "type": "agent",
+                  "id": "agent-ui-dev",
+                  "weight": 1
+                }
+              ],
+              "failureStrategy": {
+                "action": "retry",
+                "retryCount": 2
+              }
+            },
+            "taskTemplate": "## 任务：修复Bug",
+            "outputs": [
+              {
+                "name": "fixReport",
+                "extractPath": "$.fixReport"
+              }
+            ]
+          }
+        },
+        {
+          "id": "node-final-review",
+          "type": "review",
+          "name": "最终审核",
+          "description": "项目经理最终审核游戏质量",
+          "position": {
+            "x": 1900,
+            "y": 300
+          },
+          "config": {
+            "reviewConfig": {
+              "reviewType": "auto",
+              "title": "最终审核",
+              "instruction": "审核游戏整体质量",
+              "scoreMethod": "score",
+              "passCondition": {
+                "variableName": "reviewScore",
+                "operator": "gte",
+                "threshold": 80
+              },
+              "failAction": {
+                "type": "return"
+              }
+            }
+          }
+        },
+        {
+          "id": "node-notify",
+          "type": "notify",
+          "name": "发布通知",
+          "description": "通知发布",
+          "position": {
+            "x": 2100,
+            "y": 300
+          },
+          "config": {
+            "notifyConfig": {
+              "channels": [
+                "email",
+                "dingtalk"
+              ],
+              "recipients": [
+                "team@gamecompany.com"
+              ],
+              "template": "🎉 游戏发布通知：星际冒险已通过审核"
+            }
+          }
+        },
+        {
+          "id": "node-output",
+          "type": "output",
+          "name": "项目输出",
+          "description": "输出最终项目成果",
+          "position": {
+            "x": 2300,
+            "y": 300
+          },
+          "config": {
+            "outputConfig": {
+              "name": "finalDelivery",
+              "type": "json",
+              "isFinalOutput": true
+            }
+          }
+        }
+      ],
+      "edges": [
+        {
+          "id": "edge-1",
+          "source": "node-init",
+          "target": "node-requirement"
+        },
+        {
+          "id": "edge-2",
+          "source": "node-requirement",
+          "target": "node-review-req"
+        },
+        {
+          "id": "edge-3",
+          "source": "node-review-req",
+          "target": "node-design"
+        },
+        {
+          "id": "edge-4",
+          "source": "node-design",
+          "target": "node-parallel"
+        },
+        {
+          "id": "edge-5",
+          "source": "node-parallel",
+          "target": "node-integrate"
+        },
+        {
+          "id": "edge-6",
+          "source": "node-integrate",
+          "target": "node-test"
+        },
+        {
+          "id": "edge-7",
+          "source": "node-test",
+          "target": "node-condition"
+        },
+        {
+          "id": "edge-8",
+          "source": "node-condition",
+          "target": "node-fix"
+        },
+        {
+          "id": "edge-9",
+          "source": "node-condition",
+          "target": "node-final-review"
+        },
+        {
+          "id": "edge-10",
+          "source": "node-fix",
+          "target": "node-test"
+        },
+        {
+          "id": "edge-11",
+          "source": "node-final-review",
+          "target": "node-notify"
+        },
+        {
+          "id": "edge-12",
+          "source": "node-notify",
+          "target": "node-output"
+        }
+      ],
+      "isActive": true,
+      "updatedAt": "2026-03-20T07:07:12.661Z"
+    }
+  ],
+  "lastUpdated": "2026-03-20T07:07:12.661Z"
+}

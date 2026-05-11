@@ -1,0 +1,505 @@
+{
+  "id": "workflow-short-video-gen",
+  "name": "short-video-generation",
+  "description": "自动化短视频生成流程：脚本策划 → 素材制作 → 视频合成 → 审核输出",
+  "isActive": false,
+  "context": {
+    "projectPath": "{{PROJECT_ROOT}}/videos/short-video",
+    "outputPath": "{{PROJECT_ROOT}}/videos/short-video/dist",
+    "assets": {
+      "images": "{{PROJECT_ROOT}}/videos/short-video/assets/images",
+      "audio": "{{PROJECT_ROOT}}/videos/short-video/assets/audio",
+      "video": "{{PROJECT_ROOT}}/videos/short-video/assets/video",
+      "docs": "{{PROJECT_ROOT}}/videos/short-video/docs"
+    }
+  },
+  "nodes": [
+    {
+      "id": "init-config",
+      "type": "variable",
+      "name": "初始化项目配置",
+      "position": {
+        "x": 100,
+        "y": 300
+      },
+      "config": {
+        "variableConfig": {
+          "version": "v2",
+          "variables": [
+            {
+              "name": "projectConfig",
+              "value": "{\"videoName\":\"MyShortVideo\",\"duration\":\"60s\",\"style\":\"cinematic\"}",
+              "type": "json",
+              "enabled": true
+            },
+            {
+              "name": "projectDir",
+              "value": "F://projects/short-video/",
+              "type": "string",
+              "enabled": true
+            }
+          ],
+          "packedVariableName": "project"
+        }
+      },
+      "updatedAt": "2026-04-14T13:32:27.070Z"
+    },
+    {
+      "id": "phase-planning",
+      "type": "milestone",
+      "name": "阶段 1: 脚本策划",
+      "position": {
+        "x": 300,
+        "y": 300
+      },
+      "config": {
+        "description": "生成短视频脚本并进行审核",
+        "childNodes": [
+          "script-gen",
+          "script-review"
+        ],
+        "waitForCompletion": true
+      }
+    },
+    {
+      "id": "script-gen",
+      "type": "agent",
+      "name": "脚本生成",
+      "position": {
+        "x": 500,
+        "y": 200
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "designer-agent"
+            }
+          ],
+          "failureStrategy": {
+            "action": "abort"
+          }
+        },
+        "taskTemplate": "根据主题生成 60 秒短视频脚本，包含分镜描述、台词、画面要求。输出到 {{context.assets.docs}}/script.md",
+        "outputs": [
+          {
+            "name": "script",
+            "extractPath": "$"
+          }
+        ],
+        "timeout": 3600000,
+        "inputs": []
+      },
+      "updatedAt": "2026-04-14T13:32:35.867Z",
+      "description": ""
+    },
+    {
+      "id": "script-review",
+      "type": "review",
+      "name": "脚本审核",
+      "position": {
+        "x": 700,
+        "y": 198.8549724741227
+      },
+      "config": {
+        "reviewConfig": {
+          "reviewType": "agent",
+          "reviewerAgentId": "reviewer-agent",
+          "title": "短视频脚本审核",
+          "instruction": "审核脚本的创意性、节奏感和可执行性",
+          "scoreMethod": "score",
+          "criteria": [
+            {
+              "name": "创意性",
+              "description": "内容是否新颖吸引人",
+              "weight": 40
+            },
+            {
+              "name": "节奏感",
+              "description": "60 秒内节奏是否紧凑",
+              "weight": 30
+            },
+            {
+              "name": "可执行性",
+              "description": "画面和台词是否易于生成",
+              "weight": 30
+            }
+          ],
+          "passCondition": {
+            "variableName": "totalScore",
+            "operator": "gte",
+            "threshold": 70
+          },
+          "failAction": {
+            "type": "return",
+            "targetNodeId": "script-gen",
+            "maxRetries": 2
+          }
+        }
+      },
+      "updatedAt": "2026-04-14T13:32:45.628Z",
+      "description": ""
+    },
+    {
+      "id": "phase-production",
+      "type": "milestone",
+      "name": "阶段 2: 素材制作",
+      "position": {
+        "x": 900,
+        "y": 300
+      },
+      "config": {
+        "description": "并行生成图像、音频和视频片段",
+        "childNodes": [
+          "parallel-assets",
+          "image-gen",
+          "audio-gen",
+          "video-gen"
+        ],
+        "waitForCompletion": true
+      }
+    },
+    {
+      "id": "parallel-assets",
+      "type": "parallel",
+      "name": "并行素材生成",
+      "position": {
+        "x": 1100,
+        "y": 200
+      },
+      "config": {
+        "branches": [
+          "image-gen",
+          "audio-gen"
+        ],
+        "mergeType": "all"
+      },
+      "updatedAt": "2026-04-14T13:29:32.729Z"
+    },
+    {
+      "id": "image-gen",
+      "type": "agent",
+      "name": "图像生成",
+      "position": {
+        "x": 1300,
+        "y": 100
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "artist-agent"
+            }
+          ],
+          "failureStrategy": {
+            "action": "abort"
+          }
+        },
+        "taskTemplate": "根据脚本生成分镜关键帧图像，输出到 {{context.assets.images}}/",
+        "inputs": [
+          {
+            "name": "script",
+            "source": "prev-output",
+            "sourceKey": "script-gen:script"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "images",
+            "extractPath": "$"
+          }
+        ],
+        "timeout": 5400000
+      }
+    },
+    {
+      "id": "audio-gen",
+      "type": "agent",
+      "name": "音频生成",
+      "position": {
+        "x": 1300,
+        "y": 300
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "audio-agent"
+            }
+          ],
+          "failureStrategy": {
+            "action": "abort"
+          }
+        },
+        "taskTemplate": "根据脚本生成配音和背景音乐，输出到 {{context.assets.audio}}/",
+        "inputs": [
+          {
+            "name": "script",
+            "source": "prev-output",
+            "sourceKey": "script-gen:script"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "audio",
+            "extractPath": "$"
+          }
+        ],
+        "timeout": 3600000
+      }
+    },
+    {
+      "id": "video-gen",
+      "type": "agent",
+      "name": "视频片段生成",
+      "position": {
+        "x": 1500,
+        "y": 200
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "coder-agent"
+            }
+          ],
+          "failureStrategy": {
+            "action": "retry",
+            "retryCount": 2
+          }
+        },
+        "taskTemplate": "使用图像转视频 API 将关键帧转换为动态视频片段，输出到 {{context.assets.video}}/",
+        "inputs": [
+          {
+            "name": "images",
+            "source": "prev-output",
+            "sourceKey": "image-gen:images"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "videoClips",
+            "extractPath": "$"
+          }
+        ],
+        "timeout": 7200000
+      }
+    },
+    {
+      "id": "phase-post",
+      "type": "milestone",
+      "name": "阶段 3: 后期合成",
+      "position": {
+        "x": 1700,
+        "y": 300
+      },
+      "config": {
+        "description": "剪辑合成与最终审核",
+        "childNodes": [
+          "edit",
+          "final-review"
+        ],
+        "waitForCompletion": true
+      }
+    },
+    {
+      "id": "edit",
+      "type": "agent",
+      "name": "剪辑合成",
+      "position": {
+        "x": 1900,
+        "y": 200
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "coder-agent"
+            }
+          ],
+          "failureStrategy": {
+            "action": "abort"
+          }
+        },
+        "taskTemplate": "将视频片段、音频进行剪辑合成，添加转场和字幕，输出到 {{context.outputPath}}/final.mp4",
+        "inputs": [
+          {
+            "name": "videoClips",
+            "source": "prev-output",
+            "sourceKey": "video-gen:videoClips"
+          },
+          {
+            "name": "audio",
+            "source": "prev-output",
+            "sourceKey": "audio-gen:audio"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "finalVideo",
+            "extractPath": "$"
+          }
+        ],
+        "timeout": 3600000
+      }
+    },
+    {
+      "id": "final-review",
+      "type": "review",
+      "name": "最终审核",
+      "position": {
+        "x": 2100,
+        "y": 200
+      },
+      "config": {
+        "reviewConfig": {
+          "reviewType": "agent",
+          "reviewerAgentId": "reviewer-agent",
+          "title": "成片质量审核",
+          "instruction": "审核视频的画面质量、音画同步、整体流畅度",
+          "scoreMethod": "score",
+          "criteria": [
+            {
+              "name": "画面质量",
+              "description": "清晰度、色彩、稳定性",
+              "weight": 40
+            },
+            {
+              "name": "音画同步",
+              "description": "配音与画面是否匹配",
+              "weight": 30
+            },
+            {
+              "name": "整体流畅度",
+              "description": "转场自然、节奏连贯",
+              "weight": 30
+            }
+          ],
+          "passCondition": {
+            "variableName": "totalScore",
+            "operator": "gte",
+            "threshold": 80
+          },
+          "failAction": {
+            "type": "return",
+            "targetNodeId": "edit",
+            "maxRetries": 2
+          }
+        }
+      }
+    },
+    {
+      "id": "final-output",
+      "type": "output",
+      "name": "输出短视频",
+      "position": {
+        "x": 2300,
+        "y": 300
+      },
+      "config": {
+        "outputConfig": {
+          "name": "短视频成片",
+          "description": "最终审核通过的短视频文件",
+          "type": "file",
+          "isFinalOutput": true
+        }
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "source": "init-config",
+      "target": "phase-planning"
+    },
+    {
+      "id": "e2",
+      "source": "phase-planning",
+      "target": "script-gen"
+    },
+    {
+      "id": "e3",
+      "source": "script-gen",
+      "target": "script-review"
+    },
+    {
+      "id": "e-fail-1",
+      "source": "script-review",
+      "target": "script-gen",
+      "label": "审核未通过",
+      "failCondition": {
+        "variableName": "totalScore",
+        "operator": "lt",
+        "value": 70
+      }
+    },
+    {
+      "id": "e4",
+      "source": "script-review",
+      "target": "phase-production"
+    },
+    {
+      "id": "e5",
+      "source": "phase-production",
+      "target": "parallel-assets"
+    },
+    {
+      "id": "e6",
+      "source": "parallel-assets",
+      "target": "image-gen"
+    },
+    {
+      "id": "e7",
+      "source": "parallel-assets",
+      "target": "audio-gen"
+    },
+    {
+      "id": "e8",
+      "source": "image-gen",
+      "target": "video-gen"
+    },
+    {
+      "id": "e9",
+      "source": "video-gen",
+      "target": "phase-post"
+    },
+    {
+      "id": "e10",
+      "source": "phase-post",
+      "target": "edit"
+    },
+    {
+      "id": "e11",
+      "source": "edit",
+      "target": "final-review"
+    },
+    {
+      "id": "e-fail-2",
+      "source": "final-review",
+      "target": "edit",
+      "label": "审核未通过",
+      "failCondition": {
+        "variableName": "totalScore",
+        "operator": "lt",
+        "value": 80
+      }
+    },
+    {
+      "id": "e12",
+      "source": "final-review",
+      "target": "final-output"
+    }
+  ],
+  "updatedAt": "2026-04-14T13:32:45.630Z",
+  "createdAt": "2026-04-14T13:32:45.630Z"
+}

@@ -1,0 +1,111 @@
+{
+  "version": "1.0",
+  "updatedAt": "2026-03-09T12:56:13.048Z",
+  "agents": {
+    "ahive-worker": {
+      "id": "ahive-worker",
+      "name": "AHIVE-Worker",
+      "tokenHash": "YOUR_TOKEN_HASH_HERE",
+      "rawToken": "YOUR_RAW_TOKEN_HERE",
+      "enabled": true,
+      "createdAt": "2026-03-09T12:55:32.242Z",
+      "updatedAt": "2026-03-09T12:55:32.242Z",
+      "description": "对话型智能体"
+    },
+    "ahive-coder": {
+      "id": "ahive-coder",
+      "name": "AHIVE-Coder",
+      "tokenHash": "YOUR_TOKEN_HASH_HERE",
+      "rawToken": "YOUR_RAW_TOKEN_HERE",
+      "enabled": true,
+      "createdAt": "2026-03-09T12:55:32.242Z",
+      "updatedAt": "2026-03-09T12:55:32.242Z",
+      "description": "编程型智能体"
+    },
+    "pi": {
+      "id": "pi",
+      "name": "Pi Agent",
+      "tokenHash": "YOUR_TOKEN_HASH_HERE",
+      "rawToken": "YOUR_RAW_TOKEN_HERE",
+      "enabled": true,
+      "createdAt": "2026-03-09T12:55:32.242Z",
+      "updatedAt": "2026-03-09T12:55:32.242Z",
+      "description": "轻量级 AI 助手"
+    },
+    "claude": {
+      "id": "claude",
+      "name": "Claude Code",
+      "tokenHash": "YOUR_TOKEN_HASH_HERE",
+      "rawToken": "YOUR_RAW_TOKEN_HERE",
+      "enabled": true,
+      "createdAt": "2026-03-09T12:55:32.242Z",
+      "updatedAt": "2026-03-09T12:55:32.242Z",
+      "description": "Anthropic 编码助手"
+    },
+    "test-bot": {
+      "id": "test-bot",
+      "name": "Test Bot",
+      "tokenHash": "YOUR_TOKEN_HASH_HERE",
+      "rawToken": "YOUR_RAW_TOKEN_HERE",
+      "enabled": true,
+      "createdAt": "2026-03-09T12:56:13.047Z",
+      "updatedAt": "2026-03-09T12:56:13.047Z"
+    }
+  },
+  "quotas": {
+    "ahive-worker": {
+      "agent_id": "ahive-worker",
+      "monthly_budget": 500,
+      "daily_budget": 50,
+      "qpm_limit": 60,
+      "concurrent_limit": 5,
+      "token_limit_per_minute": 100000,
+      "updatedAt": "2026-03-09T12:55:32.242Z"
+    },
+    "ahive-coder": {
+      "agent_id": "ahive-coder",
+      "monthly_budget": 500,
+      "daily_budget": 50,
+      "qpm_limit": 60,
+      "concurrent_limit": 5,
+      "token_limit_per_minute": 100000,
+      "updatedAt": "2026-03-09T12:55:32.242Z"
+    },
+    "pi": {
+      "agent_id": "pi",
+      "monthly_budget": 200,
+      "daily_budget": 20,
+      "qpm_limit": 30,
+      "concurrent_limit": 2,
+      "token_limit_per_minute": 50000,
+      "updatedAt": "2026-03-09T12:55:32.242Z"
+    },
+    "claude": {
+      "agent_id": "claude",
+      "monthly_budget": 300,
+      "daily_budget": 30,
+      "qpm_limit": 40,
+      "concurrent_limit": 3,
+      "token_limit_per_minute": 75000,
+      "updatedAt": "2026-03-09T12:55:32.242Z"
+    },
+    "default": {
+      "agent_id": "default",
+      "monthly_budget": 100,
+      "daily_budget": 10,
+      "qpm_limit": 20,
+      "concurrent_limit": 2,
+      "token_limit_per_minute": 30000,
+      "updatedAt": "2026-03-09T12:55:32.242Z"
+    },
+    "test-bot": {
+      "agent_id": "test-bot",
+      "monthly_budget": 100,
+      "daily_budget": 10,
+      "qpm_limit": 20,
+      "concurrent_limit": 2,
+      "token_limit_per_minute": 30000,
+      "updatedAt": "2026-03-09T12:56:13.048Z"
+    }
+  }
+}

@@ -1,0 +1,147 @@
+{
+  "mcpServers": [
+    {
+      "id": "0a91bd59-d06b-4bf9-b681-53956cbf7559",
+      "name": "GitHub",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-github"
+      ],
+      "enabled": true,
+      "createdAt": "2026-03-05T09:40:59.335Z",
+      "updatedAt": "2026-04-06T07:59:13.397Z"
+    },
+    {
+      "id": "1a2cd63d-71ea-4900-a680-3f18d8bed340",
+      "name": "Filesystem",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem"
+      ],
+      "enabled": true,
+      "createdAt": "2026-03-05T14:10:27.923Z",
+      "updatedAt": "2026-04-06T07:59:20.423Z"
+    },
+    {
+      "id": "56f00d84-1e2d-428e-85f8-c2c391a83ad0",
+      "name": "Yahoo Finance",
+      "command": "uvx",
+      "args": [
+        "yahoo-finance-server"
+      ],
+      "enabled": true,
+      "createdAt": "2026-03-06T04:28:26.542Z",
+      "updatedAt": "2026-04-06T07:59:48.909Z"
+    }
+  ],
+  "a2aAgents": [
+    {
+      "id": "da7ebc7f-ba07-413f-b1e3-d95b528d5527",
+      "name": "ahivecoder",
+      "endpoint": "http://127.0.0.1:18790",
+      "agentId": "mmutq08z-zyjavd",
+      "protocolType": "ahivecore",
+      "customFields": {
+        "endpoint": "http://127.0.0.1:18790",
+        "provider": "bailian-coding-plan",
+        "model": "glm-5",
+        "agentId": "mmutq08z-zyjavd"
+      },
+      "enabled": true,
+      "updatedAt": "2026-04-05T08:58:26.746Z"
+    },
+    {
+      "id": "d912da0e-73ee-417a-bd71-559c5720fc27",
+      "name": "ahive-worker",
+      "endpoint": "http://127.0.0.1:18790",
+      "agentId": "mmutn7fs-7w2qpo",
+      "protocolType": "ahivecore",
+      "customFields": {
+        "endpoint": "http://127.0.0.1:18790",
+        "agentId": "mmutn7fs-7w2qpo",
+        "provider": "bailian-coding-plan",
+        "model": "glm-5"
+      },
+      "enabled": true,
+      "updatedAt": "2026-04-05T08:58:26.751Z"
+    },
+    {
+      "id": "ahivecore-agent-1775806810261-mt26m1ki9",
+      "name": "项目经理",
+      "endpoint": "http://127.0.0.1:18790",
+      "agentId": "agent-1775806810261-mt26m1ki9",
+      "protocolType": "ahivecore",
+      "agentType": "ahive-worker",
+      "enabled": true,
+      "customFields": {
+        "endpoint": "http://127.0.0.1:18790",
+        "agentId": "agent-1775806810261-mt26m1ki9",
+        "agentType": "ahive-worker",
+        "provider": "bailian",
+        "model": "glm-5",
+        "apiKey": "sk-sp-725bcbdd931c492e95b36d3acd1b412b",
+        "baseUrl": "https://coding.dashscope.aliyuncs.com/v1",
+        "temperature": 0.3,
+        "maxTokens": 20000,
+        "role": "project_manager"
+      },
+      "updatedAt": "2026-04-10T07:40:11.197Z"
+    },
+    {
+      "id": "f6540ff6-6a7e-4277-83e7-329bf7b1d6fa",
+      "name": "coder_1",
+      "endpoint": "http://127.0.0.1:18790",
+      "agentId": "mmuhsh8c-2v8mxf",
+      "protocolType": "ahivecore",
+      "customFields": {
+        "endpoint": "http://127.0.0.1:18790",
+        "provider": "bailian-coding-plan",
+        "model": "glm-5",
+        "agentId": "mmuhsh8c-2v8mxf"
+      },
+      "enabled": true,
+      "updatedAt": "2026-04-10T14:36:21.941Z"
+    }
+  ],
+  "lastUpdated": "2026-04-11T02:54:10.872Z",
+  "npmRegistry": "auto",
+  "mcpApiEndpoint": "http://127.0.0.1:3002",
+  "mcpInstructionTemplate": {
+    "usage": "Call MCP tools via HTTP POST requests",
+    "url_pattern": "{apiEndpoint}/mcp/{serverId}/{toolName}",
+    "method": "POST",
+    "headers": {
+      "X-Agent-Key": "{agentKey}",
+      "Content-Type": "application/json"
+    },
+    "body": "JSON object containing tool parameters"
+  },
+  "mcpApiConfigs": [
+    {
+      "id": "mcp-api-1772955970078",
+      "name": "代码解释器",
+      "description": "接入代码解释器使大模型/智能体拥有执行 Python 代码的能力，可用于数学计算、数据分析与可视化、数据处理等任务",
+      "enabled": true,
+      "platformType": "bailian",
+      "fieldValues": {
+        "endpoint": "https://dashscope.aliyuncs.com/api/v2/apps/protocols/compatible-mode/v1",
+        "model": "qwen3.5-plus",
+        "apiKey": "sk-7b3712b475a7401a8f897b71a1446942",
+        "mcpServerLabel": "code_interpreter_mcp",
+        "mcpServerDescription": "接入代码解释器使大模型/智能体拥有执行 Python 代码的能力，可用于数学计算、数据分析与可视化、数据处理等任务",
+        "mcpServerUrl": "https://dashscope.aliyuncs.com/api/v1/mcps/code_interpreter_mcp/mcp"
+      },
+      "mcpServers": [
+        {
+          "label": "code_interpreter_mcp",
+          "url": "https://dashscope.aliyuncs.com/api/v1/mcps/code_interpreter_mcp/mcp",
+          "description": "接入代码解释器使大模型/智能体拥有执行 Python 代码的能力，可用于数学计算、数据分析与可视化、数据处理等任务"
+        }
+      ],
+      "createdAt": "2026-03-08T07:46:10.081Z",
+      "updatedAt": "2026-03-10T08:49:10.409Z"
+    }
+  ]
+}

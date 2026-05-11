@@ -1,0 +1,1674 @@
+{
+  "id": "workflow-2d-tower-defense-v2",
+  "name": "2d-tower-defense-v2",
+  "description": "完整2D塔防游戏开发流程，每步文档强制审核≥90分，严格遵循团队开发规范",
+  "isActive": false,
+  "context": {
+    "projectPath": "F:/codex_space/tower-defense-game",
+    "outputPath": "F:/codex_space/tower-defense-game/dist",
+    "assets": {
+      "images": "F:/codex_space/tower-defense-game/assets/images",
+      "audio": "F:/codex_space/tower-defense-game/assets/audio",
+      "code": "F:/codex_space/tower-defense-game/src",
+      "docs": "F:/codex_space/tower-defense-game/docs"
+    }
+  },
+  "nodes": [
+    {
+      "id": "init-config",
+      "type": "variable",
+      "name": "初始化项目配置",
+      "position": {
+        "x": 100,
+        "y": 300
+      },
+      "config": {
+        "variableConfig": {
+          "version": "v2",
+          "variables": [
+            {
+              "name": "projectConfig",
+              "value": "{\"gameName\":\"TowerDefense2D\",\"version\":\"1.0.0\",\"platform\":\"web\",\"resolution\":{\"width\":1280,\"height\":720},\"teamRules\":{\"codeStyle\":\"ESLint+Prettier\",\"commitMessage\":\"Conventional Commits\",\"docStandard\":\"Markdown+Mermaid\",\"reviewThreshold\":90}}",
+              "type": "json",
+              "enabled": true
+            },
+            {
+              "name": "项目目录",
+              "value": "f://test/",
+              "type": "string",
+              "enabled": true,
+              "description": "测试项专用目录"
+            },
+            {
+              "name": "var_3",
+              "value": "F:\\test\\mmutq08z-zyjavd",
+              "type": "string",
+              "enabled": true,
+              "agentId": "mmutq08z-zyjavd",
+              "description": "你的专用目录，你的产出文件保存于此。。"
+            },
+            {
+              "name": "var_4",
+              "value": "F:\\test\\mmutn7fs-7w2qpo",
+              "type": "string",
+              "enabled": true,
+              "description": "你的专用目录。。",
+              "agentId": "mmutn7fs-7w2qpo"
+            },
+            {
+              "name": "var_5",
+              "value": "F:\\test\\mmuhsh8c-2v8mxf ",
+              "type": "string",
+              "enabled": true,
+              "description": "你的专用目录。。",
+              "agentId": "mmuhsh8c-2v8mxf"
+            }
+          ],
+          "groups": [],
+          "packedVariableName": "project"
+        }
+      },
+      "updatedAt": "2026-05-02T08:16:19.329Z",
+      "description": ""
+    },
+    {
+      "id": "phase-design",
+      "type": "milestone",
+      "name": "阶段1：需求与设计",
+      "position": {
+        "x": 250,
+        "y": 300
+      },
+      "config": {
+        "description": "需求分析与游戏设计，双重审核≥90分",
+        "waitForCompletion": true,
+        "childNodes": [
+          "req-analysis",
+          "req-review",
+          "game-design",
+          "design-review"
+        ]
+      },
+      "updatedAt": "2026-04-13T01:01:04.732Z"
+    },
+    {
+      "id": "req-analysis",
+      "type": "agent",
+      "name": "需求分析",
+      "position": {
+        "x": 400,
+        "y": 200
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "mmutn7fs-7w2qpo"
+            }
+          ],
+          "failureStrategy": {
+            "action": "abort"
+          }
+        },
+        "taskTemplate": "分析2D塔防游戏需求：核心玩法、敌人类型、塔类型、关卡设计、经济系统、胜利/失败条件。严格遵循团队文档规范（Markdown+Mermaid图表）。输出需求文档到 {{context.assets.docs}}/requirements.md",
+        "outputs": [
+          {
+            "name": "requirementsDoc",
+            "extractPath": "$"
+          }
+        ],
+        "timeout": 3600000,
+        "inputs": []
+      },
+      "updatedAt": "2026-04-16T06:34:20.760Z",
+      "description": ""
+    },
+    {
+      "id": "req-review",
+      "type": "review",
+      "name": "需求文档审核",
+      "position": {
+        "x": 546.3028169014085,
+        "y": 200
+      },
+      "config": {
+        "reviewConfig": {
+          "reviewType": "agent",
+          "reviewerAgentId": "mmutq08z-zyjavd",
+          "title": "需求文档严格审核",
+          "instruction": "审核需求文档的完整性、逻辑性、可执行性。必须≥90分才能通过。",
+          "scoreMethod": "score",
+          "criteria": [
+            {
+              "name": "完整性",
+              "description": "是否覆盖所有游戏模块和边界情况",
+              "weight": 30
+            },
+            {
+              "name": "逻辑性",
+              "description": "玩法逻辑是否自洽无矛盾",
+              "weight": 30
+            },
+            {
+              "name": "可执行性",
+              "description": "需求是否明确可落地开发",
+              "weight": 25
+            },
+            {
+              "name": "规范性",
+              "description": "是否符合团队文档规范",
+              "weight": 15
+            }
+          ],
+          "passCondition": {
+            "variableName": "reqScore",
+            "operator": "gte",
+            "threshold": 90
+          },
+          "failAction": {
+            "type": "return",
+            "targetNodeId": "req-analysis",
+            "maxRetries": 3
+          }
+        }
+      },
+      "updatedAt": "2026-04-19T10:13:30.709Z",
+      "description": ""
+    },
+    {
+      "id": "game-design",
+      "type": "agent",
+      "name": "游戏设计",
+      "position": {
+        "x": 400,
+        "y": 400
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "mmutq08z-zyjavd"
+            }
+          ],
+          "failureStrategy": {
+            "action": "abort"
+          }
+        },
+        "taskTemplate": "基于需求设计塔防游戏：地图布局、塔的种类与升级树、敌人波次与属性、技能系统、UI流程、数值平衡。遵循团队规范输出GDD到 {{context.assets.docs}}/GDD.md",
+        "inputs": [
+          {
+            "name": "requirementsDoc",
+            "source": "prev-output",
+            "sourceKey": "req-analysis:requirementsDoc"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "gameDesignDoc",
+            "extractPath": "$"
+          }
+        ],
+        "timeout": 3600000
+      },
+      "updatedAt": "2026-04-13T01:39:13.331Z",
+      "description": ""
+    },
+    {
+      "id": "design-review",
+      "type": "review",
+      "name": "游戏设计审核",
+      "position": {
+        "x": 550,
+        "y": 400
+      },
+      "config": {
+        "reviewConfig": {
+          "reviewType": "agent",
+          "reviewerAgentId": "ahivecore",
+          "title": "游戏设计文档严格审核",
+          "instruction": "审核GDD的玩法创新性、数值合理性、技术可行性。必须≥90分才能通过。",
+          "scoreMethod": "score",
+          "criteria": [
+            {
+              "name": "创新性",
+              "description": "塔防机制是否有创新亮点",
+              "weight": 25
+            },
+            {
+              "name": "数值平衡",
+              "description": "经济系统与难度曲线是否合理",
+              "weight": 30
+            },
+            {
+              "name": "技术可行性",
+              "description": "设计方案是否可技术实现",
+              "weight": 25
+            },
+            {
+              "name": "规范性",
+              "description": "是否符合团队文档规范",
+              "weight": 20
+            }
+          ],
+          "passCondition": {
+            "variableName": "designScore",
+            "operator": "gte",
+            "threshold": 90
+          },
+          "failAction": {
+            "type": "return",
+            "targetNodeId": "game-design",
+            "maxRetries": 3
+          }
+        }
+      },
+      "updatedAt": "2026-04-16T05:32:46.512Z",
+      "description": ""
+    },
+    {
+      "id": "phase-arch",
+      "type": "milestone",
+      "name": "阶段2：架构与规范",
+      "position": {
+        "x": 700,
+        "y": 300
+      },
+      "config": {
+        "description": "技术架构设计与团队开发规范制定",
+        "waitForCompletion": true,
+        "childNodes": [
+          "tech-arch",
+          "arch-review",
+          "team-rules",
+          "rules-review"
+        ]
+      }
+    },
+    {
+      "id": "tech-arch",
+      "type": "agent",
+      "name": "技术架构设计",
+      "position": {
+        "x": 850,
+        "y": 200
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "mmuhsh8c-2v8mxf"
+            }
+          ],
+          "failureStrategy": {
+            "action": "abort"
+          }
+        },
+        "taskTemplate": "设计2D塔防游戏技术架构：渲染引擎选型、场景管理、实体组件系统(ECS)、资源加载策略、状态管理、性能优化方案。输出架构文档到 {{context.assets.docs}}/architecture.md",
+        "inputs": [
+          {
+            "name": "gameDesignDoc",
+            "source": "prev-output",
+            "sourceKey": "game-design:gameDesignDoc"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "archDoc",
+            "extractPath": "$"
+          }
+        ],
+        "timeout": 3600000
+      }
+    },
+    {
+      "id": "arch-review",
+      "type": "review",
+      "name": "架构设计审核",
+      "position": {
+        "x": 1000,
+        "y": 200
+      },
+      "config": {
+        "reviewConfig": {
+          "reviewType": "agent",
+          "reviewerAgentId": "mmutq08z-zyjavd",
+          "title": "技术架构严格审核",
+          "instruction": "审核架构的扩展性、性能、可维护性。必须≥90分才能通过。",
+          "scoreMethod": "score",
+          "criteria": [
+            {
+              "name": "扩展性",
+              "description": "是否支持后续关卡和塔类型扩展",
+              "weight": 30
+            },
+            {
+              "name": "性能",
+              "description": "渲染和逻辑性能是否满足60FPS",
+              "weight": 30
+            },
+            {
+              "name": "可维护性",
+              "description": "代码结构是否清晰易维护",
+              "weight": 25
+            },
+            {
+              "name": "规范性",
+              "description": "是否符合团队技术规范",
+              "weight": 15
+            }
+          ],
+          "passCondition": {
+            "variableName": "archScore",
+            "operator": "gte",
+            "threshold": 90
+          },
+          "failAction": {
+            "type": "return",
+            "targetNodeId": "tech-arch",
+            "maxRetries": 3
+          }
+        }
+      },
+      "updatedAt": "2026-04-16T06:04:09.209Z",
+      "description": ""
+    },
+    {
+      "id": "team-rules",
+      "type": "agent",
+      "name": "团队开发规范制定",
+      "position": {
+        "x": 850,
+        "y": 400
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "mmutn7fs-7w2qpo"
+            }
+          ],
+          "failureStrategy": {
+            "action": "abort"
+          }
+        },
+        "taskTemplate": "制定团队开发规范：代码风格(ESLint/Prettier)、Git分支策略(GitFlow)、Commit规范(Conventional Commits)、代码审查流程、文档模板、测试覆盖率要求(≥80%)。输出规范文档到 {{context.assets.docs}}/team-rules.md",
+        "outputs": [
+          {
+            "name": "teamRulesDoc",
+            "extractPath": "$"
+          }
+        ],
+        "timeout": 3600000,
+        "inputs": []
+      },
+      "updatedAt": "2026-04-13T01:38:22.195Z",
+      "description": ""
+    },
+    {
+      "id": "rules-review",
+      "type": "review",
+      "name": "开发规范审核",
+      "position": {
+        "x": 1000,
+        "y": 400
+      },
+      "config": {
+        "reviewConfig": {
+          "reviewType": "agent",
+          "reviewerAgentId": "mmutq08z-zyjavd",
+          "title": "团队开发规范严格审核",
+          "instruction": "审核开发规范的完整性、可执行性、团队适配度。必须≥90分才能通过。",
+          "scoreMethod": "score",
+          "criteria": [
+            {
+              "name": "完整性",
+              "description": "是否覆盖编码、提交、审查全流程",
+              "weight": 35
+            },
+            {
+              "name": "可执行性",
+              "description": "规范是否具体可落地执行",
+              "weight": 30
+            },
+            {
+              "name": "团队适配",
+              "description": "是否适合当前团队规模和技能",
+              "weight": 20
+            },
+            {
+              "name": "规范性",
+              "description": "文档格式是否符合标准",
+              "weight": 15
+            }
+          ],
+          "passCondition": {
+            "variableName": "rulesScore",
+            "operator": "gte",
+            "threshold": 90
+          },
+          "failAction": {
+            "type": "return",
+            "targetNodeId": "team-rules",
+            "maxRetries": 3
+          }
+        }
+      }
+    },
+    {
+      "id": "phase-dev",
+      "type": "milestone",
+      "name": "阶段3：核心开发",
+      "position": {
+        "x": 1150,
+        "y": 300
+      },
+      "config": {
+        "description": "并行开发代码、美术、音效，每模块代码/资源必须审核≥90分",
+        "waitForCompletion": true,
+        "childNodes": [
+          "parallel-dev",
+          "core-engine",
+          "engine-review",
+          "tower-mechanics",
+          "tower-review",
+          "ui-dev",
+          "ui-review",
+          "art-assets",
+          "art-review",
+          "audio-assets",
+          "audio-review",
+          "integration",
+          "integration-review"
+        ]
+      }
+    },
+    {
+      "id": "parallel-dev",
+      "type": "parallel",
+      "name": "并行开发启动",
+      "position": {
+        "x": 1300,
+        "y": 300
+      },
+      "config": {
+        "branches": [
+          "core-engine",
+          "tower-mechanics",
+          "ui-dev",
+          "art-assets",
+          "audio-assets"
+        ],
+        "mergeType": "all"
+      }
+    },
+    {
+      "id": "core-engine",
+      "type": "agent",
+      "name": "核心引擎开发",
+      "position": {
+        "x": 1450,
+        "y": 100
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "mmuhsh8c-2v8mxf"
+            }
+          ],
+          "failureStrategy": {
+            "action": "abort"
+          }
+        },
+        "taskTemplate": "开发核心游戏引擎：渲染系统、场景管理、ECS架构、资源加载器、输入处理、音频管理器。遵循团队规范输出代码到 {{context.assets.code}}/",
+        "inputs": [
+          {
+            "name": "archDoc",
+            "source": "prev-output",
+            "sourceKey": "tech-arch:archDoc"
+          },
+          {
+            "name": "teamRulesDoc",
+            "source": "prev-output",
+            "sourceKey": "team-rules:teamRulesDoc"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "engineCode",
+            "extractPath": "$"
+          }
+        ],
+        "timeout": 3600000
+      },
+      "updatedAt": "2026-04-16T05:47:53.095Z",
+      "description": ""
+    },
+    {
+      "id": "engine-review",
+      "type": "review",
+      "name": "引擎代码审核",
+      "position": {
+        "x": 1600,
+        "y": 100
+      },
+      "config": {
+        "reviewConfig": {
+          "reviewType": "agent",
+          "reviewerAgentId": "mmutq08z-zyjavd",
+          "title": "核心引擎代码严格审核",
+          "instruction": "审核代码质量、架构合理性、性能、可维护性。必须≥90分才能通过。",
+          "scoreMethod": "score",
+          "criteria": [
+            {
+              "name": "代码质量",
+              "description": "是否符合团队编码规范",
+              "weight": 30
+            },
+            {
+              "name": "架构设计",
+              "description": "模块划分是否合理",
+              "weight": 25
+            },
+            {
+              "name": "性能",
+              "description": "渲染和逻辑性能是否达标",
+              "weight": 25
+            },
+            {
+              "name": "可维护性",
+              "description": "代码是否易于理解和维护",
+              "weight": 20
+            }
+          ],
+          "passCondition": {
+            "variableName": "engineScore",
+            "operator": "gte",
+            "threshold": 90
+          },
+          "failAction": {
+            "type": "return",
+            "targetNodeId": "core-engine",
+            "maxRetries": 3
+          }
+        }
+      },
+      "updatedAt": "2026-04-16T06:00:00.979Z",
+      "description": ""
+    },
+    {
+      "id": "tower-mechanics",
+      "type": "agent",
+      "name": "塔防机制开发",
+      "position": {
+        "x": 1450,
+        "y": 250
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "mmutn7fs-7w2qpo"
+            }
+          ],
+          "failureStrategy": {
+            "action": "abort"
+          }
+        },
+        "taskTemplate": "开发塔防核心机制：塔放置系统、敌人寻路AI、战斗计算、波次管理、经济系统(金币/资源)、塔升级系统。输出代码到 {{context.assets.code}}/towers/",
+        "inputs": [
+          {
+            "name": "gameDesignDoc",
+            "source": "prev-output",
+            "sourceKey": "game-design:gameDesignDoc"
+          },
+          {
+            "name": "teamRulesDoc",
+            "source": "prev-output",
+            "sourceKey": "team-rules:teamRulesDoc"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "towerCode",
+            "extractPath": "$"
+          }
+        ],
+        "timeout": 3600000
+      },
+      "updatedAt": "2026-04-15T13:10:56.067Z",
+      "description": ""
+    },
+    {
+      "id": "tower-review",
+      "type": "review",
+      "name": "塔防机制审核",
+      "position": {
+        "x": 1600,
+        "y": 250
+      },
+      "config": {
+        "reviewConfig": {
+          "reviewType": "agent",
+          "reviewerAgentId": "mmuhsh8c-2v8mxf",
+          "title": "塔防机制代码严格审核",
+          "instruction": "审核塔防机制的完整性、逻辑正确性、性能。必须≥90分才能通过。",
+          "scoreMethod": "score",
+          "criteria": [
+            {
+              "name": "功能完整",
+              "description": "是否实现所有塔和敌人类型",
+              "weight": 30
+            },
+            {
+              "name": "逻辑正确",
+              "description": "战斗计算和寻路是否正确",
+              "weight": 30
+            },
+            {
+              "name": "性能",
+              "description": "大量敌人时是否流畅",
+              "weight": 20
+            },
+            {
+              "name": "规范性",
+              "description": "是否符合团队规范",
+              "weight": 20
+            }
+          ],
+          "passCondition": {
+            "variableName": "towerScore",
+            "operator": "gte",
+            "threshold": 90
+          },
+          "failAction": {
+            "type": "return",
+            "targetNodeId": "tower-mechanics",
+            "maxRetries": 3
+          }
+        }
+      }
+    },
+    {
+      "id": "ui-dev",
+      "type": "agent",
+      "name": "UI界面开发",
+      "position": {
+        "x": 1450,
+        "y": 400
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "mmuhsh8c-2v8mxf"
+            }
+          ],
+          "failureStrategy": {
+            "action": "abort"
+          }
+        },
+        "taskTemplate": "开发游戏UI：主菜单、游戏HUD、塔选择面板、敌人信息面板、暂停菜单、设置界面、胜利/失败界面。输出代码到 {{context.assets.code}}/ui/",
+        "inputs": [
+          {
+            "name": "gameDesignDoc",
+            "source": "prev-output",
+            "sourceKey": "game-design:gameDesignDoc"
+          },
+          {
+            "name": "teamRulesDoc",
+            "source": "prev-output",
+            "sourceKey": "team-rules:teamRulesDoc"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "uiCode",
+            "extractPath": "$"
+          }
+        ],
+        "timeout": 3600000
+      }
+    },
+    {
+      "id": "ui-review",
+      "type": "review",
+      "name": "UI代码审核",
+      "position": {
+        "x": 1600,
+        "y": 400
+      },
+      "config": {
+        "reviewConfig": {
+          "reviewType": "agent",
+          "reviewerAgentId": "mmutq08z-zyjavd",
+          "title": "UI代码严格审核",
+          "instruction": "审核UI完整性、交互逻辑、响应式适配。必须≥90分才能通过。",
+          "scoreMethod": "score",
+          "criteria": [
+            {
+              "name": "功能完整",
+              "description": "是否实现所有UI界面",
+              "weight": 30
+            },
+            {
+              "name": "交互逻辑",
+              "description": "用户交互是否流畅合理",
+              "weight": 25
+            },
+            {
+              "name": "适配性",
+              "description": "是否适配不同分辨率",
+              "weight": 25
+            },
+            {
+              "name": "规范性",
+              "description": "是否符合团队规范",
+              "weight": 20
+            }
+          ],
+          "passCondition": {
+            "variableName": "uiScore",
+            "operator": "gte",
+            "threshold": 90
+          },
+          "failAction": {
+            "type": "return",
+            "targetNodeId": "ui-dev",
+            "maxRetries": 3
+          }
+        }
+      }
+    },
+    {
+      "id": "art-assets",
+      "type": "agent",
+      "name": "美术资源制作",
+      "position": {
+        "x": 1450,
+        "y": 550
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "mmutq08z-zyjavd"
+            }
+          ],
+          "failureStrategy": {
+            "action": "abort"
+          }
+        },
+        "taskTemplate": "制作游戏美术资源：塔精灵图、敌人精灵图、背景图、UI图标、特效粒子图、按钮状态图。输出到 {{context.assets.images}}/",
+        "inputs": [
+          {
+            "name": "gameDesignDoc",
+            "source": "prev-output",
+            "sourceKey": "game-design:gameDesignDoc"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "artAssets",
+            "extractPath": "$"
+          }
+        ],
+        "timeout": 3600000
+      }
+    },
+    {
+      "id": "art-review",
+      "type": "review",
+      "name": "美术资源审核",
+      "position": {
+        "x": 1600,
+        "y": 550
+      },
+      "config": {
+        "reviewConfig": {
+          "reviewType": "agent",
+          "reviewerAgentId": "mmuhsh8c-2v8mxf",
+          "title": "美术资源严格审核",
+          "instruction": "审核美术资源的质量、风格一致性、格式规范。必须≥90分才能通过。",
+          "scoreMethod": "score",
+          "criteria": [
+            {
+              "name": "质量",
+              "description": "图像清晰度和细节",
+              "weight": 30
+            },
+            {
+              "name": "风格一致",
+              "description": "整体美术风格是否统一",
+              "weight": 30
+            },
+            {
+              "name": "格式规范",
+              "description": "文件格式和命名是否规范",
+              "weight": 20
+            },
+            {
+              "name": "完整性",
+              "description": "是否覆盖所有需要的资源",
+              "weight": 20
+            }
+          ],
+          "passCondition": {
+            "variableName": "artScore",
+            "operator": "gte",
+            "threshold": 90
+          },
+          "failAction": {
+            "type": "return",
+            "targetNodeId": "art-assets",
+            "maxRetries": 3
+          }
+        }
+      }
+    },
+    {
+      "id": "audio-assets",
+      "type": "agent",
+      "name": "音效资源制作",
+      "position": {
+        "x": 1450,
+        "y": 700
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "mmutn7fs-7w2qpo"
+            }
+          ],
+          "failureStrategy": {
+            "action": "abort"
+          }
+        },
+        "taskTemplate": "制作游戏音效：背景音乐(BGM)、塔攻击音效、敌人死亡音效、UI点击音效、胜利/失败音效。输出到 {{context.assets.audio}}/",
+        "inputs": [
+          {
+            "name": "gameDesignDoc",
+            "source": "prev-output",
+            "sourceKey": "game-design:gameDesignDoc"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "audioAssets",
+            "extractPath": "$"
+          }
+        ],
+        "timeout": 3600000
+      }
+    },
+    {
+      "id": "audio-review",
+      "type": "review",
+      "name": "音效资源审核",
+      "position": {
+        "x": 1600,
+        "y": 700
+      },
+      "config": {
+        "reviewConfig": {
+          "reviewType": "agent",
+          "reviewerAgentId": "mmutq08z-zyjavd",
+          "title": "音效资源严格审核",
+          "instruction": "审核音效质量、格式规范、触发逻辑。必须≥90分才能通过。",
+          "scoreMethod": "score",
+          "criteria": [
+            {
+              "name": "音质",
+              "description": "音效清晰度和适配度",
+              "weight": 30
+            },
+            {
+              "name": "格式规范",
+              "description": "文件格式和命名是否规范",
+              "weight": 25
+            },
+            {
+              "name": "触发逻辑",
+              "description": "音效触发时机是否合理",
+              "weight": 25
+            },
+            {
+              "name": "完整性",
+              "description": "是否覆盖所有需要的音效",
+              "weight": 20
+            }
+          ],
+          "passCondition": {
+            "variableName": "audioScore",
+            "operator": "gte",
+            "threshold": 90
+          },
+          "failAction": {
+            "type": "return",
+            "targetNodeId": "audio-assets",
+            "maxRetries": 3
+          }
+        }
+      }
+    },
+    {
+      "id": "integration",
+      "type": "agent",
+      "name": "系统集成",
+      "position": {
+        "x": 1750,
+        "y": 300
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "mmuhsh8c-2v8mxf"
+            }
+          ],
+          "failureStrategy": {
+            "action": "abort"
+          }
+        },
+        "taskTemplate": "集成所有模块：合并引擎、塔防机制、UI、美术、音效资源。确保各模块协同工作正常。输出完整游戏到 {{context.assets.code}}/",
+        "inputs": [
+          {
+            "name": "engineCode",
+            "source": "prev-output",
+            "sourceKey": "core-engine:engineCode"
+          },
+          {
+            "name": "towerCode",
+            "source": "prev-output",
+            "sourceKey": "tower-mechanics:towerCode"
+          },
+          {
+            "name": "uiCode",
+            "source": "prev-output",
+            "sourceKey": "ui-dev:uiCode"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "integratedGame",
+            "extractPath": "$"
+          }
+        ],
+        "timeout": 3600000
+      }
+    },
+    {
+      "id": "integration-review",
+      "type": "review",
+      "name": "集成审核",
+      "position": {
+        "x": 1900,
+        "y": 300
+      },
+      "config": {
+        "reviewConfig": {
+          "reviewType": "agent",
+          "reviewerAgentId": "mmutn7fs-7w2qpo",
+          "title": "系统集成严格审核",
+          "instruction": "审核集成完整性、模块间交互、性能表现。必须≥90分才能通过。",
+          "scoreMethod": "score",
+          "criteria": [
+            {
+              "name": "完整性",
+              "description": "所有模块是否正确集成",
+              "weight": 30
+            },
+            {
+              "name": "交互正确",
+              "description": "模块间数据传递是否正确",
+              "weight": 25
+            },
+            {
+              "name": "性能",
+              "description": "整体性能是否达标",
+              "weight": 25
+            },
+            {
+              "name": "稳定性",
+              "description": "是否有崩溃或内存泄漏",
+              "weight": 20
+            }
+          ],
+          "passCondition": {
+            "variableName": "integrationScore",
+            "operator": "gte",
+            "threshold": 90
+          },
+          "failAction": {
+            "type": "return",
+            "targetNodeId": "integration",
+            "maxRetries": 3
+          }
+        }
+      }
+    },
+    {
+      "id": "phase-test",
+      "type": "milestone",
+      "name": "阶段4：测试与优化",
+      "position": {
+        "x": 2350,
+        "y": 300
+      },
+      "config": {
+        "description": "功能测试、Bug修复、性能优化，测试报告需审核≥90分",
+        "waitForCompletion": true,
+        "childNodes": [
+          "testing",
+          "test-report-review",
+          "test-condition",
+          "bugfix-loop",
+          "bugfix"
+        ]
+      }
+    },
+    {
+      "id": "testing",
+      "type": "agent",
+      "name": "功能测试",
+      "position": {
+        "x": 2500,
+        "y": 300
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "mmutn7fs-7w2qpo"
+            }
+          ],
+          "failureStrategy": {
+            "action": "abort"
+          }
+        },
+        "taskTemplate": "执行全面功能测试：游戏启动、塔放置、敌人寻路、战斗逻辑、UI交互、音效播放、关卡流程、边界情况、性能压测。输出详细测试报告和Bug清单到 {{context.assets.docs}}/test-report.md",
+        "inputs": [
+          {
+            "name": "integratedGame",
+            "source": "prev-output",
+            "sourceKey": "integration:integratedGame"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "testReport",
+            "extractPath": "$"
+          },
+          {
+            "name": "bugCount",
+            "extractPath": "$.bugCount"
+          }
+        ],
+        "timeout": 3600000
+      }
+    },
+    {
+      "id": "test-report-review",
+      "type": "review",
+      "name": "测试报告审核",
+      "position": {
+        "x": 2650,
+        "y": 300
+      },
+      "config": {
+        "reviewConfig": {
+          "reviewType": "agent",
+          "reviewerAgentId": "mmutn7fs-7w2qpo",
+          "title": "测试报告严格审核",
+          "instruction": "审核测试覆盖率、用例完整性、Bug描述清晰度、性能数据准确性。必须≥90分才能通过。",
+          "scoreMethod": "score",
+          "criteria": [
+            {
+              "name": "测试覆盖",
+              "description": "是否覆盖所有功能模块和边界情况",
+              "weight": 35
+            },
+            {
+              "name": "用例完整",
+              "description": "测试用例是否详细可复现",
+              "weight": 25
+            },
+            {
+              "name": "Bug描述",
+              "description": "Bug描述是否清晰含复现步骤",
+              "weight": 25
+            },
+            {
+              "name": "性能数据",
+              "description": "性能测试数据是否准确完整",
+              "weight": 15
+            }
+          ],
+          "passCondition": {
+            "variableName": "testReportScore",
+            "operator": "gte",
+            "threshold": 90
+          },
+          "failAction": {
+            "type": "return",
+            "targetNodeId": "testing",
+            "maxRetries": 3
+          }
+        }
+      }
+    },
+    {
+      "id": "test-condition",
+      "type": "condition",
+      "name": "测试结果判断",
+      "position": {
+        "x": 2800,
+        "y": 300
+      },
+      "config": {
+        "conditions": [
+          {
+            "label": "测试通过",
+            "expression": "{{bugCount}} == 0",
+            "targetNode": "release-check"
+          }
+        ],
+        "defaultNode": "bugfix-loop"
+      }
+    },
+    {
+      "id": "bugfix-loop",
+      "type": "loop",
+      "name": "Bug修复循环",
+      "position": {
+        "x": 2800,
+        "y": 450
+      },
+      "config": {
+        "loopConfig": {
+          "type": "condition",
+          "condition": "{{bugCount}} > 0",
+          "loopBodyNode": "bugfix"
+        }
+      }
+    },
+    {
+      "id": "bugfix",
+      "type": "agent",
+      "name": "Bug修复",
+      "position": {
+        "x": 2950,
+        "y": 450
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "mmutn7fs-7w2qpo"
+            }
+          ],
+          "failureStrategy": {
+            "action": "retry",
+            "retryCount": 3
+          }
+        },
+        "taskTemplate": "根据测试报告修复Bug，严格遵循团队规范，修复后需补充/更新单元测试。重点修复寻路、碰撞、经济系统问题。",
+        "inputs": [
+          {
+            "name": "testReport",
+            "source": "prev-output",
+            "sourceKey": "testing:testReport"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "fixResult",
+            "extractPath": "$"
+          }
+        ],
+        "timeout": 3600000
+      }
+    },
+    {
+      "id": "release-check",
+      "type": "human",
+      "name": "发布确认",
+      "position": {
+        "x": 2950,
+        "y": 200
+      },
+      "config": {
+        "message": "游戏已通过全部审核(≥90分)和测试，是否继续构建发布版本？",
+        "timeout": 86400000
+      }
+    },
+    {
+      "id": "build",
+      "type": "agent",
+      "name": "构建发布",
+      "position": {
+        "x": 3100,
+        "y": 300
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "mmutq08z-zyjavd"
+            }
+          ],
+          "failureStrategy": {
+            "action": "retry",
+            "retryCount": 2
+          }
+        },
+        "taskTemplate": "构建游戏发布版本：资源压缩、代码混淆、Tree Shaking、打包优化、生成可运行文件。输出到 {{context.outputPath}}/",
+        "timeout": 1800000
+      }
+    },
+    {
+      "id": "notify",
+      "type": "notify",
+      "name": "发布通知",
+      "position": {
+        "x": 3250,
+        "y": 300
+      },
+      "config": {
+        "notifyConfig": {
+          "channels": [
+            "webot"
+          ],
+          "recipients": [
+            "ahive-webot"
+          ],
+          "template": "🎮 2D塔防游戏 {{projectConfig.gameName}} v{{projectConfig.version}} 已构建完成！全流程审核≥90分，质量达标！"
+        }
+      }
+    },
+    {
+      "id": "final-output",
+      "type": "output",
+      "name": "游戏发布包",
+      "position": {
+        "x": 3400,
+        "y": 300
+      },
+      "config": {
+        "outputConfig": {
+          "name": "2D塔防游戏发布包",
+          "description": "可运行的最终游戏版本，全流程审核≥90分",
+          "type": "file",
+          "isFinalOutput": true
+        }
+      }
+    },
+    {
+      "id": "node-1776266293591",
+      "type": "department",
+      "name": "部门节点",
+      "position": {
+        "x": 856.0291060291061,
+        "y": -93.37214137214133
+      },
+      "createdAt": "2026-04-15T15:18:13.591Z",
+      "updatedAt": "2026-05-02T08:16:15.711Z",
+      "config": {
+        "departmentConfig": {
+          "departmentId": "dept-1773715414374-3zm6e",
+          "triggerInternalWorkflow": true,
+          "waitForResult": true,
+          "resultTimeout": 300
+        }
+      },
+      "description": ""
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "source": "init-config",
+      "target": "phase-design"
+    },
+    {
+      "id": "e2",
+      "source": "phase-design",
+      "target": "req-analysis"
+    },
+    {
+      "id": "e3",
+      "source": "req-analysis",
+      "target": "req-review"
+    },
+    {
+      "id": "e4",
+      "source": "req-review",
+      "target": "game-design"
+    },
+    {
+      "id": "e-fail-req",
+      "source": "req-review",
+      "target": "req-analysis",
+      "label": "审核<90分",
+      "failCondition": {
+        "variableName": "reqScore",
+        "operator": "lt",
+        "value": 90
+      }
+    },
+    {
+      "id": "e5",
+      "source": "game-design",
+      "target": "design-review"
+    },
+    {
+      "id": "e6",
+      "source": "design-review",
+      "target": "phase-arch"
+    },
+    {
+      "id": "e-fail-design",
+      "source": "design-review",
+      "target": "game-design",
+      "label": "审核<90分",
+      "failCondition": {
+        "variableName": "designScore",
+        "operator": "lt",
+        "value": 90
+      }
+    },
+    {
+      "id": "e7",
+      "source": "phase-arch",
+      "target": "tech-arch"
+    },
+    {
+      "id": "e8",
+      "source": "tech-arch",
+      "target": "arch-review"
+    },
+    {
+      "id": "e9",
+      "source": "arch-review",
+      "target": "team-rules"
+    },
+    {
+      "id": "e-fail-arch",
+      "source": "arch-review",
+      "target": "tech-arch",
+      "label": "审核<90分",
+      "failCondition": {
+        "variableName": "archScore",
+        "operator": "lt",
+        "value": 90
+      }
+    },
+    {
+      "id": "e10",
+      "source": "team-rules",
+      "target": "rules-review"
+    },
+    {
+      "id": "e11",
+      "source": "rules-review",
+      "target": "phase-dev"
+    },
+    {
+      "id": "e-fail-rules",
+      "source": "rules-review",
+      "target": "team-rules",
+      "label": "审核<90分",
+      "failCondition": {
+        "variableName": "rulesScore",
+        "operator": "lt",
+        "value": 90
+      }
+    },
+    {
+      "id": "e12",
+      "source": "phase-dev",
+      "target": "parallel-dev"
+    },
+    {
+      "id": "e13",
+      "source": "parallel-dev",
+      "target": "core-engine"
+    },
+    {
+      "id": "e14",
+      "source": "parallel-dev",
+      "target": "tower-mechanics"
+    },
+    {
+      "id": "e15",
+      "source": "parallel-dev",
+      "target": "ui-dev"
+    },
+    {
+      "id": "e16",
+      "source": "parallel-dev",
+      "target": "art-assets"
+    },
+    {
+      "id": "e17",
+      "source": "parallel-dev",
+      "target": "audio-assets"
+    },
+    {
+      "id": "e18",
+      "source": "core-engine",
+      "target": "engine-review"
+    },
+    {
+      "id": "e19",
+      "source": "engine-review",
+      "target": "integration"
+    },
+    {
+      "id": "e-fail-engine",
+      "source": "engine-review",
+      "target": "core-engine",
+      "label": "审核<90分",
+      "failCondition": {
+        "variableName": "engineScore",
+        "operator": "lt",
+        "value": 90
+      }
+    },
+    {
+      "id": "e20",
+      "source": "tower-mechanics",
+      "target": "tower-review"
+    },
+    {
+      "id": "e21",
+      "source": "tower-review",
+      "target": "integration"
+    },
+    {
+      "id": "e-fail-tower",
+      "source": "tower-review",
+      "target": "tower-mechanics",
+      "label": "审核<90分",
+      "failCondition": {
+        "variableName": "towerScore",
+        "operator": "lt",
+        "value": 90
+      }
+    },
+    {
+      "id": "e22",
+      "source": "ui-dev",
+      "target": "ui-review"
+    },
+    {
+      "id": "e23",
+      "source": "ui-review",
+      "target": "integration"
+    },
+    {
+      "id": "e-fail-ui",
+      "source": "ui-review",
+      "target": "ui-dev",
+      "label": "审核<90分",
+      "failCondition": {
+        "variableName": "uiScore",
+        "operator": "lt",
+        "value": 90
+      }
+    },
+    {
+      "id": "e24",
+      "source": "art-assets",
+      "target": "art-review"
+    },
+    {
+      "id": "e25",
+      "source": "art-review",
+      "target": "integration"
+    },
+    {
+      "id": "e-fail-art",
+      "source": "art-review",
+      "target": "art-assets",
+      "label": "审核<90分",
+      "failCondition": {
+        "variableName": "artScore",
+        "operator": "lt",
+        "value": 90
+      }
+    },
+    {
+      "id": "e26",
+      "source": "audio-assets",
+      "target": "audio-review"
+    },
+    {
+      "id": "e27",
+      "source": "audio-review",
+      "target": "integration"
+    },
+    {
+      "id": "e-fail-audio",
+      "source": "audio-review",
+      "target": "audio-assets",
+      "label": "审核<90分",
+      "failCondition": {
+        "variableName": "audioScore",
+        "operator": "lt",
+        "value": 90
+      }
+    },
+    {
+      "id": "e28",
+      "source": "integration",
+      "target": "integration-review"
+    },
+    {
+      "id": "e29",
+      "source": "integration-review",
+      "target": "phase-test"
+    },
+    {
+      "id": "e-fail-integration",
+      "source": "integration-review",
+      "target": "integration",
+      "label": "审核<90分",
+      "failCondition": {
+        "variableName": "integrationScore",
+        "operator": "lt",
+        "value": 90
+      }
+    },
+    {
+      "id": "e30",
+      "source": "phase-test",
+      "target": "testing"
+    },
+    {
+      "id": "e31",
+      "source": "testing",
+      "target": "test-report-review"
+    },
+    {
+      "id": "e32",
+      "source": "test-report-review",
+      "target": "test-condition"
+    },
+    {
+      "id": "e-fail-testreport",
+      "source": "test-report-review",
+      "target": "testing",
+      "label": "审核<90分",
+      "failCondition": {
+        "variableName": "testReportScore",
+        "operator": "lt",
+        "value": 90
+      }
+    },
+    {
+      "id": "e33",
+      "source": "test-condition",
+      "target": "release-check"
+    },
+    {
+      "id": "e34",
+      "source": "test-condition",
+      "target": "bugfix-loop"
+    },
+    {
+      "id": "e35",
+      "source": "bugfix-loop",
+      "target": "bugfix"
+    },
+    {
+      "id": "e36",
+      "source": "bugfix",
+      "target": "testing"
+    },
+    {
+      "id": "e37",
+      "source": "release-check",
+      "target": "build"
+    },
+    {
+      "id": "e38",
+      "source": "build",
+      "target": "notify"
+    },
+    {
+      "id": "e39",
+      "source": "notify",
+      "target": "final-output"
+    }
+  ],
+  "updatedAt": "2026-05-02T08:16:19.332Z",
+  "createdAt": "2026-04-10T11:17:39.052Z"
+}

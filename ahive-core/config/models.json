@@ -1,0 +1,377 @@
+{
+  "currentModel": "Qwen2.5-1.5B-Instruct-Q4_K_M.gguf",
+  "models": [
+    {
+      "id": "qwen2.5-1.5b",
+      "name": "Qwen2.5-1.5B-Instruct-Q4",
+      "filename": "Qwen2.5-1.5B-Instruct-Q4_K_M.gguf",
+      "size": "1.06GB",
+      "sizeBytes": 1060000000,
+      "category": "general",
+      "description": "轻量级通用模型，适合简单对话",
+      "capabilities": {
+        "chat": "⭐⭐⭐ 良好",
+        "math": "⭐⭐ 一般",
+        "code": "⭐⭐ 一般",
+        "functionCalling": "❌ 不支持",
+        "reasoning": "⭐⭐ 一般"
+      },
+      "bestFor": [
+        "日常对话",
+        "轻量级任务",
+        "资源受限环境"
+      ],
+      "requirements": {
+        "memory": "4GB",
+        "disk": "1.1GB",
+        "gpu": "可选"
+      },
+      "downloadMirrors": [
+        {
+          "name": "ModelScope (国内推荐)",
+          "url": "https://modelscope.cn/models/Qwen/Qwen2.5-1.5B-Instruct-GGUF/resolve/master/qwen2.5-1.5b-instruct-q4_k_m.gguf",
+          "region": "china"
+        },
+        {
+          "name": "HF-Mirror (国内备选)",
+          "url": "https://hf-mirror.com/Qwen/Qwen2.5-1.5B-Instruct-GGUF/resolve/main/qwen2.5-1.5b-instruct-q4_k_m.gguf",
+          "region": "china"
+        },
+        {
+          "name": "HuggingFace (国外)",
+          "url": "https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF/resolve/main/qwen2.5-1.5b-instruct-q4_k_m.gguf",
+          "region": "global"
+        }
+      ]
+    },
+    {
+      "id": "qwen2.5-7b",
+      "name": "Qwen2.5-7B-Instruct-Q4",
+      "filename": "Qwen2.5-7B-Instruct-Q4_K_M.gguf",
+      "size": "4.36GB",
+      "sizeBytes": 4360000000,
+      "category": "general",
+      "description": "中等规模通用模型，推理能力强，适合大多数场景",
+      "capabilities": {
+        "chat": "⭐⭐⭐⭐ 优秀",
+        "math": "⭐⭐⭐⭐ 优秀",
+        "code": "⭐⭐⭐⭐ 优秀",
+        "functionCalling": "⚠️ 有限支持（需Prompt方式）",
+        "reasoning": "⭐⭐⭐⭐ 优秀"
+      },
+      "bestFor": [
+        "日常对话",
+        "数学计算",
+        "代码编写",
+        "逻辑推理"
+      ],
+      "requirements": {
+        "memory": "8-10GB",
+        "disk": "4.5GB",
+        "gpu": "推荐"
+      },
+      "downloadMirrors": [
+        {
+          "name": "ModelScope (国内推荐)",
+          "url": "https://modelscope.cn/models/Qwen/Qwen2.5-7B-Instruct-GGUF/resolve/master/qwen2.5-7b-instruct-q4_k_m.gguf",
+          "region": "china"
+        },
+        {
+          "name": "HF-Mirror (国内备选)",
+          "url": "https://hf-mirror.com/Qwen/Qwen2.5-7B-Instruct-GGUF/resolve/main/qwen2.5-7b-instruct-q4_k_m.gguf",
+          "region": "china"
+        },
+        {
+          "name": "HuggingFace (国外)",
+          "url": "https://huggingface.co/Qwen/Qwen2.5-7B-Instruct-GGUF/resolve/main/qwen2.5-7b-instruct-q4_k_m.gguf",
+          "region": "global"
+        }
+      ]
+    },
+    {
+      "id": "qwen2.5-14b",
+      "name": "Qwen2.5-14B-Instruct-Q4",
+      "filename": "Qwen2.5-14B-Instruct-Q4_K_M.gguf",
+      "size": "8.5GB",
+      "sizeBytes": 8500000000,
+      "category": "general",
+      "description": "大规模通用模型，专业级推理能力",
+      "capabilities": {
+        "chat": "⭐⭐⭐⭐⭐ 卓越",
+        "math": "⭐⭐⭐⭐⭐ 卓越",
+        "code": "⭐⭐⭐⭐⭐ 卓越",
+        "functionCalling": "⚠️ 有限支持（需Prompt方式）",
+        "reasoning": "⭐⭐⭐⭐⭐ 卓越"
+      },
+      "bestFor": [
+        "复杂推理",
+        "专业任务",
+        "高质量对话"
+      ],
+      "requirements": {
+        "memory": "16GB",
+        "disk": "9GB",
+        "gpu": "必需"
+      },
+      "downloadMirrors": [
+        {
+          "name": "ModelScope (国内推荐)",
+          "url": "https://modelscope.cn/models/Qwen/Qwen2.5-14B-Instruct-GGUF/resolve/master/qwen2.5-14b-instruct-q4_k_m.gguf",
+          "region": "china"
+        },
+        {
+          "name": "HF-Mirror (国内备选)",
+          "url": "https://hf-mirror.com/Qwen/Qwen2.5-14B-Instruct-GGUF/resolve/main/qwen2.5-14b-instruct-q4_k_m.gguf",
+          "region": "china"
+        },
+        {
+          "name": "HuggingFace (国外)",
+          "url": "https://huggingface.co/Qwen/Qwen2.5-14B-Instruct-GGUF/resolve/main/qwen2.5-14b-instruct-q4_k_m.gguf",
+          "region": "global"
+        }
+      ]
+    },
+    {
+      "id": "gorilla-openfunctions-v2",
+      "name": "Gorilla OpenFunctions v2",
+      "filename": "gorilla-openfunctions-v2-q4_k_m.gguf",
+      "size": "4.2GB",
+      "sizeBytes": 4200000000,
+      "category": "function-calling",
+      "developer": "UC Berkeley",
+      "description": "开源最强工具调用模型，BFCL排行榜第5名，准确率81.71%",
+      "capabilities": {
+        "chat": "⭐⭐⭐ 良好",
+        "math": "⭐⭐⭐ 良好",
+        "code": "⭐⭐⭐ 良好",
+        "functionCalling": "⭐⭐⭐⭐⭐ 卓越（原生支持）",
+        "reasoning": "⭐⭐⭐ 良好"
+      },
+      "bestFor": [
+        "工具调用",
+        "API集成",
+        "自动化工作流",
+        "智能体开发"
+      ],
+      "notGoodFor": [
+        "深度数学推理",
+        "复杂代码生成"
+      ],
+      "requirements": {
+        "memory": "8-16GB",
+        "disk": "4.5GB",
+        "gpu": "推荐"
+      },
+      "downloadMirrors": [
+        {
+          "name": "HF-Mirror (国内推荐)",
+          "url": "https://hf-mirror.com/gorilla-llm/gorilla-openfunctions-v2-gguf/resolve/main/gorilla-openfunctions-v2-q4_k_m.gguf",
+          "region": "china"
+        },
+        {
+          "name": "HuggingFace (国外)",
+          "url": "https://huggingface.co/gorilla-llm/gorilla-openfunctions-v2-gguf/resolve/main/gorilla-openfunctions-v2-q4_k_m.gguf",
+          "region": "global"
+        }
+      ],
+      "note": "支持并行函数调用、多函数选择、嵌套调用等高级特性"
+    },
+    {
+      "id": "functionary-small-v3.2",
+      "name": "Functionary Small v3.2",
+      "filename": "functionary-small-v3.2-Q4_K_M.gguf",
+      "size": "2.1GB",
+      "sizeBytes": 2100000000,
+      "category": "function-calling",
+      "developer": "MeetKai",
+      "baseModel": "Llama-3.1-8B",
+      "description": "专为工具调用设计的轻量级模型，支持智能并行工具使用",
+      "capabilities": {
+        "chat": "⭐⭐⭐ 良好",
+        "math": "⭐⭐ 一般",
+        "code": "⭐⭐ 一般",
+        "functionCalling": "⭐⭐⭐⭐⭐ 卓越（原生支持）",
+        "reasoning": "⭐⭐ 一般"
+      },
+      "bestFor": [
+        "工具调用",
+        "资源受限环境",
+        "快速响应场景"
+      ],
+      "notGoodFor": [
+        "复杂推理",
+        "数学计算",
+        "代码生成"
+      ],
+      "requirements": {
+        "memory": "4-6GB",
+        "disk": "2.5GB",
+        "gpu": "可选"
+      },
+      "downloadMirrors": [
+        {
+          "name": "HF-Mirror (国内推荐)",
+          "url": "https://hf-mirror.com/bartowski/functionary-small-v3.2-GGUF/resolve/main/functionary-small-v3.2-Q4_K_M.gguf",
+          "region": "china"
+        },
+        {
+          "name": "HuggingFace (国外)",
+          "url": "https://huggingface.co/bartowski/functionary-small-v3.2-GGUF/resolve/main/functionary-small-v3.2-Q4_K_M.gguf",
+          "region": "global"
+        }
+      ],
+      "note": "3B参数，速度最快，适合RTX 2060等中端显卡"
+    },
+    {
+      "id": "qwen3-4b-toolcalling",
+      "name": "Qwen3-4B-ToolCalling",
+      "filename": "Qwen3-4B-Function-Calling-Pro.gguf",
+      "size": "4.4GB",
+      "sizeBytes": 4280401952,
+      "category": "function-calling",
+      "developer": "社区微调",
+      "baseModel": "Qwen3-4B",
+      "description": "基于Qwen3微调的工具调用模型，在60K函数调用样本上训练",
+      "capabilities": {
+        "chat": "⭐⭐⭐⭐ 优秀",
+        "math": "⭐⭐⭐ 良好",
+        "code": "⭐⭐⭐ 良好",
+        "functionCalling": "⭐⭐⭐⭐ 优秀（原生支持）",
+        "reasoning": "⭐⭐⭐ 良好"
+      },
+      "bestFor": [
+        "工具调用",
+        "日常对话",
+        "平衡性能"
+      ],
+      "notGoodFor": [
+        "复杂推理",
+        "专业代码"
+      ],
+      "requirements": {
+        "memory": "6GB",
+        "disk": "5GB",
+        "gpu": "可选"
+      },
+      "downloadMirrors": [
+        {
+          "name": "HF-Mirror (国内推荐)",
+          "url": "https://hf-mirror.com/Manojb/Qwen3-4B-toolcalling-gguf-codex/resolve/main/Qwen3-4B-Function-Calling-Pro.gguf",
+          "region": "china"
+        },
+        {
+          "name": "HuggingFace (国外)",
+          "url": "https://huggingface.co/Manojb/Qwen3-4B-toolcalling-gguf-codex/resolve/main/Qwen3-4B-Function-Calling-Pro.gguf",
+          "region": "global"
+        }
+      ],
+      "note": "4B参数，工具调用与通用能力的最佳平衡点"
+    },
+    {
+      "id": "llama3-8b-function-calling",
+      "name": "Llama-3-8B-Function-Calling",
+      "filename": "llama-3-8b-function-calling-Q4_K_M.gguf",
+      "size": "4.7GB",
+      "sizeBytes": 4700000000,
+      "category": "function-calling",
+      "developer": "社区微调",
+      "baseModel": "Llama-3-8B",
+      "description": "基于Llama-3微调的工具调用版本，通用能力与工具调用兼顾",
+      "capabilities": {
+        "chat": "⭐⭐⭐⭐ 优秀",
+        "math": "⭐⭐⭐ 良好",
+        "code": "⭐⭐⭐⭐ 优秀",
+        "functionCalling": "⭐⭐⭐⭐ 优秀（原生支持）",
+        "reasoning": "⭐⭐⭐⭐ 优秀"
+      },
+      "bestFor": [
+        "工具调用",
+        "代码编写",
+        "通用任务"
+      ],
+      "notGoodFor": [
+        "深度数学"
+      ],
+      "requirements": {
+        "memory": "8-10GB",
+        "disk": "5GB",
+        "gpu": "推荐"
+      },
+      "downloadMirrors": [
+        {
+          "name": "HF-Mirror (国内推荐)",
+          "url": "https://hf-mirror.com/bartowski/llama-3-8B-function-calling-GGUF/resolve/main/llama-3-8b-function-calling-Q4_K_M.gguf",
+          "region": "china"
+        },
+        {
+          "name": "HuggingFace (国外)",
+          "url": "https://huggingface.co/bartowski/llama-3-8B-function-calling-GGUF/resolve/main/llama-3-8b-function-calling-Q4_K_M.gguf",
+          "region": "global"
+        }
+      ],
+      "note": "8B参数，综合能力最强的工具调用模型"
+    },
+    {
+      "id": "qwen3.5-9b-abliterated-claude-distilled",
+      "name": "Qwen3.5-9B-Abliterated-Claude-Distilled",
+      "filename": "Qwen3.5-9B-Abliterated-Claude-4.6-Opus-Reasoning-Distilled-v2.Q8_0.gguf",
+      "size": "~5.5GB",
+      "sizeBytes": 5500000000,
+      "category": "reasoning",
+      "developer": "Abhiray",
+      "baseModel": "Qwen3.5-9B",
+      "description": "基于Qwen3.5-9B，移除安全限制，用Claude 4.6 Opus推理数据蒸馏增强",
+      "capabilities": {
+        "chat": "⭐⭐⭐⭐ 优秀",
+        "math": "⭐⭐⭐⭐ 优秀",
+        "code": "⭐⭐⭐⭐ 优秀",
+        "functionCalling": "⭐⭐⭐ 良好（Prompt方式）",
+        "reasoning": "⭐⭐⭐⭐⭐ 卓越（Claude蒸馏）"
+      },
+      "bestFor": [
+        "复杂推理",
+        "无限制对话",
+        "代码编写",
+        "数学计算"
+      ],
+      "notGoodFor": [
+        "原生工具调用"
+      ],
+      "requirements": {
+        "memory": "12-16GB",
+        "disk": "6GB",
+        "gpu": "推荐"
+      },
+      "downloadMirrors": [
+        {
+          "name": "HuggingFace",
+          "url": "https://huggingface.co/Abhiray/Qwen3.5-9B-Abliterated-Claude-4.6-Opus-Reasoning-Distilled-v2",
+          "region": "global"
+        }
+      ],
+      "note": "Abliterated版本，无安全限制；Claude 4.6 Opus推理能力蒸馏，推理能力极强"
+    }
+  ],
+  "categories": {
+    "general": {
+      "name": "通用模型",
+      "description": "适合日常对话、数学计算、代码编写等通用任务"
+    },
+    "function-calling": {
+      "name": "工具调用模型",
+      "description": "专为Function Calling设计，可自动调用工具执行任务"
+    },
+    "reasoning": {
+      "name": "推理增强模型",
+      "description": "经过特殊训练或蒸馏，具有强大的逻辑推理能力"
+    }
+  },
+  "settings": {
+    "defaultGpuLayers": -1,
+    "defaultThreads": 4,
+    "defaultContextSize": 2048,
+    "defaultTemperature": 0.7,
+    "defaultMaxTokens": 2048,
+    "defaultSequences": 1
+  }
+}

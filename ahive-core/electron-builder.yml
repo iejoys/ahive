@@ -1,0 +1,74 @@
+appId: cn.starsfuture.ahivecore
+productName: AHIVECORE
+copyright: Copyright © 2026 星未来软件工作室
+
+directories:
+  output: release-new
+  buildResources: electron/resources
+
+files:
+  - dist/**/*
+  - public/**/*
+  - dictionaries/**/*
+  - data/**/*
+  - config/**/*
+  - electron/**/*
+  - "!**/node_modules/.cache/**/*"
+  - "!**/*.ts"
+  - "!**/*.map"
+  - "!**/test/**/*"
+  - "!**/tests/**/*"
+  - "!**/*.md"
+  - "!**/scripts/**/*"
+  - "!**/release/**/*"
+
+extraResources:
+  - from: node_modules/better-sqlite3
+    to: node_modules/better-sqlite3
+    filter:
+      - "**/*.node"
+      - "**/*.js"
+      - "package.json"
+  - from: node_modules/node-llama-cpp
+    to: node_modules/node-llama-cpp
+    filter:
+      - "**/*"
+  - from: node_modules/amep-protocol
+    to: node_modules/amep-protocol
+    filter:
+      - "dist/**/*"
+      - "package.json"
+      - "dictionaries/**/*"
+  - from: dictionaries
+    to: dictionaries
+  - from: vendor
+    to: vendor
+    filter:
+      - "**/*"
+
+asar: true
+
+asarUnpack:
+  - "**/*.node"
+  - "node_modules/**/*"
+
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+
+electronDownload:
+  cache: ./electron-cache
+
+nodeGypRebuild: false
+
+nsis:
+  oneClick: false
+  perMachine: false
+  allowElevation: true
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: AHIVECORE
+  artifactName: "${productName}-${version}-Setup.exe"

@@ -1,0 +1,155 @@
+/**
+ * Hook 配置解析
+ * 
+ * 参考: codex-rs/hooks/src/engine/config.rs
+ */
+
+import type { HookEventName, ConfiguredHandler } from '../types.js';
+
+// ============ 配置文件结构 ============
+
+/**
+ * Hook 处理器配置 (hooks.json 中的单个 handler)
+ * 参考: codex-rs/hooks/src/engine/config.rs HookHandlerConfig
+ */
+export interface HookHandlerConfigJson {
+  type: 'command' | 'prompt' | 'agent';
+  command?: string;
+  timeout_sec?: number;
+  async?: boolean;
+  status_message?: string;
+}
+
+/**
+ * Matcher 组 (包含 matcher 和 hooks 列表)
+ * 参考: codex-rs/hooks/src/engine/config.rs MatcherGroup
+ */
+export interface MatcherGroupJson {
+  matcher?: string;
+  hooks: HookHandlerConfigJson[];
+}
+
+/**
+ * Hook 事件配置
+ * 参考: codex-rs/hooks/src/engine/config.rs HookEvents
+ */
+export interface HookEventsJson {
+  SessionStart?: MatcherGroupJson[];
+  Stop?: MatcherGroupJson[];
+  AfterAgent?: MatcherGroupJson[];
+  AfterToolUse?: MatcherGroupJson[];
+}
+
+/**
+ * hooks.json 完整结构
+ * 参考: codex-rs/hooks/src/engine/config.rs HooksFile
+ */
+export interface HooksFileJson {
+  hooks?: HookEventsJson;
+}
+
+// ============ 配置解析 ============
+
+/**
+ * 解析 hooks.json 配置
+ * 
+ * 参考: codex-rs/hooks/src/engine/discovery.rs
+ */
+export function parseHooksConfig(
+  json: HooksFileJson,
+  sourcePath: string
+): ConfiguredHandler[] {
+  const handlers: ConfiguredHandler[] = [];
+  let displayOrder = 0;
+
+  const events: Array<{ name: HookEventName; groups?: MatcherGroupJson[] }> = [
+    { name: 'SessionStart' as HookEventName, groups: json.hooks?.SessionStart },
+    { name: 'Stop' as HookEventName, groups: json.hooks?.Stop },
+    { name: 'AfterAgent' as HookEventName, groups: json.hooks?.AfterAgent },
+    { name: 'AfterToolUse' as HookEventName, groups: json.hooks?.AfterToolUse },
+  ];
+
+  for (const event of events) {
+    if (!event.groups) continue;
+
+    for (const group of event.groups) {
+      for (const hookConfig of group.hooks) {
+        // 只支持 command 类型
+        if (hookConfig.type !== 'command') continue;
+        if (!hookConfig.command) continue;
+
+        handlers.push({
+          eventName: event.name,
+          matcher: group.matcher,
+          command: hookConfig.command,
+          timeoutSec: hookConfig.timeout_sec ?? 600,
+          statusMessage: hookConfig.status_message,
+          sourcePath,
+          displayOrder: displayOrder++,
+        });
+      }
+    }
+  }
+
+  return handlers;
+}
+
+/**
+ * 默认 hooks 配置
+ */
+export const DEFAULT_HOOKS_CONFIG: HooksFileJson = {
+  hooks: {},
+};
+
+/**
+ * 示例 hooks.json
+ */
+export const EXAMPLE_HOOKS_CONFIG: HooksFileJson = {
+  hooks: {
+    SessionStart: [
+      {
+        matcher: 'startup',
+        hooks: [
+          {
+            type: 'command',
+            command: 'echo "Session started"',
+            timeout_sec: 60,
+          },
+        ],
+      },
+    ],
+    Stop: [
+      {
+        hooks: [
+          {
+            type: 'command',
+            command: 'echo "Session stopped"',
+            timeout_sec: 60,
+          },
+        ],
+      },
+    ],
+    AfterAgent: [
+      {
+        hooks: [
+          {
+            type: 'command',
+            command: 'node scripts/on-agent-done.js',
+            timeout_sec: 300,
+          },
+        ],
+      },
+    ],
+    AfterToolUse: [
+      {
+        hooks: [
+          {
+            type: 'command',
+            command: 'node scripts/audit-tool.js',
+            timeout_sec: 60,
+          },
+        ],
+      },
+    ],
+  },
+};

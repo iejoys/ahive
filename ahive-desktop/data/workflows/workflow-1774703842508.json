@@ -1,0 +1,457 @@
+{
+  "nodes": [
+    {
+      "id": "node-init",
+      "type": "variable",
+      "name": "初始化测试数据",
+      "position": {
+        "x": 100,
+        "y": 200
+      },
+      "config": {
+        "variableConfig": {
+          "name": "testContext",
+          "value": {
+            "projectInfo": {
+              "projectName": "示例项目",
+              "projectDescription": "这是一个功能测试项目",
+              "version": "1.0.0"
+            },
+            "testEnvironment": {
+              "baseUrl": "http://localhost:3000",
+              "environment": "development",
+              "browser": "chrome",
+              "timeout": 30000
+            },
+            "testScope": {
+              "modules": [
+                "用户管理",
+                "订单管理",
+                "支付模块"
+              ],
+              "features": [
+                "登录",
+                "注册",
+                "下单",
+                "支付"
+              ],
+              "priority": "high"
+            },
+            "requirements": "需要覆盖核心业务流程，重点关注支付安全性"
+          },
+          "type": "json"
+        }
+      }
+    },
+    {
+      "id": "node-test-design",
+      "type": "agent",
+      "name": "测试用例设计",
+      "position": {
+        "x": 300,
+        "y": 200
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "agent-test-designer",
+              "weight": 1
+            }
+          ]
+        },
+        "taskTemplate": "请根据以下项目信息设计功能测试用例：\n\n项目信息：\n- 项目名称：{{projectName}}\n- 项目描述：{{projectDescription}}\n- 功能模块：{{modules}}\n- 测试范围：{{testScope}}\n- 特殊要求：{{requirements}}\n\n请设计完整的测试用例，包括：\n1. 测试场景分析\n2. 正常流程测试用例\n3. 异常流程测试用例\n4. 边界条件测试用例\n5. 性能测试用例（如适用）\n\n每个测试用例需包含：用例ID、用例名称、前置条件、测试步骤、预期结果、优先级。",
+        "inputs": [
+          {
+            "name": "projectName",
+            "source": "node-init",
+            "sourceKey": "testContext.projectInfo.projectName",
+            "required": true
+          },
+          {
+            "name": "projectDescription",
+            "source": "node-init",
+            "sourceKey": "testContext.projectInfo.projectDescription",
+            "required": true
+          },
+          {
+            "name": "modules",
+            "source": "node-init",
+            "sourceKey": "testContext.testScope.modules",
+            "required": true
+          },
+          {
+            "name": "testScope",
+            "source": "node-init",
+            "sourceKey": "testContext.testScope",
+            "required": false
+          },
+          {
+            "name": "requirements",
+            "source": "node-init",
+            "sourceKey": "testContext.requirements",
+            "required": false
+          }
+        ],
+        "outputs": [
+          {
+            "name": "testCases",
+            "extractPath": "$.testCases",
+            "required": true
+          },
+          {
+            "name": "testScenarios",
+            "extractPath": "$.testScenarios",
+            "required": true
+          },
+          {
+            "name": "coverageAnalysis",
+            "extractPath": "$.coverageAnalysis",
+            "required": false
+          }
+        ],
+        "timeout": 180000,
+        "retryCount": 2
+      }
+    },
+    {
+      "id": "node-test-exec",
+      "type": "agent",
+      "name": "测试执行",
+      "position": {
+        "x": 500,
+        "y": 200
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "agent-test-executor",
+              "weight": 1
+            }
+          ]
+        },
+        "taskTemplate": "执行以下测试用例：\n\n{{testCases}}\n\n执行要求：\n1. 按照测试用例的优先级顺序执行\n2. 记录每个测试用例的执行结果（通过/失败/跳过）\n3. 对于失败的用例，记录详细的错误信息和堆栈跟踪\n4. 记录每个测试用例的执行时间\n5. 如果测试环境有问题，及时反馈\n\n请返回完整的测试执行结果。",
+        "inputs": [
+          {
+            "name": "testCases",
+            "source": "node-test-design",
+            "sourceKey": "testCases",
+            "required": true
+          },
+          {
+            "name": "testEnvironment",
+            "source": "node-init",
+            "sourceKey": "testContext.testEnvironment",
+            "required": false
+          }
+        ],
+        "outputs": [
+          {
+            "name": "testResults",
+            "extractPath": "$.testResults",
+            "required": true
+          },
+          {
+            "name": "executionSummary",
+            "extractPath": "$.executionSummary",
+            "required": true
+          },
+          {
+            "name": "errorLogs",
+            "extractPath": "$.errorLogs",
+            "required": false
+          }
+        ],
+        "timeout": 300000,
+        "retryCount": 2
+      }
+    },
+    {
+      "id": "node-result-analysis",
+      "type": "agent",
+      "name": "结果分析",
+      "position": {
+        "x": 700,
+        "y": 200
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "agent-test-analyst",
+              "weight": 1
+            }
+          ]
+        },
+        "taskTemplate": "请对测试执行结果进行深度分析，具体任务如下：\n\n1. **结果统计**\n   - 统计测试用例总数、通过数、失败数、跳过数\n   - 计算通过率、失败率\n   - 统计执行总耗时\n\n2. **失败分析**\n   - 分析每个失败用例的原因\n   - 分类失败类型（断言失败、超时、异常、环境问题等）\n   - 评估问题严重程度（Critical/High/Medium/Low）\n\n3. **问题定位**\n   - 识别可能的缺陷位置\n   - 分析失败模式，判断是否为同一问题导致\n   - 提供修复建议\n\n4. **趋势分析**\n   - 对比历史测试结果（如有）\n   - 识别新增问题和已解决问题\n\n输入数据：{{testResults}}\n\n请输出结构化的分析报告。",
+        "inputs": [
+          {
+            "name": "testResults",
+            "source": "node-test-exec",
+            "sourceKey": "testResults",
+            "required": true
+          },
+          {
+            "name": "testCases",
+            "source": "node-test-design",
+            "sourceKey": "testCases",
+            "required": false
+          }
+        ],
+        "outputs": [
+          {
+            "name": "analysisReport",
+            "extractPath": "$.analysisReport",
+            "required": true
+          },
+          {
+            "name": "statistics",
+            "extractPath": "$.statistics",
+            "required": true
+          },
+          {
+            "name": "issues",
+            "extractPath": "$.issues",
+            "required": true
+          },
+          {
+            "name": "recommendations",
+            "extractPath": "$.recommendations",
+            "required": false
+          }
+        ],
+        "timeout": 180000,
+        "retryCount": 2
+      }
+    },
+    {
+      "id": "node-report-gen",
+      "type": "agent",
+      "name": "报告生成",
+      "position": {
+        "x": 900,
+        "y": 200
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "agent-reporter",
+              "weight": 1
+            }
+          ]
+        },
+        "taskTemplate": "请根据以下信息生成完整的功能测试报告：\n\n测试用例设计：\n{{testCases}}\n\n测试执行结果：\n{{testResults}}\n\n结果分析：\n{{analysisReport}}\n\n请生成包含以下内容的测试报告：\n1. 测试概述（测试范围、测试环境、测试时间）\n2. 测试用例统计（总数、通过数、失败数、跳过数）\n3. 测试结果详情（每个用例的执行情况）\n4. 缺陷统计与分析（缺陷数量、严重程度分布、缺陷列表）\n5. 测试覆盖率分析\n6. 风险评估与建议\n7. 结论与下一步计划\n\n报告格式要求：结构清晰、数据准确、图文并茂（如有需要可包含图表描述）",
+        "inputs": [
+          {
+            "name": "testCases",
+            "source": "node-test-design",
+            "sourceKey": "testCases",
+            "required": true
+          },
+          {
+            "name": "testResults",
+            "source": "node-test-exec",
+            "sourceKey": "testResults",
+            "required": true
+          },
+          {
+            "name": "analysisReport",
+            "source": "node-result-analysis",
+            "sourceKey": "analysisReport",
+            "required": true
+          }
+        ],
+        "outputs": [
+          {
+            "name": "testReport",
+            "extractPath": "$.report",
+            "required": true
+          },
+          {
+            "name": "reportSummary",
+            "extractPath": "$.summary",
+            "required": true
+          },
+          {
+            "name": "defectList",
+            "extractPath": "$.defects",
+            "required": false
+          }
+        ],
+        "timeout": 120000,
+        "retryCount": 2
+      }
+    },
+    {
+      "id": "node-review",
+      "type": "review",
+      "name": "报告审核",
+      "position": {
+        "x": 1100,
+        "y": 200
+      },
+      "config": {
+        "reviewConfig": {
+          "reviewType": "score",
+          "criteria": [
+            {
+              "name": "完整性",
+              "description": "报告是否包含测试概述、测试范围、测试结果、缺陷统计、风险评估等必要章节",
+              "weight": 0.25
+            },
+            {
+              "name": "准确性",
+              "description": "测试结果数据是否准确，缺陷描述是否清晰，统计数据是否正确",
+              "weight": 0.3
+            },
+            {
+              "name": "清晰度",
+              "description": "报告结构是否合理，表述是否清晰，图表是否易于理解",
+              "weight": 0.2
+            },
+            {
+              "name": "建议质量",
+              "description": "改进建议和后续行动计划是否具体可行，优先级是否合理",
+              "weight": 0.15
+            },
+            {
+              "name": "格式规范",
+              "description": "报告格式是否符合团队标准，术语使用是否规范",
+              "weight": 0.1
+            }
+          ],
+          "passThreshold": 70,
+          "reviewers": [
+            "agent-reviewer"
+          ],
+          "autoReview": false,
+          "requireComments": true,
+          "feedbackLoop": true
+        },
+        "inputs": [
+          {
+            "name": "testReport",
+            "source": "node-report-gen",
+            "sourceKey": "testReport",
+            "required": true,
+            "description": "待审核的测试报告"
+          },
+          {
+            "name": "statistics",
+            "source": "node-result-analysis",
+            "sourceKey": "statistics",
+            "required": false,
+            "description": "测试结果统计数据，用于交叉验证"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "reviewResult",
+            "type": "object",
+            "description": "审核结果，包含评分、意见、是否通过"
+          },
+          {
+            "name": "approved",
+            "type": "boolean",
+            "description": "报告是否通过审核"
+          },
+          {
+            "name": "reviewComments",
+            "type": "array",
+            "description": "审核意见列表"
+          }
+        ],
+        "taskTemplate": "请审核以下功能测试报告：\n\n## 待审核报告\n{{testReport}}\n\n## 审核标准\n{{criteria}}\n\n## 审核要求\n1. 按照审核标准逐项评分（0-100分）\n2. 对每项标准给出具体评价和改进建议\n3. 计算加权总分\n4. 判断是否达到通过阈值（{{passThreshold}}分）\n5. 提供总体评价和修改建议\n\n请输出详细的审核报告。"
+      }
+    },
+    {
+      "id": "node-output",
+      "type": "output",
+      "name": "输出结果",
+      "position": {
+        "x": 1300,
+        "y": 200
+      },
+      "config": {
+        "outputConfig": {
+          "name": "功能测试报告",
+          "description": "完整的功能测试报告，包含测试摘要、用例执行结果、缺陷统计、覆盖率分析和改进建议",
+          "type": "json",
+          "isFinalOutput": true
+        },
+        "inputs": [
+          {
+            "name": "testReport",
+            "source": "node-report-gen",
+            "sourceKey": "testReport",
+            "required": true
+          },
+          {
+            "name": "reviewResult",
+            "source": "node-review",
+            "sourceKey": "reviewResult",
+            "required": true
+          },
+          {
+            "name": "statistics",
+            "source": "node-result-analysis",
+            "sourceKey": "statistics",
+            "required": false
+          },
+          {
+            "name": "issues",
+            "source": "node-result-analysis",
+            "sourceKey": "issues",
+            "required": false
+          }
+        ]
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge-1",
+      "source": "node-init",
+      "target": "node-test-design"
+    },
+    {
+      "id": "edge-2",
+      "source": "node-test-design",
+      "target": "node-test-exec"
+    },
+    {
+      "id": "edge-3",
+      "source": "node-test-exec",
+      "target": "node-result-analysis"
+    },
+    {
+      "id": "edge-4",
+      "source": "node-result-analysis",
+      "target": "node-report-gen"
+    },
+    {
+      "id": "edge-5",
+      "source": "node-report-gen",
+      "target": "node-review"
+    },
+    {
+      "id": "edge-6",
+      "source": "node-review",
+      "target": "node-output"
+    }
+  ],
+  "id": "workflow-1774703842508",
+  "createdAt": "2026-03-28T13:17:22.508Z",
+  "updatedAt": "2026-03-28T13:29:25.839Z",
+  "version": "1.0.0"
+}

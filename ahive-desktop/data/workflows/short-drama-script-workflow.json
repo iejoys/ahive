@@ -1,0 +1,480 @@
+{
+  "id": "workflow-short-drama-script",
+  "name": "short-drama-script-workflow",
+  "description": "从创意构思到完成剧本的完整流程",
+  "isActive": false,
+  "version": "1.0.0",
+  "context": {
+    "projectPath": "{{PROJECT_ROOT}}/projects/short-drama",
+    "outputPath": "{{PROJECT_ROOT}}/projects/short-drama/output",
+    "assets": {
+      "scripts": "{{PROJECT_ROOT}}/projects/short-drama/scripts",
+      "docs": "{{PROJECT_ROOT}}/projects/short-drama/docs"
+    }
+  },
+  "nodes": [
+    {
+      "id": "init-config",
+      "type": "variable",
+      "name": "初始化配置",
+      "position": {
+        "x": 100,
+        "y": 200
+      },
+      "config": {
+        "variableConfig": {
+          "name": "projectConfig",
+          "value": "{\"title\":\"\",\"genre\":\"都市情感\",\"episodeCount\":10,\"durationPerEpisode\":\"3-5分钟\",\"targetPlatform\":\"短视频平台\"}",
+          "type": "json"
+        }
+      },
+      "updatedAt": "2026-04-10T06:23:21.295Z"
+    },
+    {
+      "id": "milestone-creation",
+      "type": "milestone",
+      "name": "阶段一：创意构思",
+      "position": {
+        "x": 300,
+        "y": 200
+      },
+      "config": {
+        "description": "确定题材、主题和故事框架",
+        "childNodes": [
+          "idea-generation",
+          "theme-definition"
+        ],
+        "waitForCompletion": true
+      }
+    },
+    {
+      "id": "idea-generation",
+      "type": "agent",
+      "name": "创意构思",
+      "position": {
+        "x": 500,
+        "y": 100
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "designer-agent"
+            }
+          ],
+          "failureStrategy": {
+            "action": "abort"
+          }
+        },
+        "taskTemplate": "根据项目配置进行创意构思：\n1. 分析当前热门短剧题材和趋势\n2. 提出3-5个创意方向\n3. 每个方向包含：核心冲突、人物设定、故事梗概\n\n输出创意方案到黑板变量：creativeIdeas",
+        "inputs": [
+          {
+            "name": "projectConfig",
+            "source": "blackboard",
+            "sourceKey": "projectConfig"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "creativeIdeas",
+            "extractPath": "$"
+          }
+        ],
+        "timeout": 1800000
+      }
+    },
+    {
+      "id": "theme-definition",
+      "type": "agent",
+      "name": "主题确定",
+      "position": {
+        "x": 500,
+        "y": 300
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "analyst-agent"
+            }
+          ],
+          "failureStrategy": {
+            "action": "abort"
+          }
+        },
+        "taskTemplate": "分析创意方案，确定最终主题：\n1. 评估每个创意的市场潜力\n2. 分析目标受众\n3. 选择最佳创意方向\n4. 明确故事主题和核心价值观\n\n输出最终主题到黑板变量：finalTheme",
+        "inputs": [
+          {
+            "name": "creativeIdeas",
+            "source": "prev-output",
+            "sourceKey": "idea-generation:creativeIdeas"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "finalTheme",
+            "extractPath": "$"
+          }
+        ],
+        "timeout": 1200000
+      }
+    },
+    {
+      "id": "milestone-outline",
+      "type": "milestone",
+      "name": "阶段二：大纲编写",
+      "position": {
+        "x": 700,
+        "y": 200
+      },
+      "config": {
+        "description": "编写故事大纲和分集大纲",
+        "childNodes": [
+          "story-outline",
+          "episode-outline",
+          "outline-review"
+        ],
+        "waitForCompletion": true
+      }
+    },
+    {
+      "id": "story-outline",
+      "type": "agent",
+      "name": "故事大纲",
+      "position": {
+        "x": 900,
+        "y": 100
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "designer-agent"
+            }
+          ],
+          "failureStrategy": {
+            "action": "abort"
+          }
+        },
+        "taskTemplate": "编写完整故事大纲：\n1. 故事背景设定\n2. 主要人物小传（3-5人）\n3. 故事主线和支线\n4. 核心冲突和高潮设计\n5. 结局走向\n\n输出故事大纲到黑板变量：storyOutline",
+        "inputs": [
+          {
+            "name": "finalTheme",
+            "source": "prev-output",
+            "sourceKey": "theme-definition:finalTheme"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "storyOutline",
+            "extractPath": "$"
+          }
+        ],
+        "timeout": 2400000
+      }
+    },
+    {
+      "id": "episode-outline",
+      "type": "agent",
+      "name": "分集大纲",
+      "position": {
+        "x": 900,
+        "y": 300
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "designer-agent"
+            }
+          ],
+          "failureStrategy": {
+            "action": "abort"
+          }
+        },
+        "taskTemplate": "编写分集大纲：\n1. 根据故事大纲拆分集数\n2. 每集标题和核心事件\n3. 每集开头、发展、高潮、结尾设计\n4. 集与集之间的悬念和钩子\n5. 控制每集时长在3-5分钟\n\n输出分集大纲到黑板变量：episodeOutline",
+        "inputs": [
+          {
+            "name": "storyOutline",
+            "source": "prev-output",
+            "sourceKey": "story-outline:storyOutline"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "episodeOutline",
+            "extractPath": "$"
+          }
+        ],
+        "timeout": 2400000
+      }
+    },
+    {
+      "id": "outline-review",
+      "type": "review",
+      "name": "大纲审核",
+      "position": {
+        "x": 1100,
+        "y": 200
+      },
+      "config": {
+        "reviewConfig": {
+          "reviewType": "agent",
+          "reviewerAgentId": "reviewer-agent",
+          "title": "故事大纲和分集大纲审核",
+          "instruction": "审核大纲的完整性、逻辑性、吸引力和可行性",
+          "scoreMethod": "score",
+          "criteria": [
+            {
+              "name": "故事完整性",
+              "description": "故事结构完整，有清晰的开端、发展、高潮、结局",
+              "weight": 30
+            },
+            {
+              "name": "人物塑造",
+              "description": "人物性格鲜明，动机合理，有成长弧线",
+              "weight": 25
+            },
+            {
+              "name": "情节吸引力",
+              "description": "情节紧凑，有悬念和反转，能吸引观众",
+              "weight": 25
+            },
+            {
+              "name": "可执行性",
+              "description": "考虑拍摄成本和周期，方案切实可行",
+              "weight": 20
+            }
+          ],
+          "passCondition": {
+            "variableName": "totalScore",
+            "operator": "gte",
+            "threshold": 70
+          },
+          "failAction": {
+            "type": "return",
+            "targetNodeId": "story-outline",
+            "maxRetries": 2
+          }
+        }
+      }
+    },
+    {
+      "id": "milestone-script",
+      "type": "milestone",
+      "name": "阶段三：剧本撰写",
+      "position": {
+        "x": 1300,
+        "y": 200
+      },
+      "config": {
+        "description": "撰写完整剧本",
+        "childNodes": [
+          "script-writing",
+          "script-review"
+        ],
+        "waitForCompletion": true
+      }
+    },
+    {
+      "id": "script-writing",
+      "type": "agent",
+      "name": "剧本撰写",
+      "position": {
+        "x": 1500,
+        "y": 200
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "designer-agent"
+            }
+          ],
+          "failureStrategy": {
+            "action": "retry",
+            "retryCount": 2
+          }
+        },
+        "taskTemplate": "根据分集大纲撰写完整剧本：\n\n每集剧本格式：\n【第X集】\n场景：XXX\n人物：XXX\n\n[场景描述]\n\n人物A：（台词）\n人物B：（台词）\n\n[动作描述]\n\n要求：\n1. 台词自然口语化\n2. 每集控制在3-5分钟\n3. 结尾留悬念\n4. 保存到 {{context.assets.scripts}}/第X集.md\n\n输出剧本文件路径到黑板变量：scriptFiles",
+        "inputs": [
+          {
+            "name": "episodeOutline",
+            "source": "prev-output",
+            "sourceKey": "episode-outline:episodeOutline"
+          },
+          {
+            "name": "storyOutline",
+            "source": "prev-output",
+            "sourceKey": "story-outline:storyOutline"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "scriptFiles",
+            "extractPath": "$"
+          }
+        ],
+        "timeout": 7200000
+      }
+    },
+    {
+      "id": "script-review",
+      "type": "review",
+      "name": "剧本审核",
+      "position": {
+        "x": 1700,
+        "y": 200
+      },
+      "config": {
+        "reviewConfig": {
+          "reviewType": "agent",
+          "reviewerAgentId": "reviewer-agent",
+          "title": "剧本质量审核",
+          "instruction": "审核剧本的台词质量、情节连贯性、人物一致性和观众吸引力",
+          "scoreMethod": "score",
+          "criteria": [
+            {
+              "name": "台词质量",
+              "description": "台词自然流畅，符合人物性格，有记忆点",
+              "weight": 30
+            },
+            {
+              "name": "情节连贯",
+              "description": "情节发展合理，前后呼应，无逻辑漏洞",
+              "weight": 25
+            },
+            {
+              "name": "人物一致性",
+              "description": "人物行为符合设定，性格前后一致",
+              "weight": 20
+            },
+            {
+              "name": "观众吸引力",
+              "description": "节奏紧凑，有情感共鸣，能留住观众",
+              "weight": 25
+            }
+          ],
+          "passCondition": {
+            "variableName": "totalScore",
+            "operator": "gte",
+            "threshold": 75
+          },
+          "failAction": {
+            "type": "return",
+            "targetNodeId": "script-writing",
+            "maxRetries": 3
+          }
+        }
+      }
+    },
+    {
+      "id": "final-output",
+      "type": "output",
+      "name": "输出最终剧本",
+      "position": {
+        "x": 1900,
+        "y": 200
+      },
+      "config": {
+        "outputConfig": {
+          "name": "短剧剧本包",
+          "description": "包含故事大纲、分集大纲、完整剧本的最终交付物",
+          "type": "document",
+          "isFinalOutput": true
+        }
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "source": "init-config",
+      "target": "milestone-creation"
+    },
+    {
+      "id": "e2",
+      "source": "milestone-creation",
+      "target": "idea-generation"
+    },
+    {
+      "id": "e3",
+      "source": "idea-generation",
+      "target": "theme-definition"
+    },
+    {
+      "id": "e4",
+      "source": "theme-definition",
+      "target": "milestone-outline"
+    },
+    {
+      "id": "e5",
+      "source": "milestone-outline",
+      "target": "story-outline"
+    },
+    {
+      "id": "e6",
+      "source": "story-outline",
+      "target": "episode-outline"
+    },
+    {
+      "id": "e7",
+      "source": "episode-outline",
+      "target": "outline-review"
+    },
+    {
+      "id": "e8",
+      "source": "outline-review",
+      "target": "milestone-script"
+    },
+    {
+      "id": "e-fail-1",
+      "source": "outline-review",
+      "target": "story-outline",
+      "label": "大纲不通过",
+      "failCondition": {
+        "variableName": "totalScore",
+        "operator": "lt",
+        "value": 70
+      }
+    },
+    {
+      "id": "e9",
+      "source": "milestone-script",
+      "target": "script-writing"
+    },
+    {
+      "id": "e10",
+      "source": "script-writing",
+      "target": "script-review"
+    },
+    {
+      "id": "e11",
+      "source": "script-review",
+      "target": "final-output"
+    },
+    {
+      "id": "e-fail-2",
+      "source": "script-review",
+      "target": "script-writing",
+      "label": "剧本不通过",
+      "failCondition": {
+        "variableName": "totalScore",
+        "operator": "lt",
+        "value": 75
+      }
+    }
+  ],
+  "updatedAt": "2026-04-10T06:23:21.296Z",
+  "createdAt": "2026-04-10T06:23:21.296Z"
+}

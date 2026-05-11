@@ -1,0 +1,751 @@
+{
+  "id": "workflow-tower-defense-game",
+  "name": "generated-workflow-2d-tower-defense",
+  "description": "完整的塔防游戏开发流程：设计 → 并行开发 → 测试修复 → 发布",
+  "isActive": false,
+  "context": {
+    "projectPath": "{{PROJECT_ROOT}}/games/tower-defense",
+    "outputPath": "{{PROJECT_ROOT}}/games/tower-defense/dist",
+    "assets": {
+      "images": "{{PROJECT_ROOT}}/games/tower-defense/assets/images",
+      "audio": "{{PROJECT_ROOT}}/games/tower-defense/assets/audio",
+      "code": "{{PROJECT_ROOT}}/games/tower-defense/src",
+      "docs": "{{PROJECT_ROOT}}/games/tower-defense/docs"
+    }
+  },
+  "nodes": [
+    {
+      "id": "init-config",
+      "type": "variable",
+      "name": "初始化游戏配置",
+      "position": {
+        "x": 100,
+        "y": 100
+      },
+      "config": {
+        "variableConfig": {
+          "name": "gameConfig",
+          "value": "{\"gameName\":\"Kingdom Defense\",\"version\":\"1.0.0\",\"platform\":\"web\",\"gridSize\":{\"cols\":15,\"rows\":10},\"maxWaves\":10,\"towerTypes\":[\"archer\",\"cannon\",\"magic\",\"frost\"],\"enemyTypes\":[\"soldier\",\"knight\",\"giant\",\"boss\"]}",
+          "type": "json"
+        }
+      },
+      "updatedAt": "2026-03-26T15:12:58.635Z"
+    },
+    {
+      "id": "phase-design",
+      "type": "milestone",
+      "name": "阶段一：需求与设计",
+      "position": {
+        "x": 299.1880302688171,
+        "y": 100
+      },
+      "config": {
+        "description": "完成塔防游戏需求分析和游戏设计文档",
+        "waitForCompletion": true,
+        "milestoneConfig": {
+          "childNodes": [
+            "init-config",
+            "requirement-analysis",
+            "game-design"
+          ]
+        }
+      },
+      "updatedAt": "2026-04-09T09:38:23.240Z",
+      "description": ""
+    },
+    {
+      "id": "requirement-analysis",
+      "type": "agent",
+      "name": "阶段一：需求与设计",
+      "position": {
+        "x": 494.79844527895784,
+        "y": 50
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "analyst-agent"
+            }
+          ],
+          "failureStrategy": {
+            "action": "abort"
+          }
+        },
+        "taskTemplate": "分析2D塔防游戏需求：\n1. 核心玩法：节点地图、固定路径敌人、多波次进攻\n2. 塔防系统：弓箭塔、炮塔、魔法塔、冰霜塔\n3. 敌人系统：士兵、骑士、巨人、Boss\n4. 经济系统：金币获取、塔升级\n输出需求文档到 {{context.assets.docs}}/requirements.md",
+        "outputs": [
+          {
+            "name": "requirementsDoc",
+            "extractPath": "$"
+          }
+        ],
+        "timeout": 3600000,
+        "inputs": []
+      },
+      "updatedAt": "2026-03-28T09:34:14.533Z",
+      "description": ""
+    },
+    {
+      "id": "game-design",
+      "type": "agent",
+      "name": "阶段一：需求与设计",
+      "position": {
+        "x": 700,
+        "y": 50
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "designer-agent"
+            }
+          ],
+          "failureStrategy": {
+            "action": "abort"
+          }
+        },
+        "taskTemplate": "基于需求设计塔防游戏：\n1. 地图系统：节点网格、路径规划、可建造区域\n2. 塔防系统：4种塔类型、攻击范围、升级路线\n3. 敌人系统：4种敌人、属性设计、波次配置\n4. 波次系统：10波敌人、难度递增、Boss战\n输出游戏设计文档(GDD)到 {{context.assets.docs}}/GDD.md",
+        "inputs": [
+          {
+            "name": "requirementsDoc",
+            "source": "prev-output",
+            "sourceKey": "requirement-analysis:requirementsDoc"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "gameDesignDoc",
+            "extractPath": "$"
+          }
+        ],
+        "timeout": 3600000
+      },
+      "updatedAt": "2026-03-28T09:34:15.521Z",
+      "description": ""
+    },
+    {
+      "id": "design-review",
+      "type": "review",
+      "name": "阶段一：需求与设计",
+      "position": {
+        "x": 900,
+        "y": 54.59624844786438
+      },
+      "config": {
+        "reviewConfig": {
+          "reviewType": "agent",
+          "reviewerAgentId": "reviewer-agent",
+          "title": "塔防游戏设计文档审核",
+          "instruction": "审核GDD的完整性、游戏机制可行性、塔防平衡性",
+          "scoreMethod": "score",
+          "criteria": [
+            {
+              "name": "完整性",
+              "description": "是否涵盖地图、塔防、敌人、波次等核心系统",
+              "weight": 35
+            },
+            {
+              "name": "可行性",
+              "description": "技术实现是否可行，性能是否可接受",
+              "weight": 30
+            },
+            {
+              "name": "平衡性",
+              "description": "塔与敌人数值是否平衡，难度曲线是否合理",
+              "weight": 35
+            }
+          ],
+          "passCondition": {
+            "variableName": "totalScore",
+            "operator": "gte",
+            "threshold": 70
+          },
+          "failAction": {
+            "type": "return",
+            "targetNodeId": "game-design",
+            "maxRetries": 2
+          }
+        }
+      },
+      "updatedAt": "2026-03-28T09:34:13.467Z",
+      "description": ""
+    },
+    {
+      "id": "phase-dev",
+      "type": "milestone",
+      "name": "阶段二：并行开发",
+      "position": {
+        "x": 1097.1725571725572,
+        "y": 100
+      },
+      "config": {
+        "description": "并行开发核心代码、美术资源、音频资源",
+        "waitForCompletion": true
+      },
+      "updatedAt": "2026-03-28T09:34:16.031Z"
+    },
+    {
+      "id": "parallel-dev",
+      "type": "parallel",
+      "name": "并行开发",
+      "position": {
+        "x": 1300,
+        "y": 100
+      },
+      "config": {
+        "branches": [
+          "dev-core",
+          "dev-art",
+          "dev-audio"
+        ],
+        "mergeType": "all"
+      },
+      "updatedAt": "2026-03-28T09:34:16.672Z"
+    },
+    {
+      "id": "dev-core",
+      "type": "agent",
+      "name": "并行开发",
+      "position": {
+        "x": 1500,
+        "y": 0
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "coder-agent"
+            }
+          ],
+          "failureStrategy": {
+            "action": "retry",
+            "retryCount": 3
+          }
+        },
+        "taskTemplate": "开发塔防游戏核心代码：\n1. 游戏引擎：游戏循环、场景管理、状态机\n2. 地图系统：网格地图、路径点、建造区域\n3. 塔防系统：塔基类、攻击逻辑、升级系统\n4. 敌人系统：敌人类、移动逻辑、波次管理\n5. 经济系统：金币管理、购买升级\n输出到 {{context.assets.code}}/",
+        "inputs": [
+          {
+            "name": "gameDesignDoc",
+            "source": "prev-output",
+            "sourceKey": "game-design:gameDesignDoc"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "coreCodeOutput",
+            "extractPath": "$"
+          }
+        ],
+        "timeout": 7200000
+      },
+      "updatedAt": "2026-03-28T09:34:17.630Z",
+      "description": ""
+    },
+    {
+      "id": "dev-art",
+      "type": "agent",
+      "name": "并行开发",
+      "position": {
+        "x": 1500,
+        "y": 100
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "artist-agent"
+            }
+          ],
+          "failureStrategy": {
+            "action": "retry",
+            "retryCount": 2
+          }
+        },
+        "taskTemplate": "制作塔防游戏美术资源：\n1. 地图素材：草地、道路、建造点、装饰物\n2. 塔防素材：弓箭塔(3级)、炮塔(3级)、魔法塔(3级)、冰霜塔(3级)\n3. 敌人素材：士兵、骑士、巨人、Boss (含动画帧)\n4. UI素材：面板、按钮、图标、特效\n输出到 {{context.assets.images}}/",
+        "inputs": [
+          {
+            "name": "gameDesignDoc",
+            "source": "prev-output",
+            "sourceKey": "game-design:gameDesignDoc"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "artOutput",
+            "extractPath": "$"
+          }
+        ],
+        "timeout": 5400000
+      },
+      "updatedAt": "2026-03-28T09:34:18.592Z",
+      "description": ""
+    },
+    {
+      "id": "dev-audio",
+      "type": "agent",
+      "name": "并行开发",
+      "position": {
+        "x": 1498.6507936507935,
+        "y": 200
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "audio-agent"
+            }
+          ],
+          "failureStrategy": {
+            "action": "retry",
+            "retryCount": 2
+          }
+        },
+        "taskTemplate": "制作塔防游戏音频资源：\n1. 背景音乐：战斗BGM、菜单BGM、胜利/失败BGM\n2. 塔防音效：弓箭攻击、炮弹爆炸、魔法释放、冰霜冻结\n3. 敌人音效：敌人死亡、Boss出现\n4. UI音效：建造、升级、金币、按钮点击\n输出到 {{context.assets.audio}}/",
+        "inputs": [
+          {
+            "name": "gameDesignDoc",
+            "source": "prev-output",
+            "sourceKey": "game-design:gameDesignDoc"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "audioOutput",
+            "extractPath": "$"
+          }
+        ],
+        "timeout": 3600000
+      },
+      "updatedAt": "2026-03-28T09:34:18.165Z",
+      "description": ""
+    },
+    {
+      "id": "integration",
+      "type": "agent",
+      "name": "并行开发",
+      "position": {
+        "x": 1706.7460317460318,
+        "y": 98.91011186275813
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "coder-agent"
+            }
+          ],
+          "failureStrategy": {
+            "action": "abort"
+          }
+        },
+        "taskTemplate": "整合所有游戏资源：\n1. 配置资源加载器\n2. 关联美术资源与游戏对象\n3. 关联音频资源与游戏事件\n4. 创建资源预加载场景\n确保所有资源正确加载并可用",
+        "inputs": [
+          {
+            "name": "coreCodeOutput",
+            "source": "prev-output",
+            "sourceKey": "dev-core:coreCodeOutput"
+          },
+          {
+            "name": "artOutput",
+            "source": "prev-output",
+            "sourceKey": "dev-art:artOutput"
+          },
+          {
+            "name": "audioOutput",
+            "source": "prev-output",
+            "sourceKey": "dev-audio:audioOutput"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "integrationResult",
+            "extractPath": "$"
+          }
+        ],
+        "timeout": 1800000
+      },
+      "updatedAt": "2026-03-28T09:34:18.985Z",
+      "description": ""
+    },
+    {
+      "id": "phase-test",
+      "type": "milestone",
+      "name": "阶段三：测试与修复",
+      "position": {
+        "x": 1900,
+        "y": 100
+      },
+      "config": {
+        "description": "功能测试、Bug修复循环、回归测试",
+        "waitForCompletion": true,
+        "childNodes": [
+          "test-config",
+          "functional-test",
+          "test-condition",
+          "bugfix-loop",
+          "bugfix",
+          "release-confirm",
+          "build-release",
+          "release-notify",
+          "final-output"
+        ]
+      },
+      "updatedAt": "2026-03-28T09:34:19.369Z"
+    },
+    {
+      "id": "test-config",
+      "type": "variable",
+      "name": "设置测试配置",
+      "position": {
+        "x": 2098.052440573548,
+        "y": 100
+      },
+      "config": {
+        "variableConfig": {
+          "name": "bugCount",
+          "value": "999",
+          "type": "number"
+        }
+      },
+      "updatedAt": "2026-03-28T09:34:19.847Z"
+    },
+    {
+      "id": "functional-test",
+      "type": "agent",
+      "name": "设置测试配置",
+      "position": {
+        "x": 2300,
+        "y": 100
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "tester-agent"
+            }
+          ],
+          "failureStrategy": {
+            "action": "abort"
+          }
+        },
+        "taskTemplate": "执行塔防游戏功能测试：\n1. 地图系统测试：网格显示、路径正确性、建造区域\n2. 塔防系统测试：建造、攻击、升级、出售\n3. 敌人系统测试：生成、移动、受伤、死亡\n4. 波次系统测试：波次触发、敌人数量、Boss战\n5. 经济系统测试：金币获取、购买、升级消耗\n输出测试报告和Bug数量",
+        "outputs": [
+          {
+            "name": "testReport",
+            "extractPath": "$"
+          },
+          {
+            "name": "bugCount",
+            "extractPath": "$.bugCount"
+          }
+        ],
+        "timeout": 3600000,
+        "inputs": []
+      },
+      "updatedAt": "2026-03-28T09:34:20.501Z",
+      "description": ""
+    },
+    {
+      "id": "test-condition",
+      "type": "condition",
+      "name": "测试结果判断",
+      "position": {
+        "x": 2533.5283448801956,
+        "y": 102.31229964691008
+      },
+      "config": {
+        "conditions": [
+          {
+            "label": "测试通过",
+            "expression": "{{bugCount}} == 0",
+            "targetNode": "release-confirm"
+          }
+        ],
+        "defaultNode": "bugfix-loop"
+      },
+      "updatedAt": "2026-03-28T09:34:20.902Z"
+    },
+    {
+      "id": "bugfix-loop",
+      "type": "loop",
+      "name": "Bug修复循环",
+      "position": {
+        "x": 2360.091951904223,
+        "y": 329.4887802269626
+      },
+      "config": {
+        "loopConfig": {
+          "type": "condition",
+          "condition": "{{bugCount}} > 0",
+          "loopBodyNode": "bugfix"
+        }
+      },
+      "updatedAt": "2026-03-28T09:34:21.803Z"
+    },
+    {
+      "id": "bugfix",
+      "type": "agent",
+      "name": "Bug修复循环",
+      "position": {
+        "x": 2347.3603843884985,
+        "y": -86.72515621684587
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "coder-agent"
+            }
+          ],
+          "failureStrategy": {
+            "action": "retry",
+            "retryCount": 3
+          }
+        },
+        "taskTemplate": "根据测试报告修复Bug：\n1. 分析Bug优先级\n2. 逐个修复Bug\n3. 更新bugCount变量\n修复完成后更新状态",
+        "inputs": [
+          {
+            "name": "testReport",
+            "source": "prev-output",
+            "sourceKey": "functional-test:testReport"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "fixResult",
+            "extractPath": "$"
+          },
+          {
+            "name": "bugCount",
+            "extractPath": "$.remainingBugs"
+          }
+        ],
+        "timeout": 3600000
+      },
+      "updatedAt": "2026-03-28T09:34:22.359Z",
+      "description": ""
+    },
+    {
+      "id": "release-confirm",
+      "type": "human",
+      "name": "发布通知",
+      "position": {
+        "x": 2700,
+        "y": 0
+      },
+      "config": {
+        "message": "塔防游戏已通过所有测试，是否发布？",
+        "timeout": 86400000,
+        "reviewConfig": {
+          "reviewType": "agent",
+          "title": "审核任务",
+          "instruction": "",
+          "scoreMethod": "score",
+          "passCondition": {
+            "variableName": "review_score",
+            "operator": "gte",
+            "threshold": 80
+          },
+          "failAction": {
+            "type": "return"
+          }
+        }
+      },
+      "updatedAt": "2026-03-28T09:34:22.866Z",
+      "description": ""
+    },
+    {
+      "id": "build-release",
+      "type": "agent",
+      "name": "Bug修复循环",
+      "position": {
+        "x": 2898.052440573548,
+        "y": 0
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "coder-agent"
+            }
+          ],
+          "failureStrategy": {
+            "action": "retry",
+            "retryCount": 2
+          }
+        },
+        "taskTemplate": "构建塔防游戏发布版本：\n1. 优化资源（压缩图片、音频）\n2. 打包代码（压缩、混淆）\n3. 生成发布包\n输出到 {{context.outputPath}}/",
+        "timeout": 1800000,
+        "inputs": [],
+        "outputs": []
+      },
+      "updatedAt": "2026-03-28T09:34:23.355Z",
+      "description": ""
+    },
+    {
+      "id": "release-notify",
+      "type": "notify",
+      "name": "发布通知",
+      "position": {
+        "x": 3100,
+        "y": 0
+      },
+      "config": {
+        "notifyConfig": {
+          "channels": [
+            "email",
+            "dingtalk"
+          ],
+          "recipients": [
+            "team@example.com"
+          ],
+          "template": "🎮 塔防游戏《Kingdom Defense》v1.0.0 已发布！"
+        }
+      },
+      "updatedAt": "2026-03-26T14:26:02.885Z"
+    },
+    {
+      "id": "final-output",
+      "type": "output",
+      "name": "游戏发布包",
+      "position": {
+        "x": 3300,
+        "y": 0
+      },
+      "config": {
+        "outputConfig": {
+          "name": "Kingdom Defense v1.0.0",
+          "description": "2D塔防游戏完整发布包，包含：游戏主程序、美术资源、音频资源、配置文件",
+          "type": "file",
+          "isFinalOutput": true
+        }
+      },
+      "updatedAt": "2026-03-26T14:25:53.890Z"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "source": "init-config",
+      "target": "phase-design"
+    },
+    {
+      "id": "e2",
+      "source": "phase-design",
+      "target": "requirement-analysis"
+    },
+    {
+      "id": "e3",
+      "source": "requirement-analysis",
+      "target": "game-design"
+    },
+    {
+      "id": "e4",
+      "source": "game-design",
+      "target": "design-review"
+    },
+    {
+      "id": "e5",
+      "source": "design-review",
+      "target": "phase-dev"
+    },
+    {
+      "id": "e-fail-1",
+      "source": "design-review",
+      "target": "game-design",
+      "label": "审核不通过",
+      "failCondition": {
+        "variableName": "totalScore",
+        "operator": "lt",
+        "value": 70
+      }
+    },
+    {
+      "id": "e6",
+      "source": "phase-dev",
+      "target": "parallel-dev"
+    },
+    {
+      "id": "e7",
+      "source": "parallel-dev",
+      "target": "integration"
+    },
+    {
+      "id": "e8",
+      "source": "integration",
+      "target": "phase-test"
+    },
+    {
+      "id": "e9",
+      "source": "phase-test",
+      "target": "test-config"
+    },
+    {
+      "id": "e10",
+      "source": "test-config",
+      "target": "functional-test"
+    },
+    {
+      "id": "e11",
+      "source": "functional-test",
+      "target": "test-condition"
+    },
+    {
+      "id": "e12",
+      "source": "test-condition",
+      "target": "release-confirm",
+      "label": "测试通过"
+    },
+    {
+      "id": "e13",
+      "source": "test-condition",
+      "target": "bugfix-loop",
+      "label": "有Bug"
+    },
+    {
+      "id": "e14",
+      "source": "bugfix-loop",
+      "target": "bugfix"
+    },
+    {
+      "id": "e15",
+      "source": "bugfix",
+      "target": "functional-test"
+    },
+    {
+      "id": "e16",
+      "source": "release-confirm",
+      "target": "build-release"
+    },
+    {
+      "id": "e17",
+      "source": "build-release",
+      "target": "release-notify"
+    },
+    {
+      "id": "e18",
+      "source": "release-notify",
+      "target": "final-output"
+    }
+  ],
+  "createdAt": "2026-03-22T16:00:00Z",
+  "updatedAt": "2026-04-09T09:38:23.241Z"
+}

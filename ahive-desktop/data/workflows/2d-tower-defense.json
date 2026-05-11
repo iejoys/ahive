@@ -1,0 +1,842 @@
+{
+  "id": "workflow-2d-tower-defense",
+  "name": "2d-tower-defense",
+  "description": "完整的2D塔防游戏开发流程：需求分析→设计→并行开发→测试→发布",
+  "isActive": false,
+  "context": {
+    "projectPath": "F:/codex_space/tower-defense-game",
+    "outputPath": "F:/codex_space/tower-defense-game/dist",
+    "assets": {
+      "images": "F:/codex_space/tower-defense-game/assets/images",
+      "audio": "F:/codex_space/tower-defense-game/assets/audio",
+      "code": "F:/codex_space/tower-defense-game/src",
+      "docs": "F:/codex_space/tower-defense-game/docs"
+    }
+  },
+  "nodes": [
+    {
+      "id": "init-config",
+      "type": "variable",
+      "name": "初始化项目配置",
+      "position": {
+        "x": 100,
+        "y": 300
+      },
+      "config": {
+        "variableConfig": {
+          "name": "projectConfig",
+          "value": "{\"gameName\":\"TowerDefense2D\",\"version\":\"1.0.0\",\"platform\":\"web\",\"resolution\":{\"width\":1280,\"height\":720}}",
+          "type": "json"
+        }
+      },
+      "updatedAt": "2026-04-13T04:39:01.413Z"
+    },
+    {
+      "id": "phase-design",
+      "type": "milestone",
+      "name": "阶段1：需求与设计",
+      "position": {
+        "x": 250,
+        "y": 300
+      },
+      "config": {
+        "description": "完成需求分析和游戏设计文档",
+        "waitForCompletion": true,
+        "childNodes": [
+          "req-analysis",
+          "game-design",
+          "design-review"
+        ]
+      },
+      "updatedAt": "2026-04-10T10:26:12.735Z"
+    },
+    {
+      "id": "req-analysis",
+      "type": "agent",
+      "name": "需求分析",
+      "position": {
+        "x": 440.5541688465062,
+        "y": 161.69884053385545
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "mmutn7fs-7w2qpo"
+            }
+          ],
+          "failureStrategy": {
+            "action": "abort"
+          }
+        },
+        "taskTemplate": "分析2D塔防游戏需求：核心玩法、敌人类型、塔类型、关卡设计、经济系统。输出需求文档到 {{context.assets.docs}}/requirements.md.",
+        "outputs": [
+          {
+            "name": "requirementsDoc",
+            "extractPath": "$"
+          }
+        ],
+        "timeout": 3600000,
+        "inputs": []
+      },
+      "updatedAt": "2026-04-10T10:45:27.504Z",
+      "description": ""
+    },
+    {
+      "id": "game-design",
+      "type": "agent",
+      "name": "游戏设计",
+      "position": {
+        "x": 423.6565984937952,
+        "y": 483.3613470733735
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "agent-ollama"
+            }
+          ],
+          "failureStrategy": {
+            "action": "abort"
+          }
+        },
+        "taskTemplate": "基于需求设计塔防游戏：地图布局、塔的种类与升级、敌人波次、技能系统、UI流程。输出GDD到 {{context.assets.docs}}/GDD.md",
+        "inputs": [
+          {
+            "name": "requirementsDoc",
+            "source": "prev-output",
+            "sourceKey": "req-analysis:requirementsDoc"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "gameDesignDoc",
+            "extractPath": "$"
+          }
+        ],
+        "timeout": 3600000
+      },
+      "updatedAt": "2026-04-10T10:46:17.952Z",
+      "description": ""
+    },
+    {
+      "id": "design-review",
+      "type": "review",
+      "name": "设计评审",
+      "position": {
+        "x": 548.8734953098193,
+        "y": 300
+      },
+      "config": {
+        "reviewConfig": {
+          "reviewType": "agent",
+          "reviewerAgentId": "mmuhsh8c-2v8mxf",
+          "title": "塔防游戏设计评审",
+          "instruction": "评审GDD的完整性、技术可行性和玩法创新性",
+          "scoreMethod": "score",
+          "criteria": [
+            {
+              "name": "完整性",
+              "description": "是否覆盖所有必要模块",
+              "weight": 40
+            },
+            {
+              "name": "可行性",
+              "description": "技术实现是否可行",
+              "weight": 35
+            },
+            {
+              "name": "创新性",
+              "description": "是否有创新的塔防机制",
+              "weight": 25
+            }
+          ],
+          "passCondition": {
+            "variableName": "totalScore",
+            "operator": "gte",
+            "threshold": 70
+          },
+          "failAction": {
+            "type": "return",
+            "targetNodeId": "game-design",
+            "maxRetries": 2
+          }
+        }
+      },
+      "updatedAt": "2026-04-10T10:44:30.645Z",
+      "description": ""
+    },
+    {
+      "id": "phase-dev",
+      "type": "milestone",
+      "name": "阶段2：核心开发",
+      "position": {
+        "x": 700,
+        "y": 300
+      },
+      "config": {
+        "description": "并行开发代码、美术、音效并集成",
+        "waitForCompletion": true,
+        "childNodes": [
+          "parallel-dev",
+          "core-engine",
+          "tower-mechanics",
+          "ui-dev",
+          "art-assets",
+          "audio-assets",
+          "integration"
+        ]
+      },
+      "updatedAt": "2026-04-10T10:46:41.008Z"
+    },
+    {
+      "id": "parallel-dev",
+      "type": "parallel",
+      "name": "并行开发",
+      "position": {
+        "x": 850,
+        "y": 300
+      },
+      "config": {
+        "branches": [
+          "core-engine",
+          "tower-mechanics",
+          "ui-dev",
+          "art-assets",
+          "audio-assets"
+        ],
+        "mergeType": "all"
+      },
+      "updatedAt": "2026-04-10T10:05:30.165Z"
+    },
+    {
+      "id": "core-engine",
+      "type": "agent",
+      "name": "核心引擎开发",
+      "position": {
+        "x": 1000,
+        "y": 150
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "mmuhsh8c-2v8mxf"
+            }
+          ],
+          "failureStrategy": {
+            "action": "abort"
+          }
+        },
+        "taskTemplate": "开发2D游戏核心引擎：渲染循环、场景管理、输入处理、碰撞检测、动画系统。输出到 {{context.assets.code}}/engine/",
+        "inputs": [
+          {
+            "name": "gameDesignDoc",
+            "source": "prev-output",
+            "sourceKey": "game-design:gameDesignDoc"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "engineCode",
+            "extractPath": "$"
+          }
+        ],
+        "timeout": 7200000
+      },
+      "updatedAt": "2026-04-10T10:15:32.923Z",
+      "description": ""
+    },
+    {
+      "id": "tower-mechanics",
+      "type": "agent",
+      "name": "塔防机制开发",
+      "position": {
+        "x": 1000,
+        "y": 300
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "agent-1774862641397-x1x0ac6yk"
+            }
+          ],
+          "failureStrategy": {
+            "action": "abort"
+          }
+        },
+        "taskTemplate": "实现塔防核心逻辑：塔放置、攻击范围、子弹轨迹、敌人寻路、波次管理、经济系统。输出到 {{context.assets.code}}/gameplay/",
+        "inputs": [
+          {
+            "name": "gameDesignDoc",
+            "source": "prev-output",
+            "sourceKey": "game-design:gameDesignDoc"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "gameplayCode",
+            "extractPath": "$"
+          }
+        ],
+        "timeout": 7200000
+      }
+    },
+    {
+      "id": "ui-dev",
+      "type": "agent",
+      "name": "UI界面开发",
+      "position": {
+        "x": 1000,
+        "y": 450
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "ollama-coder"
+            }
+          ],
+          "failureStrategy": {
+            "action": "abort"
+          }
+        },
+        "taskTemplate": "开发游戏UI：主菜单、游戏HUD、塔选择面板、升级界面、暂停菜单、结算画面。输出到 {{context.assets.code}}/ui/",
+        "inputs": [
+          {
+            "name": "gameDesignDoc",
+            "source": "prev-output",
+            "sourceKey": "game-design:gameDesignDoc"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "uiCode",
+            "extractPath": "$"
+          }
+        ],
+        "timeout": 5400000
+      }
+    },
+    {
+      "id": "art-assets",
+      "type": "agent",
+      "name": "美术资源生成",
+      "position": {
+        "x": 1150,
+        "y": 200
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "mmutq08z-zyjavd"
+            }
+          ],
+          "failureStrategy": {
+            "action": "abort"
+          }
+        },
+        "taskTemplate": "生成2D美术资源：塔精灵图、敌人动画、地图背景、UI图标、特效粒子。输出到 {{context.assets.images}}/",
+        "inputs": [
+          {
+            "name": "gameDesignDoc",
+            "source": "prev-output",
+            "sourceKey": "game-design:gameDesignDoc"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "artAssets",
+            "extractPath": "$"
+          }
+        ],
+        "timeout": 5400000
+      },
+      "updatedAt": "2026-04-10T10:15:39.793Z",
+      "description": ""
+    },
+    {
+      "id": "audio-assets",
+      "type": "agent",
+      "name": "音效资源生成",
+      "position": {
+        "x": 1150,
+        "y": 400
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "agent-1775108557900-vuaqn44da"
+            }
+          ],
+          "failureStrategy": {
+            "action": "abort"
+          }
+        },
+        "taskTemplate": "生成游戏音频：背景音乐、塔攻击音效、敌人死亡音效、UI点击音效、胜利/失败音效。输出到 {{context.assets.audio}}/",
+        "inputs": [
+          {
+            "name": "gameDesignDoc",
+            "source": "prev-output",
+            "sourceKey": "game-design:gameDesignDoc"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "audioAssets",
+            "extractPath": "$"
+          }
+        ],
+        "timeout": 3600000
+      },
+      "updatedAt": "2026-04-10T10:16:53.753Z",
+      "description": ""
+    },
+    {
+      "id": "integration",
+      "type": "agent",
+      "name": "资源集成",
+      "position": {
+        "x": 1300,
+        "y": 300
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "mmuhsh8c-2v8mxf"
+            }
+          ],
+          "failureStrategy": {
+            "action": "abort"
+          }
+        },
+        "taskTemplate": "集成代码、美术、音效资源，配置资源加载器，组装完整游戏场景。",
+        "inputs": [
+          {
+            "name": "engineCode",
+            "source": "prev-output",
+            "sourceKey": "core-engine:engineCode"
+          },
+          {
+            "name": "gameplayCode",
+            "source": "prev-output",
+            "sourceKey": "tower-mechanics:gameplayCode"
+          },
+          {
+            "name": "uiCode",
+            "source": "prev-output",
+            "sourceKey": "ui-dev:uiCode"
+          },
+          {
+            "name": "artAssets",
+            "source": "prev-output",
+            "sourceKey": "art-assets:artAssets"
+          },
+          {
+            "name": "audioAssets",
+            "source": "prev-output",
+            "sourceKey": "audio-assets:audioAssets"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "integratedGame",
+            "extractPath": "$"
+          }
+        ],
+        "timeout": 3600000
+      },
+      "updatedAt": "2026-04-10T10:16:50.928Z",
+      "description": ""
+    },
+    {
+      "id": "phase-test",
+      "type": "milestone",
+      "name": "阶段3：测试与优化",
+      "position": {
+        "x": 1450,
+        "y": 300
+      },
+      "config": {
+        "description": "功能测试、Bug修复、性能优化",
+        "waitForCompletion": true,
+        "childNodes": [
+          "testing",
+          "test-condition",
+          "bugfix-loop",
+          "bugfix"
+        ]
+      }
+    },
+    {
+      "id": "testing",
+      "type": "agent",
+      "name": "功能测试",
+      "position": {
+        "x": 1600,
+        "y": 300
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "mmutn7fs-7w2qpo"
+            }
+          ],
+          "failureStrategy": {
+            "action": "abort"
+          }
+        },
+        "taskTemplate": "执行功能测试：游戏启动、塔放置、敌人寻路、战斗逻辑、UI交互、音效播放、关卡流程。输出测试报告和Bug数量。",
+        "inputs": [
+          {
+            "name": "integratedGame",
+            "source": "prev-output",
+            "sourceKey": "integration:integratedGame"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "testReport",
+            "extractPath": "$"
+          },
+          {
+            "name": "bugCount",
+            "extractPath": "$.bugCount"
+          }
+        ],
+        "timeout": 3600000
+      }
+    },
+    {
+      "id": "test-condition",
+      "type": "condition",
+      "name": "测试结果判断",
+      "position": {
+        "x": 1750,
+        "y": 300
+      },
+      "config": {
+        "conditions": [
+          {
+            "label": "测试通过",
+            "expression": "{{bugCount}} == 0",
+            "targetNode": "release-check"
+          }
+        ],
+        "defaultNode": "bugfix-loop"
+      }
+    },
+    {
+      "id": "bugfix-loop",
+      "type": "loop",
+      "name": "Bug修复循环",
+      "position": {
+        "x": 1750,
+        "y": 450
+      },
+      "config": {
+        "loopConfig": {
+          "type": "condition",
+          "condition": "{{bugCount}} > 0",
+          "loopBodyNode": "bugfix"
+        }
+      }
+    },
+    {
+      "id": "bugfix",
+      "type": "agent",
+      "name": "Bug修复",
+      "position": {
+        "x": 1900,
+        "y": 450
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "agent-1774862641397-x1x0ac6yk"
+            }
+          ],
+          "failureStrategy": {
+            "action": "retry",
+            "retryCount": 3
+          }
+        },
+        "taskTemplate": "根据测试报告修复Bug，重点修复寻路、碰撞、经济系统问题。",
+        "inputs": [
+          {
+            "name": "testReport",
+            "source": "prev-output",
+            "sourceKey": "testing:testReport"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "fixResult",
+            "extractPath": "$"
+          }
+        ],
+        "timeout": 3600000
+      }
+    },
+    {
+      "id": "release-check",
+      "type": "human",
+      "name": "发布确认",
+      "position": {
+        "x": 1900,
+        "y": 200
+      },
+      "config": {
+        "message": "游戏已通过测试，是否继续构建发布版本？",
+        "timeout": 86400000
+      }
+    },
+    {
+      "id": "build",
+      "type": "agent",
+      "name": "构建发布",
+      "position": {
+        "x": 2050,
+        "y": 300
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "ollama-coder"
+            }
+          ],
+          "failureStrategy": {
+            "action": "retry",
+            "retryCount": 2
+          }
+        },
+        "taskTemplate": "构建游戏发布版本：资源压缩、代码混淆、打包优化、生成可运行文件。输出到 {{context.outputPath}}/",
+        "timeout": 1800000
+      }
+    },
+    {
+      "id": "notify",
+      "type": "notify",
+      "name": "发布通知",
+      "position": {
+        "x": 2200,
+        "y": 300
+      },
+      "config": {
+        "notifyConfig": {
+          "channels": [
+            "webot"
+          ],
+          "recipients": [
+            "ahive-webot"
+          ],
+          "template": "🎮 2D塔防游戏 {{projectConfig.gameName}} v{{projectConfig.version}} 已构建完成！"
+        }
+      }
+    },
+    {
+      "id": "final-output",
+      "type": "output",
+      "name": "游戏发布包",
+      "position": {
+        "x": 2350,
+        "y": 300
+      },
+      "config": {
+        "outputConfig": {
+          "name": "2D塔防游戏发布包",
+          "description": "可运行的最终游戏版本",
+          "type": "file",
+          "isFinalOutput": true
+        }
+      }
+    },
+    {
+      "id": "node-1776055148126",
+      "type": "variable",
+      "name": "变量设置",
+      "position": {
+        "x": 905.6213017751479,
+        "y": -490.2505000416699
+      },
+      "createdAt": "2026-04-13T04:39:08.126Z",
+      "updatedAt": "2026-04-13T04:39:12.729Z",
+      "config": {}
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "source": "init-config",
+      "target": "phase-design"
+    },
+    {
+      "id": "e2",
+      "source": "phase-design",
+      "target": "req-analysis"
+    },
+    {
+      "id": "e3",
+      "source": "req-analysis",
+      "target": "game-design"
+    },
+    {
+      "id": "e4",
+      "source": "game-design",
+      "target": "design-review"
+    },
+    {
+      "id": "e5",
+      "source": "design-review",
+      "target": "phase-dev"
+    },
+    {
+      "id": "e-fail-1",
+      "source": "design-review",
+      "target": "game-design",
+      "label": "评审未通过",
+      "failCondition": {
+        "variableName": "totalScore",
+        "operator": "lt",
+        "value": 70
+      }
+    },
+    {
+      "id": "e6",
+      "source": "phase-dev",
+      "target": "parallel-dev"
+    },
+    {
+      "id": "e7",
+      "source": "parallel-dev",
+      "target": "core-engine"
+    },
+    {
+      "id": "e8",
+      "source": "parallel-dev",
+      "target": "tower-mechanics"
+    },
+    {
+      "id": "e9",
+      "source": "parallel-dev",
+      "target": "ui-dev"
+    },
+    {
+      "id": "e10",
+      "source": "parallel-dev",
+      "target": "art-assets"
+    },
+    {
+      "id": "e11",
+      "source": "parallel-dev",
+      "target": "audio-assets"
+    },
+    {
+      "id": "e12",
+      "source": "core-engine",
+      "target": "integration"
+    },
+    {
+      "id": "e13",
+      "source": "tower-mechanics",
+      "target": "integration"
+    },
+    {
+      "id": "e14",
+      "source": "ui-dev",
+      "target": "integration"
+    },
+    {
+      "id": "e15",
+      "source": "art-assets",
+      "target": "integration"
+    },
+    {
+      "id": "e16",
+      "source": "audio-assets",
+      "target": "integration"
+    },
+    {
+      "id": "e17",
+      "source": "integration",
+      "target": "phase-test"
+    },
+    {
+      "id": "e18",
+      "source": "phase-test",
+      "target": "testing"
+    },
+    {
+      "id": "e19",
+      "source": "testing",
+      "target": "test-condition"
+    },
+    {
+      "id": "e20",
+      "source": "test-condition",
+      "target": "release-check"
+    },
+    {
+      "id": "e21",
+      "source": "test-condition",
+      "target": "bugfix-loop"
+    },
+    {
+      "id": "e22",
+      "source": "bugfix-loop",
+      "target": "bugfix"
+    },
+    {
+      "id": "e23",
+      "source": "bugfix",
+      "target": "testing"
+    },
+    {
+      "id": "e24",
+      "source": "release-check",
+      "target": "build"
+    },
+    {
+      "id": "e25",
+      "source": "build",
+      "target": "notify"
+    },
+    {
+      "id": "e26",
+      "source": "notify",
+      "target": "final-output"
+    }
+  ],
+  "updatedAt": "2026-04-13T04:39:12.731Z",
+  "createdAt": "2026-04-10T10:46:41.010Z"
+}

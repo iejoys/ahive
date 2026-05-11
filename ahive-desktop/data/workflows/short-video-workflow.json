@@ -1,0 +1,1337 @@
+{
+  "id": "workflow-short-video-creation",
+  "name": "short-video-workflow",
+  "description": "驱动智能体持续创作短视频：创意生成 → 脚本编写 → 素材制作 → 视频合成 → 质量审核 → 发布",
+  "isActive": false,
+  "context": {
+    "projectPath": "{{PROJECT_ROOT}}/short-video-studio",
+    "outputPath": "{{PROJECT_ROOT}}/short-video-studio/output",
+    "assets": {
+      "scripts": "{{PROJECT_ROOT}}/short-video-studio/scripts",
+      "images": "{{PROJECT_ROOT}}/short-video-studio/assets/images",
+      "audio": "{{PROJECT_ROOT}}/short-video-studio/assets/audio",
+      "videos": "{{PROJECT_ROOT}}/short-video-studio/assets/videos",
+      "music": "{{PROJECT_ROOT}}/short-video-studio/assets/music"
+    },
+    "config": {
+      "videoDuration": 60,
+      "videoFormat": "mp4",
+      "resolution": "1080x1920",
+      "fps": 30,
+      "style": "modern",
+      "targetPlatform": "douyin"
+    }
+  },
+  "nodes": [
+    {
+      "id": "init-config",
+      "type": "variable",
+      "name": "初始化项目配置",
+      "position": {
+        "x": 106.02636528341657,
+        "y": 89.45386075402101
+      },
+      "config": {
+        "variableConfig": {
+          "name": "projectConfig",
+          "value": "{\"studioName\":\"AI短视频工作室\",\"batchSize\":1,\"maxRetries\":3,\"qualityThreshold\":75,\"platforms\":[\"douyin\",\"kuaishou\",\"shipinhao\"],\"defaultDuration\":60,\"resolution\":\"1080x1920\"}",
+          "type": "json"
+        }
+      },
+      "updatedAt": "2026-04-10T06:15:36.972Z"
+    },
+    {
+      "id": "init-counter",
+      "type": "variable",
+      "name": "初始化视频计数器",
+      "position": {
+        "x": 98.65079365079373,
+        "y": 200
+      },
+      "config": {
+        "variableConfig": {
+          "name": "videoCounter",
+          "value": "0",
+          "type": "number"
+        }
+      },
+      "updatedAt": "2026-04-10T06:15:41.683Z"
+    },
+    {
+      "id": "init-topics",
+      "type": "variable",
+      "name": "初始化话题库",
+      "position": {
+        "x": 101.04427123181551,
+        "y": 300
+      },
+      "config": {
+        "variableConfig": {
+          "name": "topicLibrary",
+          "value": "[\"科技科普\",\"生活技巧\",\"情感故事\",\"职场成长\",\"健康养生\",\"美食探店\",\"旅行攻略\",\"好书推荐\"]",
+          "type": "json"
+        }
+      },
+      "updatedAt": "2026-04-10T06:15:48.378Z"
+    },
+    {
+      "id": "phase-creation",
+      "type": "milestone",
+      "name": "视频创作阶段",
+      "position": {
+        "x": 376.7152849241613,
+        "y": 418.09433473936406
+      },
+      "config": {
+        "description": "单个视频的完整创作流程",
+        "waitForCompletion": true,
+        "childNodes": [
+          "trend-analysis",
+          "creative-ideation",
+          "script-writing",
+          "script-review"
+        ]
+      },
+      "updatedAt": "2026-04-08T07:06:11.941Z"
+    },
+    {
+      "id": "trend-analysis",
+      "type": "agent",
+      "name": "大苏打的",
+      "position": {
+        "x": 427.5914877541335,
+        "y": 72.23759043620305
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "analyst-agent"
+            }
+          ],
+          "failureStrategy": {
+            "action": "retry",
+            "retryCount": 2
+          }
+        },
+        "taskTemplate": "分析当前短视频平台热点趋势，结合话题库 {{topicLibrary}}，找出最有潜力的创作方向。输出：1) 热门话题列表 2) 推荐创作主题 3) 预期受众分析。保存分析报告到 {{context.assets.scripts}}/trend-analysis-{timestamp}.md",
+        "inputs": [
+          {
+            "name": "topicLibrary",
+            "source": "blackboard",
+            "sourceKey": "topicLibrary"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "trendReport",
+            "extractPath": "$"
+          },
+          {
+            "name": "recommendedTopic",
+            "extractPath": "$.recommendedTopic"
+          }
+        ],
+        "timeout": 1800000
+      },
+      "updatedAt": "2026-04-10T06:16:12.867Z",
+      "description": ""
+    },
+    {
+      "id": "creative-ideation",
+      "type": "agent",
+      "name": "视频创作阶段",
+      "position": {
+        "x": 673.343676313664,
+        "y": 137.6647830213536
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "designer-agent"
+            }
+          ],
+          "failureStrategy": {
+            "action": "retry",
+            "retryCount": 2
+          }
+        },
+        "taskTemplate": "基于推荐主题「{{recommendedTopic}}」，构思一个吸引人的短视频创意。要求：1) 标题吸引眼球 2) 前3秒有钩子 3) 内容有信息增量 4) 结尾有行动号召。输出创意方案到 {{context.assets.scripts}}/creative-{timestamp}.json",
+        "inputs": [
+          {
+            "name": "recommendedTopic",
+            "source": "prev-output",
+            "sourceKey": "trend-analysis:recommendedTopic"
+          },
+          {
+            "name": "trendReport",
+            "source": "prev-output",
+            "sourceKey": "trend-analysis:trendReport"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "creativePlan",
+            "extractPath": "$"
+          },
+          {
+            "name": "videoTitle",
+            "extractPath": "$.title"
+          },
+          {
+            "name": "hook",
+            "extractPath": "$.hook"
+          }
+        ],
+        "timeout": 1200000
+      },
+      "updatedAt": "2026-04-10T06:17:27.555Z",
+      "description": ""
+    },
+    {
+      "id": "script-writing",
+      "type": "agent",
+      "name": "视频创作阶段",
+      "position": {
+        "x": 903.0131826417082,
+        "y": 164.7834267967282
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "designer-agent"
+            }
+          ],
+          "failureStrategy": {
+            "action": "retry",
+            "retryCount": 2
+          }
+        },
+        "taskTemplate": "根据创意方案编写完整的短视频脚本。包含：1) 场景分解（每个场景的画面描述、时长、转场）2) 旁白/台词文案 3) 字幕内容 4) 音乐情绪描述 5) 特效标注。脚本时长约{{context.config.videoDuration}}秒，保存到 {{context.assets.scripts}}/script-{timestamp}.json",
+        "inputs": [
+          {
+            "name": "creativePlan",
+            "source": "prev-output",
+            "sourceKey": "creative-ideation:creativePlan"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "script",
+            "extractPath": "$"
+          },
+          {
+            "name": "sceneCount",
+            "extractPath": "$.sceneCount"
+          },
+          {
+            "name": "narrationText",
+            "extractPath": "$.narration"
+          }
+        ],
+        "timeout": 1800000
+      },
+      "updatedAt": "2026-04-08T07:06:23.823Z",
+      "description": ""
+    },
+    {
+      "id": "script-review",
+      "type": "review",
+      "name": "素材制作阶段",
+      "position": {
+        "x": 1100,
+        "y": 101.04427123181549
+      },
+      "config": {
+        "reviewConfig": {
+          "reviewType": "agent",
+          "reviewerAgentId": "reviewer-agent",
+          "title": "短视频脚本质量审核",
+          "instruction": "审核脚本的吸引力、逻辑性、时长合理性、平台适配性",
+          "scoreMethod": "score",
+          "criteria": [
+            {
+              "name": "吸引力",
+              "description": "开头是否有钩子，内容是否吸引人",
+              "weight": 30
+            },
+            {
+              "name": "逻辑性",
+              "description": "内容结构是否清晰，逻辑是否连贯",
+              "weight": 25
+            },
+            {
+              "name": "时长合理",
+              "description": "节奏是否合适，时长是否控制在目标范围内",
+              "weight": 25
+            },
+            {
+              "name": "平台适配",
+              "description": "是否符合短视频平台的内容规范和推荐机制",
+              "weight": 20
+            }
+          ],
+          "passCondition": {
+            "variableName": "totalScore",
+            "operator": "gte",
+            "threshold": 70
+          },
+          "failAction": {
+            "type": "return",
+            "targetNodeId": "creative-ideation",
+            "maxRetries": 2
+          }
+        }
+      },
+      "description": "",
+      "updatedAt": "2026-03-26T14:39:38.231Z"
+    },
+    {
+      "id": "phase-production",
+      "type": "milestone",
+      "name": "素材制作阶段",
+      "position": {
+        "x": 1297.1725571725574,
+        "y": 200
+      },
+      "config": {
+        "description": "并行生成视觉和音频素材",
+        "waitForCompletion": true,
+        "childNodes": [
+          "parallel-assets",
+          "generate-visuals",
+          "generate-audio",
+          "generate-music",
+          "generate-sfx"
+        ]
+      },
+      "updatedAt": "2026-03-26T13:57:36.971Z"
+    },
+    {
+      "id": "parallel-assets",
+      "type": "parallel",
+      "name": "并行素材生成",
+      "position": {
+        "x": 1503.7643222722133,
+        "y": 200
+      },
+      "config": {
+        "branches": [
+          "generate-visuals",
+          "generate-audio",
+          "generate-music"
+        ],
+        "mergeType": "all"
+      },
+      "updatedAt": "2026-03-27T16:47:40.397Z"
+    },
+    {
+      "id": "generate-visuals",
+      "type": "agent",
+      "name": "并行素43",
+      "position": {
+        "x": 1700,
+        "y": 50
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "artist-agent"
+            }
+          ],
+          "failureStrategy": {
+            "action": "retry",
+            "retryCount": 3
+          }
+        },
+        "taskTemplate": "根据脚本生成视觉素材：\n1) 为每个场景生成对应的图片或动画帧\n2) 图片分辨率：{{context.config.resolution}}\n3) 风格：{{context.config.style}}\n4) 包含：场景图、人物图、背景图、特效素材\n5) 保存到 {{context.assets.images}}/video-{timestamp}/\n\n输出素材清单和文件路径。",
+        "inputs": [
+          {
+            "name": "script",
+            "source": "prev-output",
+            "sourceKey": "script-writing:script"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "visualAssets",
+            "extractPath": "$"
+          },
+          {
+            "name": "imageFiles",
+            "extractPath": "$.files"
+          }
+        ],
+        "timeout": 3600000
+      },
+      "updatedAt": "2026-03-26T15:13:26.129Z",
+      "description": ""
+    },
+    {
+      "id": "generate-audio",
+      "type": "agent",
+      "name": "并二位",
+      "position": {
+        "x": 1700,
+        "y": 200
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "audio-agent"
+            }
+          ],
+          "failureStrategy": {
+            "action": "retry",
+            "retryCount": 3
+          }
+        },
+        "taskTemplate": "根据脚本的旁白文案生成配音：\n1) 使用自然、有感染力的声音\n2) 语速适中，适合短视频节奏\n3) 情绪与内容匹配\n4) 保存到 {{context.assets.audio}}/narration-{timestamp}.mp3\n\n旁白内容：{{narrationText}}",
+        "inputs": [
+          {
+            "name": "narrationText",
+            "source": "prev-output",
+            "sourceKey": "script-writing:narrationText"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "narrationAudio",
+            "extractPath": "$"
+          },
+          {
+            "name": "audioDuration",
+            "extractPath": "$.duration"
+          }
+        ],
+        "timeout": 1800000
+      },
+      "updatedAt": "2026-03-27T16:47:42.712Z",
+      "description": ""
+    },
+    {
+      "id": "generate-music",
+      "type": "agent",
+      "name": "并行素材额外负担",
+      "position": {
+        "x": 1698.9120962654624,
+        "y": 350
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "audio-agent"
+            }
+          ],
+          "failureStrategy": {
+            "action": "retry",
+            "retryCount": 3
+          }
+        },
+        "taskTemplate": "根据脚本的情绪描述生成背景音乐：\n1) 音乐风格与视频主题匹配\n2) 不影响配音的清晰度\n3) 时长约{{context.config.videoDuration}}秒\n4) 保存到 {{context.assets.music}}/bgm-{timestamp}.mp3\n\n输出音乐文件路径和时长。",
+        "inputs": [
+          {
+            "name": "script",
+            "source": "prev-output",
+            "sourceKey": "script-writing:script"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "bgmAudio",
+            "extractPath": "$"
+          },
+          {
+            "name": "bgmDuration",
+            "extractPath": "$.duration"
+          }
+        ],
+        "timeout": 1800000
+      },
+      "updatedAt": "2026-03-27T16:47:42.334Z",
+      "description": ""
+    },
+    {
+      "id": "generate-sfx",
+      "type": "agent",
+      "name": "并行素材生成",
+      "position": {
+        "x": 1900,
+        "y": 200
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "audio-agent"
+            }
+          ],
+          "failureStrategy": {
+            "action": "retry",
+            "retryCount": 2
+          }
+        },
+        "taskTemplate": "根据脚本中的特效标注生成对应音效：\n1) 转场音效\n2) 强调音效\n3) 环境音效\n4) 保存到 {{context.assets.audio}}/sfx-{timestamp}/\n\n输出音效清单和时间轴。",
+        "inputs": [
+          {
+            "name": "script",
+            "source": "prev-output",
+            "sourceKey": "script-writing:script"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "sfxAssets",
+            "extractPath": "$"
+          },
+          {
+            "name": "sfxTimeline",
+            "extractPath": "$.timeline"
+          }
+        ],
+        "timeout": 1200000
+      },
+      "updatedAt": "2026-03-27T16:47:41.953Z",
+      "description": ""
+    },
+    {
+      "id": "phase-composition",
+      "type": "milestone",
+      "name": "视频合成阶段",
+      "position": {
+        "x": 2100,
+        "y": 200
+      },
+      "config": {
+        "description": "将所有素材合成为完整视频",
+        "waitForCompletion": true,
+        "childNodes": [
+          "video-composition",
+          "quality-check",
+          "video-review",
+          "quality-condition",
+          "fix-video",
+          "recheck"
+        ]
+      },
+      "updatedAt": "2026-03-26T15:13:30.685Z"
+    },
+    {
+      "id": "video-composition",
+      "type": "agent",
+      "name": "视频合成32",
+      "position": {
+        "x": 2300.3694501819054,
+        "y": 150
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "coder-agent"
+            }
+          ],
+          "failureStrategy": {
+            "action": "retry",
+            "retryCount": 3
+          }
+        },
+        "taskTemplate": "使用FFmpeg或视频处理工具合成视频：\n\n素材清单：\n- 视觉素材：{{visualAssets}}\n- 配音：{{narrationAudio}}\n- 背景音乐：{{bgmAudio}}\n- 音效：{{sfxAssets}}\n\n要求：\n1) 按脚本时间轴排列场景\n2) 添加字幕（根据脚本字幕内容）\n3) 添加转场效果\n4) 音频混音（配音清晰，BGM音量适当）\n5) 输出格式：{{context.config.videoFormat}}\n6) 分辨率：{{context.config.resolution}}\n7) 帧率：{{context.config.fps}}fps\n8) 保存到 {{context.outputPath}}/video-{timestamp}.mp4\n\n输出视频文件路径和元数据。",
+        "inputs": [
+          {
+            "name": "visualAssets",
+            "source": "prev-output",
+            "sourceKey": "generate-visuals:visualAssets"
+          },
+          {
+            "name": "narrationAudio",
+            "source": "prev-output",
+            "sourceKey": "generate-audio:narrationAudio"
+          },
+          {
+            "name": "bgmAudio",
+            "source": "prev-output",
+            "sourceKey": "generate-music:bgmAudio"
+          },
+          {
+            "name": "sfxAssets",
+            "source": "prev-output",
+            "sourceKey": "generate-sfx:sfxAssets"
+          },
+          {
+            "name": "script",
+            "source": "blackboard",
+            "sourceKey": "script-writing:script"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "videoFile",
+            "extractPath": "$.filePath"
+          },
+          {
+            "name": "videoMeta",
+            "extractPath": "$.metadata"
+          },
+          {
+            "name": "videoDuration",
+            "extractPath": "$.duration"
+          }
+        ],
+        "timeout": 3600000
+      },
+      "updatedAt": "2026-03-26T15:13:29.592Z",
+      "description": ""
+    },
+    {
+      "id": "quality-check",
+      "type": "agent",
+      "name": "视频合成56",
+      "position": {
+        "x": 2500,
+        "y": 152.82744282744284
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "tester-agent"
+            }
+          ],
+          "failureStrategy": {
+            "action": "continue"
+          }
+        },
+        "taskTemplate": "对生成的视频进行全面质量检查：\n\n检查项：\n1) 视频完整性（能否正常播放）\n2) 时长是否符合预期（目标{{context.config.videoDuration}}秒，实际{{videoDuration}}秒）\n3) 画面质量（分辨率、清晰度）\n4) 音频质量（配音清晰度、音量平衡）\n5) 字幕同步（字幕与配音是否匹配）\n6) 转场流畅度\n7) 文件大小合理性\n\n输出质量报告，包含各项评分和总体评分（0-100）。",
+        "inputs": [
+          {
+            "name": "videoFile",
+            "source": "prev-output",
+            "sourceKey": "video-composition:videoFile"
+          },
+          {
+            "name": "videoMeta",
+            "source": "prev-output",
+            "sourceKey": "video-composition:videoMeta"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "qualityReport",
+            "extractPath": "$"
+          },
+          {
+            "name": "qualityScore",
+            "extractPath": "$.totalScore"
+          },
+          {
+            "name": "issues",
+            "extractPath": "$.issues"
+          }
+        ],
+        "timeout": 1800000
+      },
+      "updatedAt": "2026-03-26T15:13:31.067Z",
+      "description": ""
+    },
+    {
+      "id": "video-review",
+      "type": "review",
+      "name": "视频合87",
+      "position": {
+        "x": 2700,
+        "y": 151.0442712318155
+      },
+      "config": {
+        "reviewConfig": {
+          "reviewType": "agent",
+          "reviewerAgentId": "reviewer-agent",
+          "title": "短视频成品审核",
+          "instruction": "从内容质量、技术质量、平台适配三个维度审核视频",
+          "scoreMethod": "score",
+          "criteria": [
+            {
+              "name": "内容质量",
+              "description": "主题清晰、内容有价值、节奏合理、有吸引力",
+              "weight": 35
+            },
+            {
+              "name": "技术质量",
+              "description": "画面清晰、音频清楚、字幕准确、转场流畅",
+              "weight": 35
+            },
+            {
+              "name": "平台适配",
+              "description": "符合平台规范、适合推荐机制、有传播潜力",
+              "weight": 30
+            }
+          ],
+          "passCondition": {
+            "variableName": "totalScore",
+            "operator": "gte",
+            "threshold": 75
+          },
+          "failAction": {
+            "type": "return",
+            "targetNodeId": "video-composition",
+            "maxRetries": 2
+          }
+        }
+      },
+      "updatedAt": "2026-03-26T15:13:32.116Z",
+      "description": ""
+    },
+    {
+      "id": "quality-condition",
+      "type": "condition",
+      "name": "质量判断",
+      "position": {
+        "x": 2900,
+        "y": 200
+      },
+      "config": {
+        "conditions": [
+          {
+            "label": "质量达标",
+            "expression": "{{qualityScore}} >= 75",
+            "targetNode": "phase-publish"
+          }
+        ],
+        "defaultNode": "fix-video"
+      },
+      "updatedAt": "2026-03-26T15:13:33.843Z"
+    },
+    {
+      "id": "fix-video",
+      "type": "agent",
+      "name": "发布阶段77",
+      "position": {
+        "x": 2900,
+        "y": 350
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "coder-agent"
+            }
+          ],
+          "failureStrategy": {
+            "action": "retry",
+            "retryCount": 2
+          }
+        },
+        "taskTemplate": "根据质量报告修复视频问题：\n\n问题清单：{{issues}}\n\n常见修复操作：\n1) 调整音频音量\n2) 修复字幕同步\n3) 优化画面质量\n4) 调整视频时长\n5) 修复转场问题\n\n修复后重新输出到 {{context.outputPath}}/video-{timestamp}-fixed.mp4",
+        "inputs": [
+          {
+            "name": "issues",
+            "source": "blackboard",
+            "sourceKey": "quality-check:issues"
+          },
+          {
+            "name": "videoFile",
+            "source": "blackboard",
+            "sourceKey": "video-composition:videoFile"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "fixedVideoFile",
+            "extractPath": "$.filePath"
+          }
+        ],
+        "timeout": 1800000
+      },
+      "updatedAt": "2026-03-26T15:13:33.538Z",
+      "description": ""
+    },
+    {
+      "id": "recheck",
+      "type": "agent",
+      "name": "发布阶段554",
+      "position": {
+        "x": 3100,
+        "y": 354.17708492726194
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "tester-agent"
+            }
+          ],
+          "failureStrategy": {
+            "action": "continue"
+          }
+        },
+        "taskTemplate": "复查修复后的视频质量，输出新的质量评分。",
+        "inputs": [
+          {
+            "name": "fixedVideoFile",
+            "source": "prev-output",
+            "sourceKey": "fix-video:fixedVideoFile"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "newQualityScore",
+            "extractPath": "$.totalScore"
+          }
+        ],
+        "timeout": 900000
+      },
+      "updatedAt": "2026-03-26T15:14:45.571Z",
+      "description": ""
+    },
+    {
+      "id": "phase-publish",
+      "type": "milestone",
+      "name": "发布阶段",
+      "position": {
+        "x": 3100,
+        "y": 100
+      },
+      "config": {
+        "description": "生成发布素材并通知",
+        "waitForCompletion": true
+      },
+      "updatedAt": "2026-03-26T15:14:47.358Z"
+    },
+    {
+      "id": "generate-metadata",
+      "type": "agent",
+      "name": "生成发布信息",
+      "position": {
+        "x": 3300,
+        "y": 50
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "designer-agent"
+            }
+          ],
+          "failureStrategy": {
+            "action": "continue"
+          }
+        },
+        "taskTemplate": "为视频生成发布所需的元数据：\n\n1) 标题：吸引眼球，不超过30字\n2) 描述：简洁有力，包含关键词\n3) 标签：5-10个热门标签\n4) 封面建议：选择最吸引人的画面\n5) 发布时间建议\n\n保存到 {{context.outputPath}}/metadata-{timestamp}.json",
+        "inputs": [
+          {
+            "name": "videoTitle",
+            "source": "blackboard",
+            "sourceKey": "creative-ideation:videoTitle"
+          },
+          {
+            "name": "script",
+            "source": "blackboard",
+            "sourceKey": "script-writing:script"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "publishMetadata",
+            "extractPath": "$"
+          },
+          {
+            "name": "publishTitle",
+            "extractPath": "$.title"
+          },
+          {
+            "name": "publishTags",
+            "extractPath": "$.tags"
+          }
+        ],
+        "timeout": 600000
+      },
+      "updatedAt": "2026-03-26T15:16:28.316Z",
+      "description": ""
+    },
+    {
+      "id": "generate-cover",
+      "type": "agent",
+      "name": "生成封面图",
+      "position": {
+        "x": 3300,
+        "y": 150
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "artist-agent"
+            }
+          ],
+          "failureStrategy": {
+            "action": "continue"
+          }
+        },
+        "taskTemplate": "从视频中提取或生成吸引人的封面图：\n\n1) 尺寸：1080x1920 或 1080x1920\n2) 包含标题文字\n3) 视觉冲击力强\n4) 保存到 {{context.outputPath}}/cover-{timestamp}.jpg",
+        "inputs": [
+          {
+            "name": "videoFile",
+            "source": "blackboard",
+            "sourceKey": "video-composition:videoFile"
+          },
+          {
+            "name": "publishTitle",
+            "source": "prev-output",
+            "sourceKey": "generate-metadata:publishTitle"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "coverImage",
+            "extractPath": "$.filePath"
+          }
+        ],
+        "timeout": 600000
+      },
+      "updatedAt": "2026-03-26T15:14:46.950Z",
+      "description": ""
+    },
+    {
+      "id": "save-record",
+      "type": "agent",
+      "name": "保存创作记录",
+      "position": {
+        "x": 3500,
+        "y": 100
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "coder-agent"
+            }
+          ],
+          "failureStrategy": {
+            "action": "continue"
+          }
+        },
+        "taskTemplate": "将本次创作的完整记录保存到数据库或日志文件：\n\n记录内容：\n- 视频ID\n- 创作时间\n- 主题和标题\n- 脚本摘要\n- 文件路径\n- 质量评分\n- 素材清单\n\n保存到 {{context.outputPath}}/records/video-{timestamp}.json",
+        "inputs": [
+          {
+            "name": "videoFile",
+            "source": "blackboard",
+            "sourceKey": "video-composition:videoFile"
+          },
+          {
+            "name": "publishMetadata",
+            "source": "prev-output",
+            "sourceKey": "generate-metadata:publishMetadata"
+          },
+          {
+            "name": "qualityReport",
+            "source": "blackboard",
+            "sourceKey": "quality-check:qualityReport"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "recordId",
+            "extractPath": "$.id"
+          }
+        ],
+        "timeout": 300000
+      },
+      "updatedAt": "2026-03-26T15:14:48.120Z",
+      "description": ""
+    },
+    {
+      "id": "notify-completion",
+      "type": "notify",
+      "name": "通知完成",
+      "position": {
+        "x": 3700,
+        "y": 100
+      },
+      "config": {
+        "notifyConfig": {
+          "channels": [
+            "dingtalk",
+            "email"
+          ],
+          "recipients": [
+            "content-team@company.com"
+          ],
+          "template": "🎬 短视频创作完成！\n\n标题：{{publishTitle}}\n时长：{{videoDuration}}秒\n质量评分：{{qualityScore}}分\n文件：{{videoFile}}\n\n请及时审核发布。"
+        }
+      },
+      "updatedAt": "2026-03-26T15:14:42.833Z"
+    },
+    {
+      "id": "update-counter",
+      "type": "variable",
+      "name": "更新计数器",
+      "position": {
+        "x": 3900,
+        "y": 100
+      },
+      "config": {
+        "variableConfig": {
+          "name": "videoCounter",
+          "value": "{{videoCounter}} + 1",
+          "type": "number"
+        }
+      },
+      "updatedAt": "2026-03-26T15:14:40.648Z"
+    },
+    {
+      "id": "continue-condition",
+      "type": "condition",
+      "name": "是否继续创作",
+      "position": {
+        "x": 4100,
+        "y": 200
+      },
+      "config": {
+        "conditions": [
+          {
+            "label": "继续创作",
+            "expression": "{{videoCounter}} < 10",
+            "targetNode": "delay-next"
+          }
+        ],
+        "defaultNode": "workflow-complete"
+      },
+      "updatedAt": "2026-03-26T15:14:37.879Z"
+    },
+    {
+      "id": "delay-next",
+      "type": "delay",
+      "name": "等待间隔",
+      "position": {
+        "x": 4300,
+        "y": 100
+      },
+      "config": {
+        "delayConfig": {
+          "duration": 5,
+          "unit": "minutes"
+        }
+      },
+      "updatedAt": "2026-03-26T15:14:38.296Z"
+    },
+    {
+      "id": "loop-back",
+      "type": "variable",
+      "name": "重置阶段变量",
+      "position": {
+        "x": 4500,
+        "y": 100
+      },
+      "config": {
+        "variableConfig": {
+          "name": "loopSignal",
+          "value": "continue",
+          "type": "string"
+        }
+      },
+      "updatedAt": "2026-03-26T15:14:38.764Z"
+    },
+    {
+      "id": "workflow-complete",
+      "type": "output",
+      "name": "工作流完成",
+      "position": {
+        "x": 4300,
+        "y": 300
+      },
+      "config": {
+        "outputConfig": {
+          "name": "创作总结",
+          "description": "本次批量创作完成，共生成{{videoCounter}}个短视频",
+          "type": "data",
+          "isFinalOutput": true
+        }
+      },
+      "updatedAt": "2026-03-26T15:14:35.314Z"
+    },
+    {
+      "id": "final-output",
+      "type": "output",
+      "name": "视频输出",
+      "position": {
+        "x": 3849.1229300781797,
+        "y": 303.70357380636614
+      },
+      "config": {
+        "outputConfig": {
+          "name": "短视频成品",
+          "description": "完整的短视频文件及发布素材",
+          "type": "file",
+          "isFinalOutput": true
+        }
+      },
+      "updatedAt": "2026-03-26T15:17:53.051Z"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e-init-1",
+      "source": "init-config",
+      "target": "init-counter"
+    },
+    {
+      "id": "e-init-2",
+      "source": "init-counter",
+      "target": "init-topics"
+    },
+    {
+      "id": "e-init-3",
+      "source": "init-topics",
+      "target": "phase-creation"
+    },
+    {
+      "id": "e-phase1-1",
+      "source": "phase-creation",
+      "target": "trend-analysis"
+    },
+    {
+      "id": "e-phase1-2",
+      "source": "trend-analysis",
+      "target": "creative-ideation"
+    },
+    {
+      "id": "e-phase1-3",
+      "source": "creative-ideation",
+      "target": "script-writing"
+    },
+    {
+      "id": "e-phase1-4",
+      "source": "script-writing",
+      "target": "script-review"
+    },
+    {
+      "id": "e-script-fail",
+      "source": "script-review",
+      "target": "creative-ideation",
+      "label": "审核不通过",
+      "failCondition": {
+        "variableName": "totalScore",
+        "operator": "lt",
+        "value": 70
+      }
+    },
+    {
+      "id": "e-phase1-pass",
+      "source": "script-review",
+      "target": "phase-production"
+    },
+    {
+      "id": "e-phase2-1",
+      "source": "phase-production",
+      "target": "parallel-assets"
+    },
+    {
+      "id": "e-parallel-visuals",
+      "source": "parallel-assets",
+      "target": "generate-visuals"
+    },
+    {
+      "id": "e-parallel-audio",
+      "source": "parallel-assets",
+      "target": "generate-audio"
+    },
+    {
+      "id": "e-parallel-music",
+      "source": "parallel-assets",
+      "target": "generate-music"
+    },
+    {
+      "id": "e-visuals-done",
+      "source": "generate-visuals",
+      "target": "generate-sfx"
+    },
+    {
+      "id": "e-audio-done",
+      "source": "generate-audio",
+      "target": "generate-sfx"
+    },
+    {
+      "id": "e-music-done",
+      "source": "generate-music",
+      "target": "generate-sfx"
+    },
+    {
+      "id": "e-phase3",
+      "source": "generate-sfx",
+      "target": "phase-composition"
+    },
+    {
+      "id": "e-compose-1",
+      "source": "phase-composition",
+      "target": "video-composition"
+    },
+    {
+      "id": "e-compose-2",
+      "source": "video-composition",
+      "target": "quality-check"
+    },
+    {
+      "id": "e-compose-3",
+      "source": "quality-check",
+      "target": "video-review"
+    },
+    {
+      "id": "e-compose-4",
+      "source": "video-review",
+      "target": "quality-condition"
+    },
+    {
+      "id": "e-review-fail",
+      "source": "video-review",
+      "target": "video-composition",
+      "label": "审核不通过",
+      "failCondition": {
+        "variableName": "totalScore",
+        "operator": "lt",
+        "value": 75
+      }
+    },
+    {
+      "id": "e-quality-pass",
+      "source": "quality-condition",
+      "target": "phase-publish"
+    },
+    {
+      "id": "e-quality-fail",
+      "source": "quality-condition",
+      "target": "fix-video"
+    },
+    {
+      "id": "e-fix-recheck",
+      "source": "fix-video",
+      "target": "recheck"
+    },
+    {
+      "id": "e-recheck-pass",
+      "source": "recheck",
+      "target": "phase-publish"
+    },
+    {
+      "id": "e-publish-1",
+      "source": "phase-publish",
+      "target": "generate-metadata"
+    },
+    {
+      "id": "e-publish-2",
+      "source": "phase-publish",
+      "target": "generate-cover"
+    },
+    {
+      "id": "e-publish-3",
+      "source": "generate-metadata",
+      "target": "save-record"
+    },
+    {
+      "id": "e-publish-4",
+      "source": "generate-cover",
+      "target": "save-record"
+    },
+    {
+      "id": "e-publish-5",
+      "source": "save-record",
+      "target": "notify-completion"
+    },
+    {
+      "id": "e-output-1",
+      "source": "notify-completion",
+      "target": "final-output"
+    },
+    {
+      "id": "e-output-2",
+      "source": "final-output",
+      "target": "update-counter"
+    },
+    {
+      "id": "e-counter",
+      "source": "update-counter",
+      "target": "continue-condition"
+    },
+    {
+      "id": "e-continue",
+      "source": "continue-condition",
+      "target": "delay-next"
+    },
+    {
+      "id": "e-delay",
+      "source": "delay-next",
+      "target": "loop-back"
+    },
+    {
+      "id": "e-loop",
+      "source": "loop-back",
+      "target": "phase-creation"
+    },
+    {
+      "id": "e-complete",
+      "source": "continue-condition",
+      "target": "workflow-complete"
+    }
+  ],
+  "variables": {
+    "videoCounter": 0,
+    "currentVideoId": "",
+    "qualityScore": 0,
+    "maxVideosPerBatch": 10,
+    "qualityThreshold": 75
+  },
+  "settings": {
+    "maxRetries": 3,
+    "defaultTimeout": 3600000,
+    "errorHandling": "continue",
+    "parallelism": 3,
+    "logging": true,
+    "saveIntermediateResults": true
+  },
+  "metadata": {
+    "version": "1.0.0",
+    "created": "2024-01-01",
+    "author": "AHIVE",
+    "tags": [
+      "短视频",
+      "自动化",
+      "内容创作",
+      "AI生成"
+    ],
+    "estimatedDuration": "2-4小时/视频"
+  },
+  "updatedAt": "2026-04-10T06:17:27.556Z",
+  "createdAt": "2026-03-23T02:57:58.892Z"
+}

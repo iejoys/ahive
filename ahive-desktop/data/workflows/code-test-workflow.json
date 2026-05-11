@@ -1,0 +1,589 @@
+{
+  "id": "workflow-code-test",
+  "name": "code-test-workflow",
+  "description": "自动化代码测试流程：单元测试 → 集成测试 → 覆盖率分析 → 报告生成",
+  "isActive": false,
+  "context": {
+    "projectPath": "{{PROJECT_ROOT}}",
+    "outputPath": "{{PROJECT_ROOT}}/test-reports",
+    "assets": {
+      "code": "{{PROJECT_ROOT}}/src",
+      "tests": "{{PROJECT_ROOT}}/tests",
+      "reports": "{{PROJECT_ROOT}}/test-reports"
+    }
+  },
+  "nodes": [
+    {
+      "id": "init",
+      "type": "variable",
+      "name": "初始化测试配置",
+      "position": {
+        "x": 75.12134983459237,
+        "y": -45.44441635161289
+      },
+      "config": {
+        "variableConfig": {
+          "name": "testConfig",
+          "value": "{\"testFramework\":\"jest\",\"coverageThreshold\":80,\"parallel\":true}",
+          "type": "json"
+        }
+      },
+      "updatedAt": "2026-04-09T15:29:24.585Z"
+    },
+    {
+      "id": "phase-test",
+      "type": "milestone",
+      "name": "测试阶段",
+      "position": {
+        "x": 259.24804629824314,
+        "y": 88.58945296350805
+      },
+      "config": {
+        "description": "并行执行单元测试和集成测试",
+        "childNodes": [
+          "parallel-tests",
+          "unit-tests",
+          "integration-tests"
+        ],
+        "waitForCompletion": true
+      },
+      "updatedAt": "2026-04-09T09:39:56.463Z"
+    },
+    {
+      "id": "parallel-tests",
+      "type": "parallel",
+      "name": "并行测试",
+      "position": {
+        "x": 539.9668091596639,
+        "y": 102.96050438219731
+      },
+      "config": {
+        "branches": [
+          "unit-tests",
+          "integration-tests"
+        ],
+        "mergeType": "all"
+      },
+      "updatedAt": "2026-04-09T02:15:42.641Z"
+    },
+    {
+      "id": "unit-tests",
+      "type": "agent",
+      "name": "单元测试",
+      "position": {
+        "x": 707.611149609465,
+        "y": -7.729835452847709
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "tester-agent"
+            }
+          ],
+          "failureStrategy": {
+            "action": "continue"
+          }
+        },
+        "taskTemplate": "执行单元测试：运行 {{context.assets.tests}} 目录下的所有单元测试用例，记录测试结果和覆盖率",
+        "outputs": [
+          {
+            "name": "unitTestResults",
+            "extractPath": "$"
+          }
+        ],
+        "timeout": 1800000,
+        "inputs": []
+      },
+      "updatedAt": "2026-04-09T00:34:59.746Z",
+      "description": ""
+    },
+    {
+      "id": "integration-tests",
+      "type": "agent",
+      "name": "集成测试",
+      "position": {
+        "x": 698.5197478089012,
+        "y": 209.21008764394634
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "tester-agent"
+            }
+          ],
+          "failureStrategy": {
+            "action": "continue"
+          }
+        },
+        "taskTemplate": "执行集成测试：测试模块间的交互和数据流，验证系统整体功能",
+        "outputs": [
+          {
+            "name": "integrationTestResults",
+            "extractPath": "$"
+          }
+        ],
+        "timeout": 1800000,
+        "inputs": []
+      },
+      "updatedAt": "2026-04-08T02:49:45.835Z",
+      "description": ""
+    },
+    {
+      "id": "coverage-analysis",
+      "type": "agent",
+      "name": "覆盖率分析",
+      "position": {
+        "x": 1046.5449669187672,
+        "y": 105.92100876439463
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "tester-agent"
+            }
+          ],
+          "failureStrategy": {
+            "action": "abort"
+          }
+        },
+        "taskTemplate": "分析测试覆盖率：汇总单元测试和集成测试的覆盖率数据，生成覆盖率报告",
+        "inputs": [
+          {
+            "name": "unitResults",
+            "source": "prev-output",
+            "sourceKey": "unit-tests:unitTestResults"
+          },
+          {
+            "name": "integrationResults",
+            "source": "prev-output",
+            "sourceKey": "integration-tests:integrationTestResults"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "coverageReport",
+            "extractPath": "$"
+          },
+          {
+            "name": "coverageScore",
+            "extractPath": "$.coverageScore"
+          }
+        ],
+        "timeout": 600000
+      },
+      "updatedAt": "2026-04-09T02:52:52.207Z",
+      "description": ""
+    },
+    {
+      "id": "test-condition",
+      "type": "condition",
+      "name": "测试结果评估",
+      "position": {
+        "x": 1268.7487497852471,
+        "y": 98.51974780890134
+      },
+      "config": {
+        "conditions": [
+          {
+            "label": "测试通过",
+            "expression": "{{coverageScore}} >= 80",
+            "targetNode": "generate-report"
+          }
+        ],
+        "defaultNode": "fix-issues"
+      },
+      "updatedAt": "2026-04-09T00:35:23.258Z"
+    },
+    {
+      "id": "generate-report",
+      "type": "agent",
+      "name": "生成测试报告",
+      "position": {
+        "x": 1471.7092541674444,
+        "y": 2.6319298848429185
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "tester-agent"
+            }
+          ],
+          "failureStrategy": {
+            "action": "abort"
+          }
+        },
+        "taskTemplate": "生成测试报告：汇总所有测试结果，生成HTML格式的测试报告，保存到 {{context.outputPath}}",
+        "inputs": [
+          {
+            "name": "coverageReport",
+            "source": "prev-output",
+            "sourceKey": "coverage-analysis:coverageReport"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "finalReport",
+            "extractPath": "$"
+          }
+        ],
+        "timeout": 600000
+      },
+      "updatedAt": "2026-04-09T00:35:22.594Z",
+      "description": ""
+    },
+    {
+      "id": "fix-issues",
+      "type": "agent",
+      "name": "修复问题",
+      "position": {
+        "x": 1439.143705963274,
+        "y": 237.33487927482093
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "coder-agent"
+            }
+          ],
+          "failureStrategy": {
+            "action": "retry",
+            "retryCount": 2
+          }
+        },
+        "taskTemplate": "根据测试结果修复代码问题：分析失败的测试用例，修复代码缺陷",
+        "inputs": [
+          {
+            "name": "coverageReport",
+            "source": "prev-output",
+            "sourceKey": "coverage-analysis:coverageReport"
+          }
+        ],
+        "timeout": 1800000
+      },
+      "updatedAt": "2026-04-08T02:48:38.468Z"
+    },
+    {
+      "id": "final-output",
+      "type": "output",
+      "name": "测试完成",
+      "position": {
+        "x": 1711.6760633271085,
+        "y": 105.92100876439463
+      },
+      "config": {
+        "outputConfig": {
+          "name": "测试报告",
+          "description": "完整的测试报告和覆盖率分析",
+          "type": "file",
+          "isFinalOutput": true
+        }
+      },
+      "updatedAt": "2026-04-09T02:53:24.667Z"
+    },
+    {
+      "id": "node-1775456845007",
+      "type": "human",
+      "name": "人工审核",
+      "position": {
+        "x": 496.0842188947088,
+        "y": -278.02636493265095
+      },
+      "createdAt": "2026-04-06T06:27:25.007Z",
+      "updatedAt": "2026-04-10T06:09:40.787Z",
+      "config": {
+        "reviewConfig": {
+          "reviewType": "agent",
+          "title": "审核任务",
+          "instruction": "555566",
+          "scoreMethod": "score",
+          "passCondition": {
+            "variableName": "review_score",
+            "operator": "gte",
+            "threshold": 80
+          },
+          "failAction": {
+            "type": "return"
+          }
+        }
+      },
+      "description": ""
+    },
+    {
+      "id": "node-1775613679586",
+      "type": "message",
+      "name": "消息节点",
+      "position": {
+        "x": 705.8262374341384,
+        "y": 355.3093990472337
+      },
+      "createdAt": "2026-04-08T02:01:19.586Z",
+      "updatedAt": "2026-04-08T02:47:26.526Z",
+      "config": {
+        "messageConfig": {
+          "type": "wecom",
+          "recipients": [],
+          "content": ""
+        }
+      },
+      "description": ""
+    },
+    {
+      "id": "node-1775614685296",
+      "type": "message",
+      "name": "消息节点",
+      "position": {
+        "x": 501.08349811422045,
+        "y": -49.43484278669864
+      },
+      "createdAt": "2026-04-08T02:18:05.296Z",
+      "updatedAt": "2026-04-09T15:46:48.682Z",
+      "config": {}
+    },
+    {
+      "id": "node-1775694964221",
+      "type": "variable",
+      "name": "变量设置",
+      "position": {
+        "x": 198.2387724480193,
+        "y": -238.86719277258982
+      },
+      "createdAt": "2026-04-09T00:36:04.221Z",
+      "updatedAt": "2026-04-09T15:29:20.069Z",
+      "config": {
+        "variableConfig": {
+          "version": "v2",
+          "variables": [
+            {
+              "name": "port",
+              "value": "3000",
+              "type": "number",
+              "group": "server",
+              "description": "服务端口",
+              "enabled": true
+            },
+            {
+              "name": "host",
+              "value": "localhost",
+              "type": "string",
+              "group": "server",
+              "description": "主机地址",
+              "enabled": true
+            },
+            {
+              "name": "buildCommand",
+              "value": "npm run build",
+              "type": "string",
+              "group": "build",
+              "description": "构建命令",
+              "enabled": true
+            },
+            {
+              "name": "startCommand",
+              "value": "npm start",
+              "type": "string",
+              "group": "build",
+              "description": "启动命令",
+              "enabled": true
+            }
+          ],
+          "groups": [
+            {
+              "id": "server",
+              "name": "服务器配置",
+              "icon": "🖥️"
+            },
+            {
+              "id": "build",
+              "name": "构建配置",
+              "icon": "🔨"
+            },
+            {
+              "id": "group_1775698236680",
+              "name": "新分组",
+              "icon": "📁"
+            }
+          ],
+          "packedVariableName": "project"
+        }
+      },
+      "description": ""
+    },
+    {
+      "id": "node-1775695400961",
+      "type": "variable",
+      "name": "变量设置",
+      "position": {
+        "x": 299.6145549015466,
+        "y": -472.3437558633368
+      },
+      "createdAt": "2026-04-09T00:43:20.961Z",
+      "updatedAt": "2026-04-10T06:09:17.443Z",
+      "config": {
+        "variableConfig": {
+          "version": "v2",
+          "variables": [
+            {
+              "name": "port",
+              "value": "3000",
+              "type": "number",
+              "group": "server",
+              "description": "服务端口",
+              "enabled": true
+            },
+            {
+              "name": "host",
+              "value": "localhost",
+              "type": "string",
+              "group": "server",
+              "description": "主机地址",
+              "enabled": true
+            },
+            {
+              "name": "buildCommand",
+              "value": "npm run build",
+              "type": "string",
+              "group": "server",
+              "description": "构建命令",
+              "enabled": true,
+              "agentId": "mmutq08z-zyjavd"
+            },
+            {
+              "name": "startCommand",
+              "value": "npm start",
+              "type": "string",
+              "group": "build",
+              "description": "启动命令",
+              "enabled": true
+            },
+            {
+              "name": "专用目录。",
+              "value": "f://eew/",
+              "type": "string",
+              "group": "build",
+              "enabled": true,
+              "description": "你的专用工作目录，只允许你在此目录内执行操作，禁止",
+              "agentId": "mmutq08z-zyjavd"
+            }
+          ],
+          "groups": [
+            {
+              "id": "server",
+              "name": "服务器配置",
+              "icon": "🖥️"
+            },
+            {
+              "id": "build",
+              "name": "构建配置0",
+              "icon": "🔨"
+            }
+          ],
+          "packedVariableName": "project"
+        }
+      },
+      "description": ""
+    },
+    {
+      "id": "node-1775703553051",
+      "type": "output",
+      "name": "输出节点",
+      "position": {
+        "x": 575.2695663167352,
+        "y": -480.848873716019
+      },
+      "createdAt": "2026-04-09T02:59:13.051Z",
+      "updatedAt": "2026-04-09T03:06:19.715Z",
+      "config": {}
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "source": "init",
+      "target": "phase-test"
+    },
+    {
+      "id": "e2",
+      "source": "phase-test",
+      "target": "parallel-tests"
+    },
+    {
+      "id": "e3",
+      "source": "parallel-tests",
+      "target": "coverage-analysis"
+    },
+    {
+      "id": "e4",
+      "source": "coverage-analysis",
+      "target": "test-condition"
+    },
+    {
+      "id": "e5",
+      "source": "test-condition",
+      "target": "generate-report"
+    },
+    {
+      "id": "e6",
+      "source": "test-condition",
+      "target": "fix-issues"
+    },
+    {
+      "id": "e7",
+      "source": "generate-report",
+      "target": "final-output"
+    },
+    {
+      "id": "e8",
+      "source": "fix-issues",
+      "target": "phase-test"
+    },
+    {
+      "id": "edge-node-1775614685296-parallel-tests-1775616362058",
+      "source": "node-1775614685296",
+      "sourceHandle": "bottom",
+      "target": "parallel-tests",
+      "targetHandle": "top",
+      "createdAt": "2026-04-08T02:46:02.058Z"
+    },
+    {
+      "id": "edge-integration-tests-node-1775613679586-1775616448417",
+      "source": "integration-tests",
+      "sourceHandle": "bottom",
+      "target": "node-1775613679586",
+      "targetHandle": "top",
+      "createdAt": "2026-04-08T02:47:28.417Z"
+    },
+    {
+      "id": "edge-node-1775703553051-node-1775456845007-1775708000272",
+      "source": "node-1775703553051",
+      "sourceHandle": "bottom",
+      "target": "node-1775456845007",
+      "targetHandle": "top",
+      "createdAt": "2026-04-09T04:13:20.272Z"
+    },
+    {
+      "id": "edge-node-1775695400961-node-1775694964221-1775708017921",
+      "source": "node-1775695400961",
+      "sourceHandle": "bottom",
+      "target": "node-1775694964221",
+      "targetHandle": "top",
+      "createdAt": "2026-04-09T04:13:37.921Z"
+    }
+  ],
+  "updatedAt": "2026-04-10T06:09:57.701Z",
+  "createdAt": "2026-04-05T14:12:19.009Z"
+}

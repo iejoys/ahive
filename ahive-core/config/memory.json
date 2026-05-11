@@ -1,0 +1,26 @@
+{
+    "isolationStrategy": "type",
+    "maxMemoriesForContext": 256,
+    "compaction": {
+        "triggerThreshold": 100,
+        "preserveRecent": 20,
+        "summaryMaxTokens": 4000
+    },
+    "phases": {
+        "phase1": {
+            "scanLimit": 5000,
+            "maxClaimed": 8,
+            "minIdleHours": 6
+        },
+        "phase2": {
+            "maxRawMemories": 256,
+            "consolidationIntervalMs": 86400000
+        }
+    },
+    "cleanup": {
+        "maxUnusedDays": 30,
+        "archiveAge": 90,
+        "deleteAge": 365,
+        "vacuumDay": 0
+    }
+}

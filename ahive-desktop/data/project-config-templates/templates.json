@@ -1,0 +1,327 @@
+{
+  "$schema": "./project-config-template.schema.json",
+  "templates": [
+    {
+      "id": "project-basic",
+      "name": "项目基础模板",
+      "nameEn": "Project Basic",
+      "description": "项目基础信息配置，包含项目标识、路径、Git配置等",
+      "descriptionEn": "Basic project configuration with identity, paths, and Git settings",
+      "category": "基础",
+      "icon": "📦",
+      "groups": [
+        { "id": "project", "name": "项目基础信息", "nameEn": "Project Info", "icon": "📦", "color": "#1890ff" },
+        { "id": "git", "name": "Git配置", "nameEn": "Git Config", "icon": "🔀", "color": "#722ed1" },
+        { "id": "agent-permission", "name": "Agent权限", "nameEn": "Agent Permission", "icon": "🔒", "color": "#fa8c16" }
+      ],
+      "variables": [
+        { "name": "projectId", "value": "", "type": "string", "group": "project", "required": true, "description": "项目唯一标识", "descriptionEn": "Project unique ID" },
+        { "name": "projectName", "value": "", "type": "string", "group": "project", "required": true, "description": "项目名称", "descriptionEn": "Project name" },
+        { "name": "projectType", "value": "web-application", "type": "string", "group": "project", "description": "项目类型", "descriptionEn": "Project type" },
+        { "name": "projectRootPath", "value": "", "type": "directory", "group": "project", "required": true, "description": "项目根目录", "descriptionEn": "Project root path" },
+        { "name": "projectDescription", "value": "", "type": "string", "group": "project", "description": "项目描述", "descriptionEn": "Project description" },
+        
+        { "name": "gitUserName", "value": "", "type": "string", "group": "git", "required": true, "description": "Git提交者姓名", "descriptionEn": "Git committer name" },
+        { "name": "gitUserEmail", "value": "", "type": "string", "group": "git", "required": true, "description": "Git提交者邮箱", "descriptionEn": "Git committer email" },
+        { "name": "gitDefaultBranch", "value": "main", "type": "string", "group": "git", "description": "默认分支名", "descriptionEn": "Default branch name" },
+        { "name": "gitBackupEnabled", "value": "true", "type": "boolean", "group": "git", "description": "是否启用备份", "descriptionEn": "Enable backup" },
+        { "name": "gitBackupPath", "value": "", "type": "directory", "group": "git", "description": "备份目录路径", "descriptionEn": "Backup directory path" },
+        { "name": "commitConventionFormat", "value": "type(scope): description", "type": "string", "group": "git", "description": "提交信息格式", "descriptionEn": "Commit message format" },
+        { "name": "commitConventionTypes", "value": "[\"feat\", \"fix\", \"docs\", \"style\", \"refactor\", \"perf\", \"test\", \"chore\"]", "type": "json", "group": "git", "description": "允许的提交类型", "descriptionEn": "Allowed commit types" },
+        
+        { "name": "agentGitIdentityName", "value": "Agent-Workflow", "type": "string", "group": "agent-permission", "description": "Agent提交身份名称", "descriptionEn": "Agent commit identity name" },
+        { "name": "agentGitIdentityEmail", "value": "agent@project.local", "type": "string", "group": "agent-permission", "description": "Agent提交身份邮箱", "descriptionEn": "Agent commit identity email" },
+        { "name": "agentCanCommit", "value": "true", "type": "boolean", "group": "agent-permission", "description": "Agent是否可提交", "descriptionEn": "Agent can commit" },
+        { "name": "agentCanBranch", "value": "true", "type": "boolean", "group": "agent-permission", "description": "Agent是否可创建分支", "descriptionEn": "Agent can create branch" },
+        { "name": "agentCanMerge", "value": "false", "type": "boolean", "group": "agent-permission", "description": "Agent是否可合并分支", "descriptionEn": "Agent can merge branch" }
+      ]
+    },
+    {
+      "id": "web-application",
+      "name": "Web应用模板",
+      "nameEn": "Web Application",
+      "description": "Web前端应用项目配置，包含技术栈、构建工具、开发服务器等",
+      "descriptionEn": "Web frontend application configuration with tech stack, build tools, and dev server",
+      "category": "软件开发",
+      "icon": "🌐",
+      "groups": [
+        { "id": "project", "name": "项目基础信息", "nameEn": "Project Info", "icon": "📦", "color": "#1890ff" },
+        { "id": "git", "name": "Git配置", "nameEn": "Git Config", "icon": "🔀", "color": "#722ed1" },
+        { "id": "agent-permission", "name": "Agent权限", "nameEn": "Agent Permission", "icon": "🔒", "color": "#fa8c16" },
+        { "id": "tech-stack", "name": "技术栈配置", "nameEn": "Tech Stack", "icon": "💻", "color": "#52c41a" },
+        { "id": "environment", "name": "环境配置", "nameEn": "Environment", "icon": "☁️", "color": "#eb2f96" },
+        { "id": "dev-standards", "name": "开发规范", "nameEn": "Dev Standards", "icon": "📐", "color": "#fadb14" },
+        { "id": "directory-structure", "name": "目录结构", "nameEn": "Directory Structure", "icon": "📁", "color": "#1890ff" }
+      ],
+      "variables": [
+        { "name": "projectId", "value": "", "type": "string", "group": "project", "required": true, "description": "项目唯一标识", "descriptionEn": "Project unique ID" },
+        { "name": "projectName", "value": "", "type": "string", "group": "project", "required": true, "description": "项目名称", "descriptionEn": "Project name" },
+        { "name": "projectType", "value": "web-application", "type": "string", "group": "project", "description": "项目类型", "descriptionEn": "Project type" },
+        { "name": "projectRootPath", "value": "", "type": "directory", "group": "project", "required": true, "description": "项目根目录", "descriptionEn": "Project root path" },
+        { "name": "projectDescription", "value": "", "type": "string", "group": "project", "description": "项目描述", "descriptionEn": "Project description" },
+        
+        { "name": "gitUserName", "value": "", "type": "string", "group": "git", "required": true, "description": "Git提交者姓名", "descriptionEn": "Git committer name" },
+        { "name": "gitUserEmail", "value": "", "type": "string", "group": "git", "required": true, "description": "Git提交者邮箱", "descriptionEn": "Git committer email" },
+        { "name": "gitDefaultBranch", "value": "main", "type": "string", "group": "git", "description": "默认分支名", "descriptionEn": "Default branch name" },
+        { "name": "gitBackupEnabled", "value": "true", "type": "boolean", "group": "git", "description": "是否启用备份", "descriptionEn": "Enable backup" },
+        { "name": "gitBackupPath", "value": "", "type": "directory", "group": "git", "description": "备份目录路径", "descriptionEn": "Backup directory path" },
+        { "name": "commitConventionFormat", "value": "type(scope): description", "type": "string", "group": "git", "description": "提交信息格式", "descriptionEn": "Commit message format" },
+        { "name": "commitConventionTypes", "value": "[\"feat\", \"fix\", \"docs\", \"style\", \"refactor\", \"perf\", \"test\", \"chore\"]", "type": "json", "group": "git", "description": "允许的提交类型", "descriptionEn": "Allowed commit types" },
+        
+        { "name": "agentGitIdentityName", "value": "Agent-Workflow", "type": "string", "group": "agent-permission", "description": "Agent提交身份名称", "descriptionEn": "Agent commit identity name" },
+        { "name": "agentGitIdentityEmail", "value": "agent@project.local", "type": "string", "group": "agent-permission", "description": "Agent提交身份邮箱", "descriptionEn": "Agent commit identity email" },
+        { "name": "agentCanCommit", "value": "true", "type": "boolean", "group": "agent-permission", "description": "Agent是否可提交", "descriptionEn": "Agent can commit" },
+        { "name": "agentCanBranch", "value": "true", "type": "boolean", "group": "agent-permission", "description": "Agent是否可创建分支", "descriptionEn": "Agent can create branch" },
+        { "name": "agentCanMerge", "value": "false", "type": "boolean", "group": "agent-permission", "description": "Agent是否可合并分支", "descriptionEn": "Agent can merge branch" },
+        
+        { "name": "techFramework", "value": "vue", "type": "string", "group": "tech-stack", "description": "前端框架", "descriptionEn": "Frontend framework" },
+        { "name": "techFrameworkVersion", "value": "", "type": "string", "group": "tech-stack", "description": "框架版本", "descriptionEn": "Framework version" },
+        { "name": "techUILibrary", "value": "", "type": "string", "group": "tech-stack", "description": "UI组件库", "descriptionEn": "UI library" },
+        { "name": "techBuildTool", "value": "vite", "type": "string", "group": "tech-stack", "description": "构建工具", "descriptionEn": "Build tool" },
+        { "name": "techPackageManager", "value": "pnpm", "type": "string", "group": "tech-stack", "description": "包管理器", "descriptionEn": "Package manager" },
+        { "name": "techLanguage", "value": "typescript", "type": "string", "group": "tech-stack", "description": "开发语言", "descriptionEn": "Language" },
+        { "name": "techLinter", "value": "eslint", "type": "string", "group": "tech-stack", "description": "代码检查工具", "descriptionEn": "Linter" },
+        { "name": "techFormatter", "value": "prettier", "type": "string", "group": "tech-stack", "description": "代码格式化工具", "descriptionEn": "Formatter" },
+        
+        { "name": "envDevApiBase", "value": "", "type": "string", "group": "environment", "description": "开发环境API地址", "descriptionEn": "Dev API base URL" },
+        { "name": "envDevPort", "value": "3000", "type": "number", "group": "environment", "description": "开发环境端口", "descriptionEn": "Dev server port" },
+        { "name": "envTestApiBase", "value": "", "type": "string", "group": "environment", "description": "测试环境API地址", "descriptionEn": "Test API base URL" },
+        { "name": "envProdApiBase", "value": "", "type": "string", "group": "environment", "description": "生产环境API地址", "descriptionEn": "Prod API base URL" },
+        
+        { "name": "eslintConfigPath", "value": ".eslintrc.js", "type": "file", "group": "dev-standards", "description": "ESLint配置文件路径", "descriptionEn": "ESLint config path" },
+        { "name": "prettierConfigPath", "value": ".prettierrc", "type": "file", "group": "dev-standards", "description": "Prettier配置文件路径", "descriptionEn": "Prettier config path" },
+        { "name": "tsConfigPath", "value": "tsconfig.json", "type": "file", "group": "dev-standards", "description": "TypeScript配置文件路径", "descriptionEn": "TypeScript config path" },
+        { "name": "codingStandardsDocPath", "value": "docs/coding-standards.md", "type": "file", "group": "dev-standards", "description": "代码规范文档路径", "descriptionEn": "Coding standards doc path" },
+        { "name": "gitConventionDocPath", "value": "docs/git-convention.md", "type": "file", "group": "dev-standards", "description": "Git提交规范文档路径", "descriptionEn": "Git convention doc path" },
+        { "name": "architectureDocPath", "value": "docs/architecture-design.md", "type": "file", "group": "dev-standards", "description": "架构设计文档路径", "descriptionEn": "Architecture doc path" },
+        
+        { "name": "srcDir", "value": "src", "type": "directory", "group": "directory-structure", "description": "源码目录", "descriptionEn": "Source directory" },
+        { "name": "componentsDir", "value": "src/components", "type": "directory", "group": "directory-structure", "description": "组件目录", "descriptionEn": "Components directory" },
+        { "name": "viewsDir", "value": "src/views", "type": "directory", "group": "directory-structure", "description": "页面目录", "descriptionEn": "Views directory" },
+        { "name": "utilsDir", "value": "src/utils", "type": "directory", "group": "directory-structure", "description": "工具函数目录", "descriptionEn": "Utils directory" },
+        { "name": "typesDir", "value": "src/types", "type": "directory", "group": "directory-structure", "description": "类型定义目录", "descriptionEn": "Types directory" },
+        { "name": "apiDir", "value": "src/api", "type": "directory", "group": "directory-structure", "description": "API目录", "descriptionEn": "API directory" },
+        { "name": "assetsDir", "value": "src/assets", "type": "directory", "group": "directory-structure", "description": "静态资源目录", "descriptionEn": "Assets directory" },
+        { "name": "testsDir", "value": "tests", "type": "directory", "group": "directory-structure", "description": "测试目录", "descriptionEn": "Tests directory" },
+        { "name": "docsDir", "value": "docs", "type": "directory", "group": "directory-structure", "description": "文档目录", "descriptionEn": "Docs directory" }
+      ]
+    },
+    {
+      "id": "desktop-app",
+      "name": "桌面应用模板",
+      "nameEn": "Desktop Application",
+      "description": "桌面应用项目配置（Electron等）",
+      "descriptionEn": "Desktop application configuration (Electron, etc.)",
+      "category": "软件开发",
+      "icon": "🖥️",
+      "groups": [
+        { "id": "project", "name": "项目基础信息", "nameEn": "Project Info", "icon": "📦", "color": "#1890ff" },
+        { "id": "git", "name": "Git配置", "nameEn": "Git Config", "icon": "🔀", "color": "#722ed1" },
+        { "id": "tech-stack", "name": "技术栈配置", "nameEn": "Tech Stack", "icon": "💻", "color": "#52c41a" },
+        { "id": "dev-standards", "name": "开发规范", "nameEn": "Dev Standards", "icon": "📐", "color": "#fadb14" },
+        { "id": "directory-structure", "name": "目录结构", "nameEn": "Directory Structure", "icon": "📁", "color": "#1890ff" }
+      ],
+      "variables": [
+        { "name": "projectId", "value": "", "type": "string", "group": "project", "required": true, "description": "项目唯一标识", "descriptionEn": "Project unique ID" },
+        { "name": "projectName", "value": "", "type": "string", "group": "project", "required": true, "description": "项目名称", "descriptionEn": "Project name" },
+        { "name": "projectType", "value": "desktop-app", "type": "string", "group": "project", "description": "项目类型", "descriptionEn": "Project type" },
+        { "name": "projectRootPath", "value": "", "type": "directory", "group": "project", "required": true, "description": "项目根目录", "descriptionEn": "Project root path" },
+        { "name": "projectDescription", "value": "", "type": "string", "group": "project", "description": "项目描述", "descriptionEn": "Project description" },
+        
+        { "name": "gitUserName", "value": "", "type": "string", "group": "git", "required": true, "description": "Git提交者姓名", "descriptionEn": "Git committer name" },
+        { "name": "gitUserEmail", "value": "", "type": "string", "group": "git", "required": true, "description": "Git提交者邮箱", "descriptionEn": "Git committer email" },
+        { "name": "gitDefaultBranch", "value": "main", "type": "string", "group": "git", "description": "默认分支名", "descriptionEn": "Default branch name" },
+        
+        { "name": "techFramework", "value": "electron", "type": "string", "group": "tech-stack", "description": "框架", "descriptionEn": "Framework" },
+        { "name": "techFrameworkVersion", "value": "", "type": "string", "group": "tech-stack", "description": "框架版本", "descriptionEn": "Framework version" },
+        { "name": "electronVersion", "value": "", "type": "string", "group": "tech-stack", "description": "Electron版本", "descriptionEn": "Electron version" },
+        { "name": "electronMainPath", "value": "electron/main.js", "type": "string", "group": "tech-stack", "description": "主进程入口", "descriptionEn": "Main process entry" },
+        { "name": "techBuildTool", "value": "vite", "type": "string", "group": "tech-stack", "description": "构建工具", "descriptionEn": "Build tool" },
+        { "name": "techPackageManager", "value": "pnpm", "type": "string", "group": "tech-stack", "description": "包管理器", "descriptionEn": "Package manager" },
+        { "name": "techLanguage", "value": "typescript", "type": "string", "group": "tech-stack", "description": "开发语言", "descriptionEn": "Language" },
+        
+        { "name": "eslintConfigPath", "value": ".eslintrc.js", "type": "file", "group": "dev-standards", "description": "ESLint配置文件路径", "descriptionEn": "ESLint config path" },
+        { "name": "prettierConfigPath", "value": ".prettierrc", "type": "file", "group": "dev-standards", "description": "Prettier配置文件路径", "descriptionEn": "Prettier config path" },
+        { "name": "tsConfigPath", "value": "tsconfig.json", "type": "file", "group": "dev-standards", "description": "TypeScript配置文件路径", "descriptionEn": "TypeScript config path" },
+        { "name": "codingStandardsDocPath", "value": "docs/coding-standards.md", "type": "file", "group": "dev-standards", "description": "代码规范文档路径", "descriptionEn": "Coding standards doc path" },
+        
+        { "name": "srcDir", "value": "src", "type": "directory", "group": "directory-structure", "description": "源码目录", "descriptionEn": "Source directory" },
+        { "name": "componentsDir", "value": "src/components", "type": "directory", "group": "directory-structure", "description": "组件目录", "descriptionEn": "Components directory" },
+        { "name": "electronDir", "value": "electron", "type": "directory", "group": "directory-structure", "description": "Electron目录", "descriptionEn": "Electron directory" },
+        { "name": "testsDir", "value": "tests", "type": "directory", "group": "directory-structure", "description": "测试目录", "descriptionEn": "Tests directory" },
+        { "name": "docsDir", "value": "docs", "type": "directory", "group": "directory-structure", "description": "文档目录", "descriptionEn": "Docs directory" }
+      ]
+    },
+    {
+      "id": "api-service",
+      "name": "API服务模板",
+      "nameEn": "API Service",
+      "description": "后端API服务项目配置",
+      "descriptionEn": "Backend API service configuration",
+      "category": "软件开发",
+      "icon": "🔌",
+      "groups": [
+        { "id": "project", "name": "项目基础信息", "nameEn": "Project Info", "icon": "📦", "color": "#1890ff" },
+        { "id": "git", "name": "Git配置", "nameEn": "Git Config", "icon": "🔀", "color": "#722ed1" },
+        { "id": "tech-stack", "name": "技术栈配置", "nameEn": "Tech Stack", "icon": "💻", "color": "#52c41a" },
+        { "id": "environment", "name": "环境配置", "nameEn": "Environment", "icon": "☁️", "color": "#eb2f96" },
+        { "id": "dev-standards", "name": "开发规范", "nameEn": "Dev Standards", "icon": "📐", "color": "#fadb14" },
+        { "id": "directory-structure", "name": "目录结构", "nameEn": "Directory Structure", "icon": "📁", "color": "#1890ff" }
+      ],
+      "variables": [
+        { "name": "projectId", "value": "", "type": "string", "group": "project", "required": true, "description": "项目唯一标识", "descriptionEn": "Project unique ID" },
+        { "name": "projectName", "value": "", "type": "string", "group": "project", "required": true, "description": "项目名称", "descriptionEn": "Project name" },
+        { "name": "projectType", "value": "api-service", "type": "string", "group": "project", "description": "项目类型", "descriptionEn": "Project type" },
+        { "name": "projectRootPath", "value": "", "type": "directory", "group": "project", "required": true, "description": "项目根目录", "descriptionEn": "Project root path" },
+        { "name": "projectDescription", "value": "", "type": "string", "group": "project", "description": "项目描述", "descriptionEn": "Project description" },
+        
+        { "name": "gitUserName", "value": "", "type": "string", "group": "git", "required": true, "description": "Git提交者姓名", "descriptionEn": "Git committer name" },
+        { "name": "gitUserEmail", "value": "", "type": "string", "group": "git", "required": true, "description": "Git提交者邮箱", "descriptionEn": "Git committer email" },
+        { "name": "gitDefaultBranch", "value": "main", "type": "string", "group": "git", "description": "默认分支名", "descriptionEn": "Default branch name" },
+        
+        { "name": "techBackendFramework", "value": "express", "type": "string", "group": "tech-stack", "description": "后端框架", "descriptionEn": "Backend framework" },
+        { "name": "techLanguage", "value": "typescript", "type": "string", "group": "tech-stack", "description": "开发语言", "descriptionEn": "Language" },
+        { "name": "techDatabase", "value": "", "type": "string", "group": "tech-stack", "description": "数据库", "descriptionEn": "Database" },
+        { "name": "techOrm", "value": "", "type": "string", "group": "tech-stack", "description": "ORM框架", "descriptionEn": "ORM framework" },
+        
+        { "name": "envDevPort", "value": "8080", "type": "number", "group": "environment", "description": "开发环境端口", "descriptionEn": "Dev server port" },
+        { "name": "envDevDbHost", "value": "localhost", "type": "string", "group": "environment", "description": "开发数据库地址", "descriptionEn": "Dev DB host" },
+        { "name": "envDevDbPort", "value": "5432", "type": "number", "group": "environment", "description": "开发数据库端口", "descriptionEn": "Dev DB port" },
+        
+        { "name": "eslintConfigPath", "value": ".eslintrc.js", "type": "file", "group": "dev-standards", "description": "ESLint配置文件路径", "descriptionEn": "ESLint config path" },
+        { "name": "prettierConfigPath", "value": ".prettierrc", "type": "file", "group": "dev-standards", "description": "Prettier配置文件路径", "descriptionEn": "Prettier config path" },
+        { "name": "tsConfigPath", "value": "tsconfig.json", "type": "file", "group": "dev-standards", "description": "TypeScript配置文件路径", "descriptionEn": "TypeScript config path" },
+        { "name": "apiDesignDocPath", "value": "docs/api-design.md", "type": "file", "group": "dev-standards", "description": "API设计文档路径", "descriptionEn": "API design doc path" },
+        
+        { "name": "srcDir", "value": "src", "type": "directory", "group": "directory-structure", "description": "源码目录", "descriptionEn": "Source directory" },
+        { "name": "controllersDir", "value": "src/controllers", "type": "directory", "group": "directory-structure", "description": "控制器目录", "descriptionEn": "Controllers directory" },
+        { "name": "servicesDir", "value": "src/services", "type": "directory", "group": "directory-structure", "description": "服务目录", "descriptionEn": "Services directory" },
+        { "name": "modelsDir", "value": "src/models", "type": "directory", "group": "directory-structure", "description": "模型目录", "descriptionEn": "Models directory" },
+        { "name": "routesDir", "value": "src/routes", "type": "directory", "group": "directory-structure", "description": "路由目录", "descriptionEn": "Routes directory" },
+        { "name": "middlewareDir", "value": "src/middleware", "type": "directory", "group": "directory-structure", "description": "中间件目录", "descriptionEn": "Middleware directory" },
+        { "name": "testsDir", "value": "tests", "type": "directory", "group": "directory-structure", "description": "测试目录", "descriptionEn": "Tests directory" },
+        { "name": "docsDir", "value": "docs", "type": "directory", "group": "directory-structure", "description": "文档目录", "descriptionEn": "Docs directory" }
+      ]
+    },
+    {
+      "id": "game-pc",
+      "name": "PC游戏模板",
+      "nameEn": "PC Game",
+      "description": "PC平台游戏项目配置",
+      "descriptionEn": "PC game project configuration",
+      "category": "游戏开发",
+      "icon": "🎮",
+      "groups": [
+        { "id": "project", "name": "项目基础信息", "nameEn": "Project Info", "icon": "📦", "color": "#1890ff" },
+        { "id": "git", "name": "Git配置", "nameEn": "Git Config", "icon": "🔀", "color": "#722ed1" },
+        { "id": "game-engine", "name": "游戏引擎", "nameEn": "Game Engine", "icon": "🎮", "color": "#52c41a" },
+        { "id": "game-assets", "name": "资源配置", "nameEn": "Asset Config", "icon": "📦", "color": "#13c2c2" },
+        { "id": "game-performance", "name": "性能规范", "nameEn": "Performance", "icon": "⚡", "color": "#fa8c16" },
+        { "id": "dev-standards", "name": "开发规范", "nameEn": "Dev Standards", "icon": "📐", "color": "#fadb14" },
+        { "id": "directory-structure", "name": "目录结构", "nameEn": "Directory Structure", "icon": "📁", "color": "#1890ff" }
+      ],
+      "variables": [
+        { "name": "projectId", "value": "", "type": "string", "group": "project", "required": true, "description": "项目唯一标识", "descriptionEn": "Project unique ID" },
+        { "name": "projectName", "value": "", "type": "string", "group": "project", "required": true, "description": "项目名称", "descriptionEn": "Project name" },
+        { "name": "projectType", "value": "game-pc", "type": "string", "group": "project", "description": "项目类型", "descriptionEn": "Project type" },
+        { "name": "projectRootPath", "value": "", "type": "directory", "group": "project", "required": true, "description": "项目根目录", "descriptionEn": "Project root path" },
+        { "name": "projectDescription", "value": "", "type": "string", "group": "project", "description": "项目描述", "descriptionEn": "Project description" },
+        
+        { "name": "gitUserName", "value": "", "type": "string", "group": "git", "required": true, "description": "Git提交者姓名", "descriptionEn": "Git committer name" },
+        { "name": "gitUserEmail", "value": "", "type": "string", "group": "git", "required": true, "description": "Git提交者邮箱", "descriptionEn": "Git committer email" },
+        { "name": "gitDefaultBranch", "value": "main", "type": "string", "group": "git", "description": "默认分支名", "descriptionEn": "Default branch name" },
+        { "name": "gitLfsEnabled", "value": "true", "type": "boolean", "group": "git", "description": "启用Git LFS管理大文件", "descriptionEn": "Enable Git LFS" },
+        { "name": "gitLfsThreshold", "value": "50MB", "type": "string", "group": "git", "description": "LFS文件大小阈值", "descriptionEn": "LFS threshold" },
+        
+        { "name": "gameEngine", "value": "unity", "type": "string", "group": "game-engine", "description": "游戏引擎", "descriptionEn": "Game engine" },
+        { "name": "gameEngineVersion", "value": "", "type": "string", "group": "game-engine", "description": "引擎版本", "descriptionEn": "Engine version" },
+        { "name": "gameTargetPlatforms", "value": "[\"Windows\", \"MacOS\"]", "type": "json", "group": "game-engine", "description": "目标平台", "descriptionEn": "Target platforms" },
+        { "name": "gameRenderPipeline", "value": "URP", "type": "string", "group": "game-engine", "description": "渲染管线", "descriptionEn": "Render pipeline" },
+        { "name": "gameScriptLanguage", "value": "C#", "type": "string", "group": "game-engine", "description": "脚本语言", "descriptionEn": "Script language" },
+        
+        { "name": "gameAssetFormat3D", "value": "FBX", "type": "string", "group": "game-assets", "description": "3D模型格式", "descriptionEn": "3D model format" },
+        { "name": "gameAssetFormatTexture", "value": "PNG", "type": "string", "group": "game-assets", "description": "贴图格式", "descriptionEn": "Texture format" },
+        { "name": "gameAssetFormatAudio", "value": "OGG", "type": "string", "group": "game-assets", "description": "音频格式", "descriptionEn": "Audio format" },
+        { "name": "gameAssetNamingConvention", "value": "前缀_描述_类型", "type": "string", "group": "game-assets", "description": "资源命名规范", "descriptionEn": "Asset naming convention" },
+        
+        { "name": "gameTargetFPS", "value": "60", "type": "number", "group": "game-performance", "description": "目标帧率", "descriptionEn": "Target FPS" },
+        { "name": "gameMaxDrawCalls", "value": "300", "type": "number", "group": "game-performance", "description": "最大Draw Calls", "descriptionEn": "Max draw calls" },
+        { "name": "gameMaxMemoryMB", "value": "2048", "type": "number", "group": "game-performance", "description": "最大内存(MB)", "descriptionEn": "Max memory (MB)" },
+        { "name": "gameUseObjectPooling", "value": "true", "type": "boolean", "group": "game-performance", "description": "使用对象池", "descriptionEn": "Use object pooling" },
+        
+        { "name": "gameCodingStandardsDocPath", "value": "Docs/coding-standards.md", "type": "file", "group": "dev-standards", "description": "代码规范文档路径", "descriptionEn": "Coding standards doc path" },
+        { "name": "gameAssetNamingDocPath", "value": "Docs/asset-naming-convention.md", "type": "file", "group": "dev-standards", "description": "资源命名规范文档", "descriptionEn": "Asset naming doc path" },
+        { "name": "gameArchitectureDocPath", "value": "Docs/architecture.md", "type": "file", "group": "dev-standards", "description": "架构设计文档", "descriptionEn": "Architecture doc path" },
+        { "name": "gameGddDocPath", "value": "Docs/game-design-document.md", "type": "file", "group": "dev-standards", "description": "游戏设计文档(GDD)", "descriptionEn": "Game design document path" },
+        
+        { "name": "assetsDir", "value": "Assets", "type": "directory", "group": "directory-structure", "description": "资源目录", "descriptionEn": "Assets directory" },
+        { "name": "scriptsDir", "value": "Assets/Scripts", "type": "directory", "group": "directory-structure", "description": "脚本目录", "descriptionEn": "Scripts directory" },
+        { "name": "scenesDir", "value": "Assets/Scenes", "type": "directory", "group": "directory-structure", "description": "场景目录", "descriptionEn": "Scenes directory" },
+        { "name": "prefabsDir", "value": "Assets/Prefabs", "type": "directory", "group": "directory-structure", "description": "预制体目录", "descriptionEn": "Prefabs directory" },
+        { "name": "artDir", "value": "Assets/Art", "type": "directory", "group": "directory-structure", "description": "美术资源目录", "descriptionEn": "Art directory" },
+        { "name": "audioDir", "value": "Assets/Audio", "type": "directory", "group": "directory-structure", "description": "音频目录", "descriptionEn": "Audio directory" },
+        { "name": "docsDir", "value": "Docs", "type": "directory", "group": "directory-structure", "description": "文档目录", "descriptionEn": "Docs directory" }
+      ]
+    },
+    {
+      "id": "short-video",
+      "name": "短视频模板",
+      "nameEn": "Short Video",
+      "description": "短视频内容项目配置",
+      "descriptionEn": "Short video content project configuration",
+      "category": "内容创作",
+      "icon": "🎬",
+      "groups": [
+        { "id": "project", "name": "项目基础信息", "nameEn": "Project Info", "icon": "📦", "color": "#1890ff" },
+        { "id": "git", "name": "Git配置", "nameEn": "Git Config", "icon": "🔀", "color": "#722ed1" },
+        { "id": "video-editing", "name": "剪辑配置", "nameEn": "Editing Config", "icon": "🎬", "color": "#52c41a" },
+        { "id": "video-publish", "name": "发布配置", "nameEn": "Publish Config", "icon": "📤", "color": "#eb2f96" },
+        { "id": "video-workflow", "name": "工作流程", "nameEn": "Workflow", "icon": "📋", "color": "#722ed1" },
+        { "id": "dev-standards", "name": "创作规范", "nameEn": "Creation Standards", "icon": "📐", "color": "#fadb14" },
+        { "id": "directory-structure", "name": "目录结构", "nameEn": "Directory Structure", "icon": "📁", "color": "#1890ff" }
+      ],
+      "variables": [
+        { "name": "projectId", "value": "", "type": "string", "group": "project", "required": true, "description": "项目唯一标识", "descriptionEn": "Project unique ID" },
+        { "name": "projectName", "value": "", "type": "string", "group": "project", "required": true, "description": "项目名称", "descriptionEn": "Project name" },
+        { "name": "projectType", "value": "short-video", "type": "string", "group": "project", "description": "项目类型", "descriptionEn": "Project type" },
+        { "name": "projectRootPath", "value": "", "type": "directory", "group": "project", "required": true, "description": "项目根目录", "descriptionEn": "Project root path" },
+        { "name": "projectDescription", "value": "", "type": "string", "group": "project", "description": "项目描述", "descriptionEn": "Project description" },
+        
+        { "name": "gitUserName", "value": "", "type": "string", "group": "git", "required": true, "description": "Git提交者姓名", "descriptionEn": "Git committer name" },
+        { "name": "gitUserEmail", "value": "", "type": "string", "group": "git", "required": true, "description": "Git提交者邮箱", "descriptionEn": "Git committer email" },
+        { "name": "gitDefaultBranch", "value": "main", "type": "string", "group": "git", "description": "默认分支名", "descriptionEn": "Default branch name" },
+        { "name": "gitLfsEnabled", "value": "true", "type": "boolean", "group": "git", "description": "启用Git LFS管理大文件", "descriptionEn": "Enable Git LFS" },
+        
+        { "name": "videoEditingTool", "value": "davinci", "type": "string", "group": "video-editing", "description": "剪辑工具", "descriptionEn": "Editing tool" },
+        { "name": "videoResolution", "value": "1080p", "type": "string", "group": "video-editing", "description": "分辨率", "descriptionEn": "Resolution" },
+        { "name": "videoFrameRate", "value": "30", "type": "number", "group": "video-editing", "description": "帧率", "descriptionEn": "Frame rate" },
+        { "name": "videoFormat", "value": "MP4", "type": "string", "group": "video-editing", "description": "输出格式", "descriptionEn": "Output format" },
+        { "name": "videoCodec", "value": "H.264", "type": "string", "group": "video-editing", "description": "编码格式", "descriptionEn": "Codec" },
+        { "name": "videoAspectRatio", "value": "16:9", "type": "string", "group": "video-editing", "description": "画面比例", "descriptionEn": "Aspect ratio" },
+        { "name": "videoBitrate", "value": "8Mbps", "type": "string", "group": "video-editing", "description": "视频码率", "descriptionEn": "Video bitrate" },
+        { "name": "audioSampleRate", "value": "48000", "type": "number", "group": "video-editing", "description": "音频采样率", "descriptionEn": "Audio sample rate" },
+        
+        { "name": "videoPublishPlatforms", "value": "[\"抖音\", \"B站\", \"小红书\"]", "type": "json", "group": "video-publish", "description": "发布平台", "descriptionEn": "Publish platforms" },
+        { "name": "videoPublishSchedule", "value": "daily", "type": "string", "group": "video-publish", "description": "发布频率", "descriptionEn": "Publish schedule" },
+        { "name": "videoAutoPublish", "value": "false", "type": "boolean", "group": "video-publish", "description": "自动发布", "descriptionEn": "Auto publish" },
+        
+        { "name": "videoWorkflowSteps", "value": "[\"选题策划\", \"脚本撰写\", \"素材拍摄\", \"后期剪辑\", \"审核修改\", \"发布推广\"]", "type": "json", "group": "video-workflow", "description": "工作流程步骤", "descriptionEn": "Workflow steps" },
+        { "name": "videoReviewRequired", "value": "true", "type": "boolean", "group": "video-workflow", "description": "需要审核", "descriptionEn": "Review required" },
+        { "name": "videoBackupEnabled", "value": "true", "type": "boolean", "group": "video-workflow", "description": "启用备份", "descriptionEn": "Backup enabled" },
+        
+        { "name": "videoStyleGuideDocPath", "value": "docs/style-guide.md", "type": "file", "group": "dev-standards", "description": "风格指南文档", "descriptionEn": "Style guide doc path" },
+        { "name": "videoNamingConventionDocPath", "value": "docs/naming-convention.md", "type": "file", "group": "dev-standards", "description": "命名规范文档", "descriptionEn": "Naming convention doc path" },
+        { "name": "videoTemplateDocPath", "value": "docs/video-templates.md", "type": "file", "group": "dev-standards", "description": "视频模板文档", "descriptionEn": "Video templates doc path" },
+        { "name": "videoBrandGuidelinesDocPath", "value": "docs/brand-guidelines.md", "type": "file", "group": "dev-standards", "description": "品牌规范文档", "descriptionEn": "Brand guidelines doc path" },
+        
+        { "name": "rawMaterialDir", "value": "raw-materials", "type": "directory", "group": "directory-structure", "description": "原始素材目录", "descriptionEn": "Raw materials directory" },
+        { "name": "projectFileDir", "value": "project-files", "type": "directory", "group": "directory-structure", "description": "工程文件目录", "descriptionEn": "Project files directory" },
+        { "name": "outputDir", "value": "output", "type": "directory", "group": "directory-structure", "description": "输出目录", "descriptionEn": "Output directory" },
+        { "name": "archiveDir", "value": "archive", "type": "directory", "group": "directory-structure", "description": "归档目录", "descriptionEn": "Archive directory" },
+        { "name": "assetsDir", "value": "assets", "type": "directory", "group": "directory-structure", "description": "资源目录(音乐/字体/贴图)", "descriptionEn": "Assets directory" },
+        { "name": "scriptsDir", "value": "scripts", "type": "directory", "group": "directory-structure", "description": "脚本目录", "descriptionEn": "Scripts directory" },
+        { "name": "docsDir", "value": "docs", "type": "directory", "group": "directory-structure", "description": "文档目录", "descriptionEn": "Docs directory" }
+      ]
+    }
+  ]
+}

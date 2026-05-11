@@ -1,0 +1,304 @@
+{
+  "version": "1.0.0",
+  "templates": [
+    {
+      "id": "template-quant-strategy",
+      "name": "量化策略开发流程",
+      "description": "策略研究 → 审核 → 开发 → 回测 → 上线",
+      "category": "金融",
+      "author": "AHIVE Team",
+      "tags": ["量化", "策略", "金融"],
+      "isOfficial": true,
+      "nodes": [
+        {
+          "id": "node-1",
+          "type": "group",
+          "name": "策略研究",
+          "description": "小二负责策略制定",
+          "position": { "x": 100, "y": 100 },
+          "createdAt": "2026-03-01T00:00:00.000Z",
+          "updatedAt": "2026-03-01T00:00:00.000Z"
+        },
+        {
+          "id": "node-2",
+          "type": "group",
+          "name": "方案审核",
+          "description": "珊儿审核方案",
+          "position": { "x": 400, "y": 100 },
+          "createdAt": "2026-03-01T00:00:00.000Z",
+          "updatedAt": "2026-03-01T00:00:00.000Z"
+        },
+        {
+          "id": "node-3",
+          "type": "group",
+          "name": "策略开发",
+          "description": "阿四负责代码实现",
+          "position": { "x": 700, "y": 100 },
+          "createdAt": "2026-03-01T00:00:00.000Z",
+          "updatedAt": "2026-03-01T00:00:00.000Z"
+        },
+        {
+          "id": "node-4",
+          "type": "group",
+          "name": "回测验证",
+          "description": "小二进行回测",
+          "position": { "x": 1000, "y": 100 },
+          "createdAt": "2026-03-01T00:00:00.000Z",
+          "updatedAt": "2026-03-01T00:00:00.000Z"
+        }
+      ],
+      "edges": [
+        {
+          "id": "edge-1-2",
+          "source": "node-1",
+          "target": "node-2",
+          "label": "提交审核",
+          "sourceHandle": "bottom",
+          "targetHandle": "top",
+          "createdAt": "2026-03-01T00:00:00.000Z"
+        },
+        {
+          "id": "edge-2-3",
+          "source": "node-2",
+          "target": "node-3",
+          "label": "审核通过",
+          "sourceHandle": "bottom",
+          "targetHandle": "top",
+          "createdAt": "2026-03-01T00:00:00.000Z"
+        },
+        {
+          "id": "edge-3-4",
+          "source": "node-3",
+          "target": "node-4",
+          "label": "开发完成",
+          "sourceHandle": "bottom",
+          "targetHandle": "top",
+          "createdAt": "2026-03-01T00:00:00.000Z"
+        }
+      ],
+      "createdAt": "2026-03-01T00:00:00.000Z"
+    },
+    {
+      "id": "template-code-review",
+      "name": "代码审查流程",
+      "description": "分析 → 诊断 → 修复 三步流程",
+      "category": "开发",
+      "author": "AHIVE Team",
+      "tags": ["代码", "审查", "开发"],
+      "isOfficial": true,
+      "nodes": [
+        {
+          "id": "node-analyze",
+          "type": "agent",
+          "name": "代码分析",
+          "description": "分析代码结构和潜在问题",
+          "position": { "x": 100, "y": 150 },
+          "config": {
+            "agentId": "agent-analyzer",
+            "taskTemplate": "请分析以下代码，找出潜在问题并提供改进建议：\n\n文件: {{fileName}}\n\n```\n{{code}}\n```\n\n请以 JSON 格式输出分析结果。",
+            "inputs": [
+              { "name": "fileName", "source": "user-input", "required": true, "description": "要分析的文件名" },
+              { "name": "code", "source": "user-input", "required": true, "description": "要分析的代码内容" }
+            ],
+            "outputs": [
+              { "name": "analysisResult", "extractPath": "$", "description": "完整分析结果" }
+            ],
+            "timeout": 120000,
+            "retryCount": 2
+          },
+          "createdAt": "2026-03-01T00:00:00.000Z",
+          "updatedAt": "2026-03-01T00:00:00.000Z"
+        },
+        {
+          "id": "node-diagnose",
+          "type": "agent",
+          "name": "问题诊断",
+          "description": "诊断问题严重性和优先级",
+          "position": { "x": 400, "y": 150 },
+          "config": {
+            "agentId": "agent-reviewer",
+            "taskTemplate": "基于代码分析结果，请诊断问题的严重性和修复优先级。",
+            "inputs": [
+              { "name": "issues", "source": "prev-output", "sourceKey": "analysisResult.issues", "required": true }
+            ],
+            "outputs": [
+              { "name": "diagnosis", "extractPath": "$", "description": "诊断结果" }
+            ],
+            "timeout": 60000
+          },
+          "createdAt": "2026-03-01T00:00:00.000Z",
+          "updatedAt": "2026-03-01T00:00:00.000Z"
+        },
+        {
+          "id": "node-fix",
+          "type": "agent",
+          "name": "修复建议",
+          "description": "生成修复代码和建议",
+          "position": { "x": 700, "y": 150 },
+          "config": {
+            "agentId": "agent-coder",
+            "taskTemplate": "根据诊断结果，请提供修复方案和修改后的代码。",
+            "inputs": [
+              { "name": "code", "source": "blackboard", "sourceKey": "code", "required": true },
+              { "name": "diagnosis", "source": "prev-output", "sourceKey": "diagnosis", "required": true }
+            ],
+            "outputs": [
+              { "name": "fixedCode", "extractPath": "$.fixedCode", "description": "修复后的代码" }
+            ],
+            "timeout": 180000
+          },
+          "createdAt": "2026-03-01T00:00:00.000Z",
+          "updatedAt": "2026-03-01T00:00:00.000Z"
+        }
+      ],
+      "edges": [
+        { "id": "edge-analyze-diagnose", "source": "node-analyze", "target": "node-diagnose", "label": "分析完成", "createdAt": "2026-03-01T00:00:00.000Z" },
+        { "id": "edge-diagnose-fix", "source": "node-diagnose", "target": "node-fix", "label": "诊断完成", "createdAt": "2026-03-01T00:00:00.000Z" }
+      ],
+      "createdAt": "2026-03-01T00:00:00.000Z"
+    },
+    {
+      "id": "template-simple-qa",
+      "name": "智能问答流程",
+      "description": "简单的单节点问答流程",
+      "category": "通用",
+      "author": "AHIVE Team",
+      "tags": ["问答", "简单"],
+      "isOfficial": true,
+      "nodes": [
+        {
+          "id": "node-qa",
+          "type": "agent",
+          "name": "智能回答",
+          "description": "回答用户问题",
+          "position": { "x": 300, "y": 150 },
+          "config": {
+            "agentId": "agent-assistant",
+            "taskTemplate": "请回答以下问题：\n\n{{question}}\n\n请提供清晰、准确的回答。",
+            "inputs": [
+              { "name": "question", "source": "user-input", "required": true, "description": "用户问题" }
+            ],
+            "outputs": [
+              { "name": "answer", "extractPath": "$.answer", "description": "回答内容" }
+            ],
+            "timeout": 60000
+          },
+          "createdAt": "2026-03-01T00:00:00.000Z",
+          "updatedAt": "2026-03-01T00:00:00.000Z"
+        }
+      ],
+      "edges": [],
+      "createdAt": "2026-03-01T00:00:00.000Z"
+    },
+    {
+      "id": "template-conditional",
+      "name": "条件分支流程",
+      "description": "根据评分决定执行路径",
+      "category": "开发",
+      "author": "AHIVE Team",
+      "tags": ["条件", "分支"],
+      "isOfficial": true,
+      "nodes": [
+        {
+          "id": "node-check",
+          "type": "agent",
+          "name": "代码检查",
+          "description": "检查代码质量",
+          "position": { "x": 100, "y": 150 },
+          "config": {
+            "agentId": "agent-analyzer",
+            "taskTemplate": "请检查以下代码的质量并评分 (0-100):\n\n```\n{{code}}\n```\n\n输出 JSON: { \"score\": 数字, \"issues\": [] }",
+            "inputs": [
+              { "name": "code", "source": "user-input", "required": true }
+            ],
+            "outputs": [
+              { "name": "score", "extractPath": "$.score" },
+              { "name": "checkResult", "extractPath": "$" }
+            ],
+            "timeout": 60000
+          },
+          "createdAt": "2026-03-01T00:00:00.000Z",
+          "updatedAt": "2026-03-01T00:00:00.000Z"
+        },
+        {
+          "id": "node-condition",
+          "type": "condition",
+          "name": "质量判断",
+          "description": "根据评分决定下一步",
+          "position": { "x": 350, "y": 150 },
+          "config": {
+            "conditions": [
+              { "expression": "score >= 80", "targetNode": "node-pass" },
+              { "expression": "score >= 60", "targetNode": "node-improve" }
+            ],
+            "defaultNode": "node-fail"
+          },
+          "createdAt": "2026-03-01T00:00:00.000Z",
+          "updatedAt": "2026-03-01T00:00:00.000Z"
+        },
+        {
+          "id": "node-pass",
+          "type": "agent",
+          "name": "质量达标",
+          "description": "代码质量达标",
+          "position": { "x": 600, "y": 50 },
+          "config": {
+            "agentId": "agent-assistant",
+            "taskTemplate": "代码质量评分 {{score}} 分，已达标！可以进入下一阶段。",
+            "inputs": [
+              { "name": "score", "source": "blackboard", "sourceKey": "score" }
+            ],
+            "outputs": [],
+            "timeout": 30000
+          },
+          "createdAt": "2026-03-01T00:00:00.000Z",
+          "updatedAt": "2026-03-01T00:00:00.000Z"
+        },
+        {
+          "id": "node-improve",
+          "type": "agent",
+          "name": "需要改进",
+          "description": "代码需要改进",
+          "position": { "x": 600, "y": 150 },
+          "config": {
+            "agentId": "agent-coder",
+            "taskTemplate": "代码质量评分 {{score}} 分，需要改进。请查看以下问题并修复。",
+            "inputs": [
+              { "name": "score", "source": "blackboard", "sourceKey": "score" },
+              { "name": "issues", "source": "blackboard", "sourceKey": "checkResult.issues" }
+            ],
+            "outputs": [],
+            "timeout": 60000
+          },
+          "createdAt": "2026-03-01T00:00:00.000Z",
+          "updatedAt": "2026-03-01T00:00:00.000Z"
+        },
+        {
+          "id": "node-fail",
+          "type": "agent",
+          "name": "质量不合格",
+          "description": "代码质量不合格",
+          "position": { "x": 600, "y": 250 },
+          "config": {
+            "agentId": "agent-assistant",
+            "taskTemplate": "代码质量评分 {{score}} 分，不合格！建议重新审视代码结构。",
+            "inputs": [
+              { "name": "score", "source": "blackboard", "sourceKey": "score" }
+            ],
+            "outputs": [],
+            "timeout": 30000
+          },
+          "createdAt": "2026-03-01T00:00:00.000Z",
+          "updatedAt": "2026-03-01T00:00:00.000Z"
+        }
+      ],
+      "edges": [
+        { "id": "edge-check-cond", "source": "node-check", "target": "node-condition", "createdAt": "2026-03-01T00:00:00.000Z" },
+        { "id": "edge-cond-pass", "source": "node-condition", "target": "node-pass", "createdAt": "2026-03-01T00:00:00.000Z" },
+        { "id": "edge-cond-improve", "source": "node-condition", "target": "node-improve", "createdAt": "2026-03-01T00:00:00.000Z" },
+        { "id": "edge-cond-fail", "source": "node-condition", "target": "node-fail", "createdAt": "2026-03-01T00:00:00.000Z" }
+      ],
+      "createdAt": "2026-03-01T00:00:00.000Z"
+    }
+  ]
+}

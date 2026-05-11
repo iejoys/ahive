@@ -1,0 +1,114 @@
+[
+  {
+    "id": "dept-1773715388785-wtdqz",
+    "name": "情报部",
+    "icon": "📚",
+    "description": "",
+    "members": [],
+    "internalWorkflows": [],
+    "blackboard": {},
+    "settings": {
+      "autoAssign": true,
+      "assignStrategy": "round-robin",
+      "notifyOnTask": true
+    },
+    "createdAt": "2026-03-17T02:43:08.785Z",
+    "updatedAt": "2026-03-17T02:43:30.448Z"
+  },
+  {
+    "id": "dept-1773715414374-3zm6e",
+    "name": "参谋部",
+    "icon": "💼",
+    "description": "",
+    "members": [],
+    "internalWorkflows": [],
+    "blackboard": {},
+    "settings": {
+      "autoAssign": true,
+      "assignStrategy": "round-robin",
+      "notifyOnTask": true
+    },
+    "createdAt": "2026-03-17T02:43:34.374Z",
+    "updatedAt": "2026-03-17T02:45:17.594Z"
+  },
+  {
+    "id": "dept-1773715446109-6pwuz",
+    "name": "决策委员会",
+    "icon": "🌟",
+    "description": "",
+    "members": [],
+    "internalWorkflows": [],
+    "blackboard": {},
+    "settings": {
+      "autoAssign": true,
+      "assignStrategy": "round-robin",
+      "notifyOnTask": true
+    },
+    "createdAt": "2026-03-17T02:44:06.109Z",
+    "updatedAt": "2026-03-17T02:45:19.612Z"
+  },
+  {
+    "id": "dept-1773715464887-oy2yb",
+    "name": "战区司令部",
+    "icon": "🚀",
+    "description": "",
+    "members": [],
+    "internalWorkflows": [],
+    "blackboard": {},
+    "settings": {
+      "autoAssign": true,
+      "assignStrategy": "round-robin",
+      "notifyOnTask": true
+    },
+    "createdAt": "2026-03-17T02:44:24.887Z",
+    "updatedAt": "2026-03-17T02:48:03.918Z"
+  },
+  {
+    "id": "dept-1773715498882-n721e",
+    "name": "东厂监委",
+    "icon": "💻",
+    "description": "",
+    "members": [],
+    "internalWorkflows": [],
+    "blackboard": {},
+    "settings": {
+      "autoAssign": true,
+      "assignStrategy": "round-robin",
+      "notifyOnTask": true
+    },
+    "createdAt": "2026-03-17T02:44:58.882Z",
+    "updatedAt": "2026-03-17T02:48:48.811Z"
+  },
+  {
+    "id": "dept-1773715687304-ksus2",
+    "name": "西厂监委",
+    "icon": "💻",
+    "description": "",
+    "members": [],
+    "internalWorkflows": [],
+    "blackboard": {},
+    "settings": {
+      "autoAssign": true,
+      "assignStrategy": "round-robin",
+      "notifyOnTask": true
+    },
+    "createdAt": "2026-03-17T02:48:07.304Z",
+    "updatedAt": "2026-03-17T02:49:12.934Z"
+  },
+  {
+    "id": "dept-1773715769498-x5mn7",
+    "name": "后勤及核验部",
+    "icon": "💻",
+    "description": "",
+    "members": [],
+    "internalWorkflows": [],
+    "blackboard": {},
+    "settings": {
+      "autoAssign": true,
+      "assignStrategy": "round-robin",
+      "notifyOnTask": true
+    },
+    "createdAt": "2026-03-17T02:49:29.498Z",
+    "updatedAt": "2026-03-17T02:50:37.734Z"
+  }
+]

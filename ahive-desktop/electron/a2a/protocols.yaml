@@ -1,0 +1,290 @@
+# A2A 协议配置文件
+# 新增 Agent 只需在此文件添加配置，无需修改代码
+
+protocols:
+  # ==================== OpenClaw OpenResponses 协议 ====================
+  openclaw:
+    id: openclaw
+    name: "OpenClaw OpenResponses"
+    description: "OpenClaw Gateway HTTP API"
+    version: "1.0"
+    
+    auth:
+      type: bearer
+      header: Authorization
+      prefix: "Bearer "
+    
+    # ========== 输入字段定义（UI 动态渲染表单） ==========
+    inputFields:
+      - name: agentId
+        label: "Agent ID"
+        type: text
+        required: true
+        placeholder: "例如: my-agent"
+        description: "OpenClaw Agent 标识符"
+      
+      - name: apiKey
+        label: "API Key"
+        type: password
+        required: false
+        placeholder: "Bearer Token"
+        description: "认证令牌"
+        sensitive: true
+    
+    sendMessage:
+      path: "/v1/responses"
+      method: POST
+      timeout: 300000
+      headers:
+        Content-Type: application/json
+        x-openclaw-agent-id: "${agentId}"
+      request:
+        template:
+          model: "openclaw"
+          input: "${message}"
+          stream: false
+          user: "${sessionId}"
+      response:
+        paths:
+          text: "output[0].content[0].text"
+          status: "status"
+          messageId: "id"
+          error: "error"
+        statusMapping:
+          completed: completed
+          failed: failed
+          in_progress: working
+          canceled: canceled
+
+    sse:
+      endpoint:
+        path: "/v1/responses"
+        method: POST
+        stream: true
+      events:
+        connected: response.created
+        textDelta:
+          eventType: response.output_text.delta
+          textField: delta
+        textDone:
+          eventType: response.output_text.done
+          textField: text
+        messageComplete:
+          eventType: response.completed
+          doneFlag: true
+        error:
+          eventType: response.failed
+          dataPath: error
+      dataFormat: json
+    
+    retry:
+      maxRetries: 3
+      retryDelay: 1000
+      retryOn:
+        - 429
+        - 503
+        - 502
+    
+    defaultTimeout: 300000
+    features:
+      streaming: true
+      session: true
+      tools: true
+      files: true
+      images: true
+
+  # ==================== OpenCode Serve 协议 ====================
+  opencode:
+    id: opencode
+    name: "OpenCode Serve API"
+    description: "OpenCode HTTP Server API"
+    version: "1.0"
+    
+    auth:
+      type: none
+    
+    # ========== 输入字段定义（UI 动态渲染表单） ==========
+    inputFields:
+      - name: agentId
+        label: "Agent ID"
+        type: text
+        required: true
+        placeholder: "例如: sisyphus"
+        description: "OpenCode 配置的 Agent 名称"
+      
+      - name: provider
+        label: "Provider ID"
+        type: select
+        required: false
+        default: "bailian-coding-plan"
+        description: "模型提供商 ID"
+        options:
+          - value: "bailian-coding-plan"
+            label: "百炼 Coding Plan"
+          - value: "anthropic"
+            label: "Anthropic"
+          - value: "openai"
+            label: "OpenAI"
+          - value: "google"
+            label: "Google"
+      
+      - name: model
+        label: "Model ID"
+        type: text
+        required: false
+        default: "glm-5"
+        description: "模型 ID（留空使用默认）"
+      
+      - name: apiKey
+        label: "API Key"
+        type: password
+        required: false
+        placeholder: "username:password"
+        description: "Basic Auth 认证信息"
+        sensitive: true
+    
+    session:
+      create:
+        path: "/session"
+        method: POST
+        headers:
+          Content-Type: application/json
+        timeout: 30000
+      idPath: "id"
+      persist: true
+    
+    sendMessage:
+      path: "/session/${sessionId}/message"
+      method: POST
+      timeout: 300000
+      headers:
+        Content-Type: application/json
+      request:
+        template:
+          parts:
+            - type: text
+              text: "${message}"
+          model:
+            providerID: "${provider}"
+            modelID: "${model}"
+        variableMapping:
+          sessionId: sessionId
+          message: message
+          provider: provider
+          model: model
+      response:
+        paths:
+          text: "parts[?(@.type=='text')].text"
+          # OpenCode 响应没有状态字段，移除 status 路径
+          messageId: "info.id"
+          usage: "info.tokens"
+        # 没有状态映射，请求成功即 completed
+        textExtraction: concat
+        arraySeparator: "\n"
+    sse:
+      endpoint:
+        path: "/global/event"
+        method: GET
+      events:
+        connected: server.connected
+        heartbeat: server.heartbeat
+        textDelta:
+          eventType: part.updated
+          textField: properties.text
+        messageComplete:
+          eventType: message.completed
+          doneFlag: true
+        error:
+          eventType: error
+          dataPath: message
+      dataFormat: json
+    
+    defaultTimeout: 300000
+    defaultProvider: "bailian-coding-plan"
+    defaultModel: "glm-5"
+    defaults:
+      provider: "bailian-coding-plan"
+      model: "glm-5"
+    features:
+      streaming: true
+      session: true
+      async: true
+      tools: true
+      files: true
+      images: true
+  # ==================== 标准 A2A 协议 ====================
+  a2a-standard:
+    id: a2a-standard
+    name: "Standard A2A Protocol"
+    description: "Agent-to-Agent Standard Protocol"
+    version: "1.0"
+    
+    auth:
+      type: bearer
+      header: Authorization
+      prefix: "Bearer "
+    
+    sendMessage:
+      path: "/message/send"
+      method: POST
+      timeout: 300000
+      headers:
+        Content-Type: application/json
+      request:
+        template:
+          task:
+            id: "${taskId}"
+            message:
+              role: user
+              content: "${message}"
+          webhook: "${webhookUrl}"
+        variableMapping:
+          taskId: taskId
+          message: message
+          webhookUrl: webhookUrl
+      response:
+        paths:
+          text: "message.content"
+          status: "status"
+          messageId: "id"
+          error: "error"
+        statusMapping:
+          completed: completed
+          failed: failed
+          working: working
+          pending: pending
+    
+    sse:
+      endpoint:
+        path: "/message/stream"
+        method: POST
+        stream: true
+      events:
+        textDelta:
+          eventType: task.updated
+          textField: message.content
+        messageComplete:
+          eventType: task.completed
+          doneFlag: true
+      dataFormat: json
+    
+    asyncTask:
+      create:
+        path: "/task/create"
+        method: POST
+      getStatus:
+        path: "/task/${taskId}"
+        method: GET
+      cancel:
+        path: "/task/${taskId}/cancel"
+        method: POST
+    
+    defaultTimeout: 300000
+    features:
+      streaming: true
+      session: false
+      async: true
+      tools: false
+
+# 默认协议
+defaultProtocol: openclaw

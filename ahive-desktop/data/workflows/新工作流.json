@@ -1,0 +1,40 @@
+{
+  "id": "workflow-1774495528942",
+  "name": "新工作流",
+  "nodes": [
+    {
+      "id": "node-1774495534354",
+      "type": "agent",
+      "name": "智能体节点",
+      "position": {
+        "x": 399.8324818775642,
+        "y": -136.8943660867796
+      },
+      "createdAt": "2026-03-26T03:25:34.354Z",
+      "updatedAt": "2026-03-26T03:30:42.082Z",
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "a2a-da7ebc7f-ba07-413f-b1e3-d95b528d5527",
+              "weight": 1
+            }
+          ],
+          "failureStrategy": {
+            "action": "abort"
+          }
+        },
+        "taskTemplate": "跟其他智能体聊几句，聊5轮",
+        "inputs": [],
+        "outputs": []
+      },
+      "description": ""
+    }
+  ],
+  "edges": [],
+  "isActive": true,
+  "createdAt": "2026-03-26T03:25:28.942Z",
+  "updatedAt": "2026-03-26T03:30:42.084Z"
+}

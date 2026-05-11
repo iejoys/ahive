@@ -1,0 +1,39 @@
+{
+  "currentProvider": "bailian",
+  "currentConfig": {
+    "type": "bailian",
+    "modelName": "qwen2.5-coder:7b-instruct-q8_0",
+    "ollamaHost": "http://localhost:11434",
+    "ollamaModel": "qwen2.5-coder:7b-instruct-q8_0",
+    "gpuLayers": 0,
+    "threads": 4,
+    "contextSize": 8192,
+    "temperature": 0.3,
+    "maxTokens": 65536,
+    "contextWindow": 262144,
+    "autoCompactTokenLimit": 180000,
+    "autoCompactRatio": 0.85,
+    "presetId": "bailian",
+    "sequences": 1,
+    "apiEndpoint": "https://coding.dashscope.aliyuncs.com/v1",
+    "apiKey": "YOUR_API_KEY_HERE",
+    "apiModel": "qwen3.6-plus",
+    "timeout": 600000
+  },
+  "compactorLLM": {
+    "apiEndpoint": "https://coding.dashscope.aliyuncs.com/v1",
+    "apiKey": "YOUR_API_KEY_HERE",
+    "apiModel": "qwen3.5-plus",
+    "temperature": 0.3,
+    "maxTokens": 65536,
+    "timeout": 60000
+  },
+  "savedProviders": [],
+  "settings": {
+    "defaultTemperature": 0.3,
+    "defaultMaxTokens": 65536,
+    "defaultTimeout": 600000,
+    "defaultContextWindow": 200000,
+    "defaultAutoCompactTokenLimit": 180000
+  }
+}

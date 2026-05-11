@@ -1,0 +1,8 @@
+{
+  "webUrl": "http://localhost:5174",
+  "apiUrl": "http://localhost:3001",
+  "workflow": {
+    "heartbeatInterval": 30000,
+    "pollInterval": 1800000
+  }
+}

@@ -1,0 +1,3721 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AHIVECORE - 智能体核心引擎</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #1a1a2e;
+      color: #eee;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* 头部 */
+    header {
+      background: linear-gradient(135deg, #16213e 0%, #0f3460 100%);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #0f3460;
+      flex-shrink: 0;
+      height: 56px;
+    }
+    
+    .logo { display: flex; align-items: center; gap: 12px; }
+    .logo-icon { font-size: 28px; }
+    .logo-text {
+      font-size: 22px;
+      font-weight: bold;
+      background: linear-gradient(90deg, #667eea, #764ba2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .header-status { display: flex; align-items: center; gap: 20px; font-size: 13px; }
+    .status-item { display: flex; align-items: center; gap: 6px; cursor: pointer; }
+    .status-item:hover { opacity: 0.8; }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #4caf50; animation: pulse 2s infinite; }
+    .status-dot.offline { background: #f44336; animation: none; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+    /* 主内容区 */
+    .main-container { display: flex; flex: 1; overflow: hidden; min-height: 0; }
+
+    /* 左侧菜单 */
+    .sidebar {
+      width: 200px;
+      background: #16213e;
+      border-right: 1px solid #0f3460;
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+    
+    .menu { padding: 12px 0; flex: 1; }
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border-left: 3px solid transparent;
+      color: #aaa;
+    }
+    .menu-item:hover { background: rgba(102, 126, 234, 0.1); color: #fff; }
+    .menu-item.active { background: rgba(102, 126, 234, 0.2); border-left-color: #667eea; color: #fff; }
+    .menu-item .icon { font-size: 18px; width: 24px; text-align: center; }
+    .sidebar-footer { padding: 12px 16px; border-top: 1px solid #0f3460; font-size: 11px; color: #555; }
+
+    /* 右侧内容 */
+    .content { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+
+    /* 聊天页面 */
+    .chat-page {
+      flex: 1;
+      display: flex;
+      flex-direction: row;
+      padding: 16px;
+      min-height: 0;
+      overflow: hidden;
+    }
+    
+    .chat-container {
+      flex: 1;
+      background: #0f0f1a;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      min-height: 0;
+      min-width: 0;
+    }
+    
+    .chat-messages { flex: 1; overflow-y: auto; padding: 16px; min-height: 0; }
+    .message { margin-bottom: 12px; max-width: 75%; }
+    .message.user { margin-left: auto; }
+    .message-bubble { padding: 10px 14px; border-radius: 12px; line-height: 1.6; word-wrap: break-word; }
+    .message.user .message-bubble { background: linear-gradient(135deg, #667eea, #764ba2); border-bottom-right-radius: 4px; color: white; }
+    .message.assistant .message-bubble { background: #1e1e3f; border: 1px solid #3d3d6b; border-bottom-left-radius: 4px; }
+    
+    .chat-input-area {
+      padding: 12px;
+      border-top: 1px solid #2a2a4a;
+      display: flex;
+      gap: 10px;
+      flex-shrink: 0;
+      background: #0f0f1a;
+      border-radius: 0 0 12px 12px;
+    }
+    
+    .chat-input {
+      flex: 1;
+      background: #1a1a3a;
+      border: 1px solid #3d3d6b;
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: #eee;
+      font-size: 14px;
+      resize: none;
+      outline: none;
+      min-height: 40px;
+      max-height: 120px;
+    }
+    .chat-input:focus { border-color: #667eea; }
+    
+    .send-btn {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      color: white;
+      font-size: 14px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .send-btn:hover { opacity: 0.9; }
+    .send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* 管理页面 */
+    .manage-page { flex: 1; padding: 16px; overflow-y: auto; display: none; }
+    .manage-page.active { display: block; }
+    .page-title { font-size: 18px; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+    
+    /* 执行状态面板 - 参考 CODEX 风格 */
+    .execution-panel {
+      background: #0f0f1a;
+      border-top: 1px solid #2a2a4a;
+      font-family: 'Monaco', 'Consolas', monospace;
+      font-size: 13px;
+      transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
+    }
+    /* 头部始终可见 */
+    .execution-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      background: #1a1a3a;
+      border-bottom: 1px solid #2a2a4a;
+      cursor: pointer;
+      user-select: none;
+      flex-shrink: 0;
+    }
+    .execution-panel-header:hover { background: #252550; }
+    .execution-panel-title { display: flex; align-items: center; gap: 8px; }
+    .execution-panel-toggle { font-size: 10px; transition: transform 0.2s; }
+    .execution-panel.collapsed .execution-panel-toggle { transform: rotate(-90deg); }
+    .execution-panel.collapsed .execution-panel-header { border-bottom: none; }
+    
+    /* 日志区域 - 可折叠 */
+    .execution-log {
+      padding: 8px 12px;
+      line-height: 1.8;
+      overflow-y: auto;
+      max-height: 200px;
+      transition: max-height 0.3s ease;
+    }
+    .execution-panel.collapsed .execution-log {
+      max-height: 0;
+      padding: 0 12px;
+      overflow: hidden;
+    }
+    .execution-log::-webkit-scrollbar { width: 6px; }
+    .execution-log::-webkit-scrollbar-track { background: transparent; }
+    .execution-log::-webkit-scrollbar-thumb { background: #3d3d6b; border-radius: 3px; }
+    
+    /* 工具执行行 - 参考 CODEX ExecCell */
+    .exec-item {
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(42, 42, 74, 0.3);
+    }
+    .exec-item:last-child { border-bottom: none; }
+    .exec-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+    .exec-status {
+      font-weight: bold;
+      font-size: 14px;
+    }
+    .exec-status.running { color: #667eea; }
+    .exec-status.success { color: #4caf50; }
+    .exec-status.error { color: #f44336; }
+    .exec-title { font-weight: bold; }
+    .exec-time { color: #666; font-size: 11px; margin-left: auto; }
+    .exec-cmd {
+      background: #1a1a3a;
+      padding: 4px 8px;
+      border-radius: 4px;
+      margin: 4px 0 4px 20px;
+      font-size: 12px;
+      color: #c792ea;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .exec-output {
+      margin: 4px 0 4px 20px;
+      padding: 6px 8px;
+      background: #0a0a15;
+      border-radius: 4px;
+      font-size: 11px;
+      color: #888;
+      max-height: 80px;
+      overflow-y: auto;
+    }
+    
+    /* 提示词面板 - 右侧展示 LLM 提交的提示词 */
+    .prompt-panel {
+      width: 0;
+      min-width: 0;
+      background: #0f0f1a;
+      border-left: 1px solid #2a2a4a;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transition: width 0.3s ease, min-width 0.3s ease;
+      flex-shrink: 0;
+    }
+    .prompt-panel.open {
+      width: 420px;
+      min-width: 420px;
+    }
+    .prompt-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      background: #1a1a3a;
+      border-bottom: 1px solid #2a2a4a;
+      flex-shrink: 0;
+    }
+    .prompt-panel-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #c792ea;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .prompt-token-stats {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 11px;
+      color: #888;
+      margin-left: 8px;
+    }
+    .prompt-token-item {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .prompt-token-value {
+      color: #667eea;
+      font-weight: 600;
+      font-family: 'Monaco', 'Consolas', monospace;
+    }
+    .prompt-token-separator {
+      color: #444;
+    }
+    .prompt-panel-close {
+      background: none;
+      border: none;
+      color: #888;
+      cursor: pointer;
+      font-size: 16px;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    .prompt-panel-close:hover { color: #fff; background: rgba(255,255,255,0.1); }
+    .prompt-panel-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px 0;
+      min-height: 0;
+    }
+    .prompt-panel-body::-webkit-scrollbar { width: 6px; }
+    .prompt-panel-body::-webkit-scrollbar-track { background: transparent; }
+    .prompt-panel-body::-webkit-scrollbar-thumb { background: #3d3d6b; border-radius: 3px; }
+    .prompt-panel-empty {
+      padding: 20px 14px;
+      text-align: center;
+      color: #666;
+      font-size: 12px;
+    }
+    /* 提示词分类折叠块 */
+    .prompt-category {
+      border-bottom: 1px solid rgba(42, 42, 74, 0.4);
+    }
+    .prompt-category-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.15s;
+    }
+    .prompt-category-header:hover { background: rgba(102, 126, 234, 0.08); }
+    .prompt-category-toggle {
+      font-size: 10px;
+      color: #888;
+      transition: transform 0.2s;
+      width: 14px;
+      text-align: center;
+    }
+    .prompt-category.collapsed .prompt-category-toggle { transform: rotate(-90deg); }
+    .prompt-category-label {
+      font-size: 12px;
+      font-weight: 600;
+      flex: 1;
+    }
+    .prompt-category-label.system { color: #c792ea; }
+    .prompt-category-label.user { color: #82aaff; }
+    .prompt-category-label.assistant { color: #4caf50; }
+    .prompt-category-count {
+      font-size: 11px;
+      color: #666;
+      background: #1a1a3a;
+      padding: 1px 6px;
+      border-radius: 8px;
+    }
+    .prompt-category-body {
+      padding: 0 14px 8px 14px;
+      transition: max-height 0.25s ease, padding 0.25s ease;
+      overflow: hidden;
+    }
+    .prompt-category.collapsed .prompt-category-body {
+      max-height: 0 !important;
+      padding: 0 14px;
+    }
+    /* 单条提示词消息 */
+    .prompt-msg {
+      margin-bottom: 6px;
+      background: #1a1a3a;
+      border-radius: 6px;
+      border: 1px solid #2a2a4a;
+      overflow: hidden;
+    }
+    .prompt-msg:last-child { margin-bottom: 0; }
+    .prompt-msg-header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 8px;
+      background: rgba(42, 42, 74, 0.3);
+      font-size: 11px;
+      color: #888;
+    }
+    .prompt-msg-role {
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 10px;
+      padding: 1px 4px;
+      border-radius: 3px;
+    }
+    .prompt-msg-role.system { background: rgba(199, 146, 234, 0.2); color: #c792ea; }
+    .prompt-msg-role.user { background: rgba(130, 170, 255, 0.2); color: #82aaff; }
+    .prompt-msg-role.assistant { background: rgba(76, 175, 80, 0.2); color: #4caf50; }
+    .prompt-msg-index { color: #555; }
+    .prompt-msg-len { margin-left: auto; color: #555; }
+    .prompt-msg-content {
+      padding: 6px 8px;
+      font-family: 'Monaco', 'Consolas', monospace;
+      font-size: 11px;
+      line-height: 1.5;
+      color: #ccc;
+      white-space: pre-wrap;
+      word-break: break-all;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    .prompt-msg-content::-webkit-scrollbar { width: 4px; }
+    .prompt-msg-content::-webkit-scrollbar-thumb { background: #3d3d6b; border-radius: 2px; }
+    /* 提示词面板切换按钮 */
+    .prompt-toggle-btn {
+      background: none;
+      border: 1px solid #3d3d6b;
+      border-radius: 6px;
+      color: #888;
+      cursor: pointer;
+      font-size: 12px;
+      padding: 4px 8px;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .prompt-toggle-btn:hover { color: #c792ea; border-color: #c792ea; }
+    .prompt-toggle-btn.active { color: #c792ea; border-color: #c792ea; background: rgba(199, 146, 234, 0.1); }
+    /* 提示词调用次数标记 */
+    .prompt-call-badge {
+      font-size: 10px;
+      background: rgba(199, 146, 234, 0.2);
+      color: #c792ea;
+      padding: 1px 5px;
+      border-radius: 8px;
+      margin-left: 4px;
+    }
+    
+    /* Spinner 动画 - 参考 CODEX */
+    .spinner {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #667eea;
+      animation: pulse-spinner 1s ease-in-out infinite;
+    }
+    @keyframes pulse-spinner {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.8); }
+    }
+    
+    /* 打字动画 - 思考中 */
+    .thinking-dots {
+      display: inline-flex;
+      gap: 3px;
+    }
+    .thinking-dots span {
+      width: 5px;
+      height: 5px;
+      background: #ffc107;
+      border-radius: 50%;
+      animation: thinking-bounce 1.4s infinite ease-in-out;
+    }
+    .thinking-dots span:nth-child(1) { animation-delay: -0.32s; }
+    .thinking-dots span:nth-child(2) { animation-delay: -0.16s; }
+    @keyframes thinking-bounce {
+      0%, 80%, 100% { transform: scale(0.6); opacity: 0.5; }
+      40% { transform: scale(1); opacity: 1; }
+    }
+    
+    /* 状态指示器 - 参考 CODEX StatusIndicator */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .status-badge.thinking {
+      background: rgba(255, 193, 7, 0.15);
+      color: #ffc107;
+    }
+    .status-badge.running {
+      background: rgba(102, 126, 234, 0.15);
+      color: #667eea;
+    }
+    .status-badge.success {
+      background: rgba(76, 175, 80, 0.15);
+      color: #4caf50;
+    }
+    .status-badge.error {
+      background: rgba(244, 67, 54, 0.15);
+      color: #f44336;
+    }
+    
+    .card { background: #16213e; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+    .card-title { font-size: 15px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    
+    .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; }
+    .stat-item { background: #0f0f1a; border-radius: 8px; padding: 12px; text-align: center; }
+    .stat-value { font-size: 22px; font-weight: bold; color: #667eea; }
+    .stat-label { font-size: 11px; color: #888; margin-top: 4px; }
+    
+    .table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .table th, .table td { padding: 10px; text-align: left; border-bottom: 1px solid #2a2a4a; }
+    .table th { background: #0f0f1a; font-weight: 500; }
+    
+    .btn {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      border: none;
+      border-radius: 6px;
+      padding: 8px 16px;
+      color: white;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    .btn:hover { opacity: 0.9; }
+    .btn-sm { padding: 4px 10px; font-size: 12px; }
+    .btn-danger { background: linear-gradient(135deg, #e94560, #ff6b6b); }
+    .btn-success { background: linear-gradient(135deg, #4caf50, #66bb6a); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    
+    .form-row { display: flex; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+    .form-group { flex: 1; min-width: 150px; }
+    .form-group label { display: block; margin-bottom: 6px; font-size: 12px; color: #aaa; }
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 8px 12px;
+      background: #0f0f1a;
+      border: 1px solid #3d3d6b;
+      border-radius: 6px;
+      color: #eee;
+      font-size: 13px;
+    }
+    .form-group input:focus, .form-group select:focus { outline: none; border-color: #667eea; }
+
+    /* 模型卡片 */
+    .model-card {
+      background: #0f0f1a;
+      border: 1px solid #2a2a4a;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .model-card.current { border-color: #667eea; background: rgba(102, 126, 234, 0.1); }
+    .model-icon { font-size: 32px; }
+    .model-info { flex: 1; }
+    .model-name { font-size: 16px; font-weight: bold; margin-bottom: 4px; }
+    .model-desc { font-size: 12px; color: #888; margin-bottom: 8px; }
+    .model-meta { display: flex; gap: 16px; font-size: 11px; color: #aaa; }
+    .model-actions { display: flex; gap: 8px; }
+    
+    .progress-bar {
+      width: 100%;
+      height: 4px;
+      background: #2a2a4a;
+      border-radius: 2px;
+      margin-top: 8px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #667eea, #764ba2);
+      transition: width 0.3s;
+    }
+
+    /* 底部 */
+    footer {
+      background: #0f0f1a;
+      padding: 8px 24px;
+      text-align: center;
+      font-size: 12px;
+      color: #555;
+      border-top: 1px solid #1a1a3a;
+      flex-shrink: 0;
+      height: 32px;
+    }
+    footer a { color: #667eea; text-decoration: none; }
+
+    /* 滚动条美化 */
+    .chat-messages::-webkit-scrollbar { width: 6px; }
+    .chat-messages::-webkit-scrollbar-track { background: transparent; }
+    .chat-messages::-webkit-scrollbar-thumb { background: #3d3d6b; border-radius: 3px; }
+    .chat-messages::-webkit-scrollbar-thumb:hover { background: #667eea; }
+    
+    /* Thinking/Reasoning 块样式 - 参考 CODEX */
+    .thinking-block {
+      background: rgba(102, 126, 234, 0.1);
+      border-left: 3px solid #667eea;
+      padding: 8px 12px;
+      margin: 8px 0;
+      border-radius: 0 8px 8px 0;
+      font-style: italic;
+      color: #999;
+      font-size: 13px;
+    }
+    .thinking-block::before {
+      content: '💭 ';
+      font-style: normal;
+    }
+    .thinking-toggle {
+      cursor: pointer;
+      user-select: none;
+    }
+    .thinking-toggle:hover {
+      color: #bbb;
+    }
+    .thinking-content {
+      margin-top: 6px;
+      line-height: 1.5;
+    }
+    .thinking-content.collapsed {
+      max-height: 60px;
+      overflow: hidden;
+      position: relative;
+    }
+    .thinking-content.collapsed::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 30px;
+      background: linear-gradient(transparent, rgba(102, 126, 234, 0.1));
+    }
+    
+    /* 工具调用块样式 */
+    .tool-call-block {
+      background: rgba(245, 158, 11, 0.1);
+      border-left: 3px solid #f59e0b;
+      padding: 8px 12px;
+      margin: 8px 0;
+      border-radius: 0 8px 8px 0;
+      font-family: 'Monaco', 'Consolas', monospace;
+      font-size: 12px;
+    }
+    .tool-call-block::before {
+      content: '🔧 ';
+      font-style: normal;
+    }
+    .tool-name {
+      color: #f59e0b;
+      font-weight: bold;
+    }
+    .tool-args {
+      color: #aaa;
+      margin-top: 4px;
+    }
+    
+    /* 执行结果块样式 */
+    .exec-result-block {
+      background: rgba(76, 175, 80, 0.1);
+      border-left: 3px solid #4caf50;
+      padding: 8px 12px;
+      margin: 8px 0;
+      border-radius: 0 8px 8px 0;
+      font-size: 12px;
+    }
+    .exec-result-block.error {
+      background: rgba(244, 67, 54, 0.1);
+      border-left-color: #f44336;
+    }
+    
+    /* Plan 块样式 */
+    .plan-block {
+      background: rgba(156, 39, 176, 0.1);
+      border-left: 3px solid #9c27b0;
+      padding: 8px 12px;
+      margin: 8px 0;
+      border-radius: 0 8px 8px 0;
+    }
+    .plan-block::before {
+      content: '📋 ';
+    }
+
+    /* 响应式 */
+    @media (max-width: 768px) {
+      .sidebar { width: 50px; }
+      .menu-item span:not(.icon) { display: none; }
+      .sidebar-footer { display: none; }
+      .header-status { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <!-- 头部 -->
+  <header>
+    <div class="logo">
+      <span class="logo-icon">🐝</span>
+      <span class="logo-text">AHIVECORE</span>
+    </div>
+    <div class="header-status">
+      <div class="status-item">
+        <span class="status-dot" id="status-dot"></span>
+        <span id="status-text">运行中</span>
+      </div>
+      <div class="status-item" onclick="switchPage('models')">
+        <span>📦</span>
+        <span id="model-name">Qwen2.5-1.5B</span>
+      </div>
+      <div class="status-item" onclick="switchPage('agents')" title="点击管理智能体">
+        <span>🤖</span>
+        <span id="active-agent-name">自动识别</span>
+      </div>
+      <div class="status-item" id="session-status" style="cursor: default;">
+        <span>🧠</span>
+        <span id="session-status-text">会话: 活跃</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主内容 -->
+  <div class="main-container">
+    <!-- 左侧菜单 -->
+    <nav class="sidebar">
+      <div class="menu">
+        <div class="menu-item active" data-page="chat"><span class="icon">💬</span><span>对话</span></div>
+        <div class="menu-item" data-page="provider"><span class="icon">🔌</span><span>Provider</span></div>
+        <div class="menu-item" data-page="models"><span class="icon">📦</span><span>模型管理</span></div>
+        <div class="menu-item" data-page="roles"><span class="icon">🎭</span><span>角色管理</span></div>
+        <div class="menu-item" data-page="status"><span class="icon">📊</span><span>运行状态</span></div>
+        <div class="menu-item" data-page="agents"><span class="icon">🤖</span><span>智能体</span></div>
+        <div class="menu-item" data-page="logs"><span class="icon">📝</span><span>日志</span></div>
+        <div class="menu-item" data-page="settings"><span class="icon">⚙️</span><span>设置</span></div>
+      </div>
+      <div class="sidebar-footer"><div>v0.1.0</div></div>
+    </nav>
+
+    <!-- 右侧内容 -->
+    <main class="content">
+      <!-- 对话页面 -->
+      <div class="chat-page" id="page-chat">
+        <div class="chat-container">
+          <div class="chat-messages" id="chat-messages">
+            <div class="message assistant">
+              <div class="message-bubble">👋 你好！我是 AHIVECORE 智能体核心引擎。<br><br>有什么可以帮助你的吗？</div>
+            </div>
+          </div>
+          
+          <!-- 执行状态面板 - 参考 CODEX ExecCell 风格 -->
+          <div class="execution-panel collapsed" id="execution-panel">
+            <div class="execution-panel-header" onclick="toggleExecutionPanel()">
+              <div class="execution-panel-title">
+                <span class="status-badge thinking" id="status-badge">
+                  <span class="thinking-dots"><span></span><span></span><span></span></span>
+                  <span id="status-text">等待中</span>
+                </span>
+              </div>
+              <span class="execution-panel-toggle">▼</span>
+            </div>
+            <div class="execution-log" id="execution-log">
+              <!-- 执行日志 - 动态添加 -->
+            </div>
+          </div>
+          
+          <div class="chat-input-area">
+            <textarea class="chat-input" id="chat-input" placeholder="输入消息... (Enter 发送，执行中可继续输入)" rows="1"></textarea>
+            <div style="display:flex;align-items:center;gap:8px;margin-top:8px;">
+              <button class="send-btn" id="send-btn">发送</button>
+              <button class="send-btn" id="interrupt-btn" style="background: linear-gradient(135deg, #e94560, #ff6b6b); display: none;" title="停止执行">⏹</button>
+              <button class="send-btn" id="memory-btn" style="background: linear-gradient(135deg, #4caf50, #66bb6a);" title="保存当前对话到记忆">💾</button>
+              <button class="send-btn" id="new-session-btn" style="background: linear-gradient(135deg, #ff9800, #ffb74d);" title="开始新会话">🔄</button>
+              <div style="flex:1"></div>
+              <button class="prompt-toggle-btn" id="prompt-toggle-btn" onclick="togglePromptPanel()" title="查看 LLM 提示词">📋 提示词</button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 提示词面板 - 右侧展示 LLM 提交的提示词 -->
+        <div class="prompt-panel" id="prompt-panel">
+          <div class="prompt-panel-header">
+            <div class="prompt-panel-title">
+              <span>📋</span>
+              <span>LLM 提示词</span>
+              <span class="prompt-call-badge" id="prompt-call-count" style="display:none">0</span>
+            </div>
+            <div class="prompt-token-stats" id="prompt-token-stats" style="display:none">
+              <span class="token-stat"><span class="token-label">输入</span><span class="token-value" id="token-input">0</span></span>
+              <span class="token-stat"><span class="token-label">输出</span><span class="token-value" id="token-output">0</span></span>
+              <span class="token-stat"><span class="token-label">总计</span><span class="token-value" id="token-total">0</span></span>
+            </div>
+            <button class="prompt-panel-close" onclick="togglePromptPanel()" title="关闭面板">✕</button>
+          </div>
+          <div class="prompt-panel-body" id="prompt-panel-body">
+            <div class="prompt-panel-empty">等待 LLM 调用...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Provider 管理页面 -->
+      <div class="manage-page" id="page-provider">
+        <h2 class="page-title">🔌 Provider 管理</h2>
+        
+        <!-- 当前 Provider 状态 -->
+        <div class="card">
+          <div class="card-title">当前 Provider</div>
+          <div id="current-provider-info">
+            <div class="model-card current">
+              <div class="model-icon" id="provider-icon">🏠</div>
+              <div class="model-info">
+                <div class="model-name" id="provider-name">加载中...</div>
+                <div class="model-desc" id="provider-desc">-</div>
+                <div class="model-meta">
+                  <span id="provider-type">-</span>
+                  <span id="provider-model">-</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 切换 Provider -->
+        <div class="card">
+          <div class="card-title">切换 Provider</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Provider 类型</label>
+              <select id="provider-type-select" onchange="onProviderTypeChange()">
+                <option value="local">🏠 本地模型 (GGUF)</option>
+                <option value="ollama">🔗 Ollama 服务</option>
+                <option value="openai">☁️ API Provider</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- 本地模型配置 -->
+          <div id="local-config" class="provider-config">
+            <div class="form-row">
+              <div class="form-group">
+                <label>模型路径</label>
+                <input type="text" id="local-model-path" placeholder="./models/Qwen2.5-7B-Instruct-Q4_K_M.gguf">
+              </div>
+              <div class="form-group">
+                <label>模型名称</label>
+                <input type="text" id="local-model-name" placeholder="Qwen2.5-7B-Instruct">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>GPU 层数 (0=CPU)</label>
+                <input type="number" id="local-gpu-layers" value="0" min="0" max="99">
+              </div>
+              <div class="form-group">
+                <label>线程数</label>
+                <input type="number" id="local-threads" value="4" min="1" max="16">
+              </div>
+              <div class="form-group">
+                <label>上下文长度</label>
+                <select id="local-context-size">
+                  <option value="1024">1024 (最低显存)</option>
+                  <option value="2048" selected>2048 (推荐)</option>
+                  <option value="4096">4096</option>
+                  <option value="8192">8192</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>批次序列 (显存占用)</label>
+                <select id="local-sequences">
+                  <option value="1" selected>1 (低显存)</option>
+                  <option value="2">2 (并发支持)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Ollama 配置 -->
+          <div id="ollama-config" class="provider-config" style="display:none;">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Ollama 服务地址</label>
+                <input type="text" id="ollama-host" placeholder="http://localhost:11434">
+              </div>
+              <div class="form-group">
+                <label>模型名称</label>
+                <input type="text" id="ollama-model" placeholder="qwen2.5:7b">
+              </div>
+            </div>
+            <p style="font-size:12px;color:#888;">确保 Ollama 已启动: <code>ollama serve</code></p>
+          </div>
+
+          <!-- API Provider 配置 -->
+          <div id="openai-config" class="provider-config" style="display:none;">
+            <div class="form-row">
+              <div class="form-group">
+                <label>API Provider</label>
+                <select id="api-preset-select" onchange="onApiPresetChange()">
+                  <option value="">选择预设...</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>API Key</label>
+                <input type="password" id="api-key" placeholder="sk-...">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>API 端点</label>
+                <input type="text" id="api-endpoint" placeholder="https://api.openai.com/v1">
+              </div>
+              <div class="form-group">
+                <label>模型</label>
+                <select id="api-model-select">
+                  <option value="">选择模型...</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>温度</label>
+                <input type="number" id="api-temperature" value="0.7" min="0" max="2" step="0.1">
+              </div>
+              <div class="form-group">
+                <label>最大 Tokens</label>
+                <input type="number" id="api-max-tokens" value="4096" min="1">
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top:16px;">
+            <button class="btn btn-success" onclick="switchProvider()">切换 Provider</button>
+            <span id="switch-status" style="margin-left:12px;font-size:13px;"></span>
+          </div>
+        </div>
+
+        <!-- API 预设信息 -->
+        <div class="card" id="presets-card">
+          <div class="card-title">支持的 API Provider</div>
+          <div id="presets-list">加载中...</div>
+        </div>
+      </div>
+
+      <!-- 模型管理页面 -->
+      <div class="manage-page" id="page-models">
+        <h2 class="page-title">📦 模型管理</h2>
+        <div class="card">
+          <div class="card-title">可用模型</div>
+          <div id="models-list">加载中...</div>
+        </div>
+        <div class="card">
+          <div class="card-title">模型设置</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>GPU 层数 (0=纯CPU, 99=全GPU)</label>
+              <input type="number" id="setting-gpu-layers" value="0" min="0" max="99">
+            </div>
+            <div class="form-group">
+              <label>线程数</label>
+              <input type="number" id="setting-threads" value="4" min="1" max="16">
+            </div>
+            <div class="form-group">
+              <label>上下文长度</label>
+              <select id="setting-context-size">
+                <option value="2048">2048</option>
+                <option value="4096" selected>4096</option>
+                <option value="8192">8192</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>温度</label>
+              <input type="number" id="setting-temperature" value="0.7" min="0" max="2" step="0.1">
+            </div>
+          </div>
+          <button class="btn" onclick="saveSettings()">保存设置</button>
+        </div>
+      </div>
+
+      <!-- 角色管理页面 -->
+      <div class="manage-page" id="page-roles">
+        <h2 class="page-title">🎭 角色管理 <span style="font-size:12px;color:#888;font-weight:normal">(仅适用于 ahive-worker 类型智能体)</span></h2>
+        
+        <!-- 角色列表 -->
+        <div class="card">
+          <div class="card-title">预定义角色</div>
+          <div id="roles-list">加载中...</div>
+        </div>
+        
+        <!-- 创建新角色 -->
+        <div class="card">
+          <div class="card-title">创建新角色</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>角色 ID <span style="color:#f44336">*</span></label>
+              <input type="text" id="new-role-id" placeholder="my_custom_role (英文, 下划线)">
+            </div>
+            <div class="form-group">
+              <label>角色名称 <span style="color:#f44336">*</span></label>
+              <input type="text" id="new-role-name" placeholder="My Custom Role">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>中文名称</label>
+              <input type="text" id="new-role-name-zh" placeholder="自定义角色">
+            </div>
+            <div class="form-group">
+              <label>角色描述</label>
+              <input type="text" id="new-role-desc" placeholder="角色的主要职责和能力">
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom:12px">
+            <label>系统提示词 <span style="color:#f44336">*</span> <span style="color:#888;font-weight:normal">(建议使用英文)</span></label>
+            <textarea id="new-role-prompt" style="width:100%;min-height:150px;background:#0f0f1a;border:1px solid #3d3d6b;border-radius:6px;color:#eee;font-family:monospace;font-size:12px;padding:10px" placeholder="You are an expert in...&#10;&#10;## Core Competencies&#10;- ...&#10;&#10;## Rules&#10;1. Keep going until the query is completely resolved..."></textarea>
+          </div>
+          <div style="font-size:11px;color:#888;margin-bottom:12px">
+            💡 提示：每个角色提示词应包含：1) 角色身份定义 2) 核心能力 3) 工作原则 4) "Keep going until resolved" 指令
+          </div>
+          <button class="btn btn-success" onclick="createRole()">创建角色</button>
+          <span id="create-role-status" style="margin-left:12px;font-size:13px;"></span>
+        </div>
+        
+        <!-- 编辑角色 (默认隐藏) -->
+        <div class="card" id="edit-role-card" style="display:none">
+          <div class="card-title">编辑角色: <span id="edit-role-title"></span></div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>角色名称</label>
+              <input type="text" id="edit-role-name">
+            </div>
+            <div class="form-group">
+              <label>中文名称</label>
+              <input type="text" id="edit-role-name-zh">
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom:12px">
+            <label>角色描述</label>
+            <input type="text" id="edit-role-desc" style="width:100%">
+          </div>
+          <div class="form-group" style="margin-bottom:12px">
+            <label>系统提示词</label>
+            <textarea id="edit-role-prompt" style="width:100%;min-height:150px;background:#0f0f1a;border:1px solid #3d3d6b;border-radius:6px;color:#eee;font-family:monospace;font-size:12px;padding:10px"></textarea>
+          </div>
+          <button class="btn btn-success" onclick="saveRoleEdit()">保存修改</button>
+          <button class="btn" onclick="cancelRoleEdit()" style="margin-left:8px">取消</button>
+          <span id="edit-role-status" style="margin-left:12px;font-size:13px;"></span>
+        </div>
+      </div>
+
+      <!-- 运行状态 -->
+      <div class="manage-page" id="page-status">
+        <h2 class="page-title">📊 运行状态</h2>
+        <div class="card">
+          <div class="card-title">系统状态</div>
+          <div class="stat-grid">
+            <div class="stat-item"><div class="stat-value" id="stat-requests">0</div><div class="stat-label">请求数</div></div>
+            <div class="stat-item"><div class="stat-value" id="stat-tokens">0</div><div class="stat-label">Token</div></div>
+            <div class="stat-item"><div class="stat-value" id="stat-duration">-</div><div class="stat-label">响应</div></div>
+            <div class="stat-item"><div class="stat-value" id="stat-uptime">-</div><div class="stat-label">运行</div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">当前模型</div>
+          <table class="table">
+            <tr><td>模型</td><td id="info-model">-</td></tr>
+            <tr><td>内存需求</td><td id="info-memory">-</td></tr>
+            <tr><td>GPU</td><td id="info-gpu">CPU</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- 智能体管理 -->
+      <div class="manage-page" id="page-agents">
+        <h2 class="page-title">🤖 智能体管理</h2>
+        
+        <!-- 当前活跃智能体状态 -->
+        <div class="card" id="active-agent-card" style="border: 2px solid #667eea">
+          <div class="card-title">
+            <span>🎯 当前活跃智能体</span>
+            <span id="active-agent-indicator" style="margin-left:8px;font-size:11px;padding:2px 8px;border-radius:4px;background:#4caf50;color:#fff">自动识别中</span>
+          </div>
+          <div id="active-agent-info">
+            <div style="color:#888;font-size:13px">暂无活跃智能体，将使用默认 AMEP 流程</div>
+          </div>
+          <div style="margin-top:12px;display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+            <div class="form-group" style="margin:0;min-width:200px">
+              <label style="font-size:11px">手动切换智能体</label>
+              <select id="agent-selector" onchange="onAgentSelectorChange()" style="width:100%">
+                <option value="">-- 自动识别 --</option>
+              </select>
+            </div>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px">
+              <input type="checkbox" id="auto-detect-toggle" checked onchange="onAutoDetectToggle()">
+              <span>自动识别意图</span>
+            </label>
+          </div>
+        </div>
+        
+        <!-- 创建统一智能体 -->
+        <div class="card">
+          <div class="card-title">创建智能体</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>类型</label>
+              <select id="new-agent-type" onchange="onAgentTypeChange()">
+                <option value="ahive-worker">AHIVE-Worker (对话型)</option>
+                <option value="ahive-coder">AHIVE-Coder (编程型)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>名称</label>
+              <input type="text" id="new-agent-name" placeholder="My Agent">
+            </div>
+          </div>
+          
+          <!-- 角色选择 (仅 ahive-worker 类型) -->
+          <div id="role-select-row" style="margin-top:12px;padding-top:12px;border-top:1px solid #2a2a4a">
+            <div style="font-size:13px;color:#888;margin-bottom:8px">🎭 角色提示词 <span style="font-size:11px;color:#666">(仅 ahive-worker 类型)</span></div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>选择角色</label>
+                <select id="agent-role-select">
+                  <option value="">-- 默认助手 --</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>角色说明</label>
+                <div id="role-description" style="font-size:12px;color:#888;padding:8px 0">通用对话、基础任务</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 模型配置 -->
+          <div style="margin-top:12px;padding-top:12px;border-top:1px solid #2a2a4a">
+            <div style="font-size:13px;color:#888;margin-bottom:8px">📦 模型配置</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>提供者</label>
+                <select id="agent-model-provider" onchange="onAgentModelProviderChange()">
+                  <option value="local">🏠 本地模型</option>
+                  <option value="openai">☁️ OpenAI</option>
+                  <option value="anthropic">🤖 Anthropic</option>
+                  <option value="bailian">🚀 阿里百炼</option>
+                  <option value="ollama">🔗 Ollama</option>
+                  <option value="custom">⚙️ 自定义 (OpenAI 兼容)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>模型名称</label>
+                <input type="text" id="agent-model-name" placeholder="qwen-plus / gpt-4o / claude-3-sonnet">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>温度</label>
+                <input type="number" id="agent-model-temperature" value="0.7" min="0" max="2" step="0.1">
+              </div>
+              <div class="form-group">
+                <label>最大 Tokens</label>
+                <input type="number" id="agent-model-maxtokens" value="4096" min="1">
+              </div>
+            </div>
+            
+            <!-- API 配置 (非本地模型显示) -->
+            <div id="agent-api-config" style="display:none;margin-top:12px;padding-top:12px;border-top:1px dashed #2a2a4a">
+              <div style="font-size:12px;color:#888;margin-bottom:8px">🔑 API 配置</div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>API Key <span style="color:#f44336">*</span></label>
+                  <input type="password" id="agent-api-key" placeholder="sk-... / 您的 API Key">
+                </div>
+                <div class="form-group">
+                  <label>API 端点</label>
+                  <input type="text" id="agent-api-baseurl" placeholder="留空使用默认，或输入自定义端点">
+                </div>
+              </div>
+              <div id="api-preset-hint" style="font-size:11px;color:#888;margin-top:4px"></div>
+            </div>
+          </div>
+          
+          <!-- 分身模型配置 -->
+          <div style="margin-top:12px;padding-top:12px;border-top:1px solid #2a2a4a">
+            <div style="font-size:13px;color:#888;margin-bottom:8px">🤖 分身模型配置 <span style="font-size:11px;color:#666">(所有子分身自动使用此模型)</span></div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>提供者</label>
+                <select id="spawn-model-provider" onchange="onSpawnModelProviderChange()">
+                  <option value="">-- 继承父级模型 --</option>
+                  <option value="local">🏠 本地模型</option>
+                  <option value="openai">☁️ OpenAI</option>
+                  <option value="anthropic">🤖 Anthropic</option>
+                  <option value="bailian">🚀 阿里百炼</option>
+                  <option value="ollama">🔗 Ollama</option>
+                  <option value="custom">⚙️ 自定义</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>模型名称</label>
+                <input type="text" id="spawn-model-name" placeholder="留空则继承父级模型">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>温度</label>
+                <input type="number" id="spawn-model-temperature" placeholder="继承父级" min="0" max="2" step="0.1">
+              </div>
+              <div class="form-group">
+                <label>最大分身数</label>
+                <select id="max-spawns">
+                  <option value="1">1 个</option>
+                  <option value="2">2 个</option>
+                  <option value="3">3 个</option>
+                  <option value="4">4 个</option>
+                  <option value="5">5 个</option>
+                  <option value="6" selected>6 个 (CODEX标准)</option>
+                </select>
+              </div>
+            </div>
+            
+            <!-- 分身 API 配置 -->
+            <div id="spawn-api-config" style="display:none;margin-top:12px;padding-top:12px;border-top:1px dashed #2a2a4a">
+              <div style="font-size:12px;color:#888;margin-bottom:8px">🔑 分身 API 配置</div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>API Key</label>
+                  <input type="password" id="spawn-api-key" placeholder="分身专用 API Key">
+                </div>
+                <div class="form-group">
+                  <label>API 端点</label>
+                  <input type="text" id="spawn-api-baseurl" placeholder="自定义端点">
+                </div>
+              </div>
+            </div>
+            
+            <div style="font-size:11px;color:#666;margin-top:8px">
+              💡 提示：设置分身模型后，所有子分身将自动使用此模型，无需每次单独指定。
+            </div>
+          </div>
+          
+          <div style="margin-top:12px">
+            <button class="btn btn-success" onclick="createUnifiedAgent()">创建智能体</button>
+            <span id="create-agent-status" style="margin-left:12px;font-size:13px;"></span>
+          </div>
+          
+          <!-- 类型说明 -->
+          <div style="margin-top:16px;padding:12px;background:#0f0f1a;border-radius:8px;font-size:12px;color:#888">
+            <div id="agent-type-desc">
+              <b>AHIVE-Worker 类型：</b>适合对话、问答、一般任务。启用 AMEP 记忆系统，保持对话上下文。
+            </div>
+          </div>
+        </div>
+        
+        <!-- 智能体列表 -->
+        <div class="card">
+          <div class="card-title">运行中的智能体</div>
+          <table class="table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>类型</th>
+                <th>角色</th>
+                <th>模型</th>
+                <th>状态</th>
+                <th>AMEP</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="unified-agents-table">
+              <tr><td colspan="7" style="text-align:center;color:#666">加载中...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        
+        <!-- 可用模型参考 -->
+        <div class="card">
+          <div class="card-title">📋 可用模型参考</div>
+          <div style="font-size:12px;color:#888;margin-bottom:12px">以下模型可供智能体绑定，可直连或通过 LLM Gateway</div>
+          <div id="available-models-list">加载中...</div>
+        </div>
+      </div>
+
+      <!-- 日志 -->
+      <div class="manage-page" id="page-logs">
+        <h2 class="page-title">📝 请求日志</h2>
+        <div class="card">
+          <table class="table">
+            <thead><tr><th>时间</th><th>方法</th><th>路径</th><th>状态</th><th>耗时</th></tr></thead>
+            <tbody id="logs-table"><tr><td colspan="5" style="text-align:center;color:#666">加载中...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 设置 -->
+      <div class="manage-page" id="page-settings">
+        <h2 class="page-title">⚙️ 设置</h2>
+        
+        <div class="card">
+          <div class="card-title">关于</div>
+          <table class="table">
+            <tr><td>版本</td><td>0.1.0</td></tr>
+            <tr><td>引擎</td><td>node-llama-cpp + Qwen</td></tr>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- 底部 -->
+  <footer>© 2026 <a href="#">星未来软件工作室</a> &nbsp;|&nbsp; QQ: 8980188 &nbsp;|&nbsp; 微信: etflyer</footer>
+
+  <script>
+    const API = '';
+    let isLoading = false;
+    let startTime = Date.now();
+    let currentModel = 'qwen2.5-1.5b';
+
+    // 页面切换
+    function switchPage(page) {
+      document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
+      document.querySelector(`.menu-item[data-page="${page}"]`)?.classList.add('active');
+      document.querySelectorAll('.manage-page').forEach(p => p.classList.remove('active'));
+      document.getElementById('page-' + page)?.classList.add('active');
+      document.getElementById('page-chat').style.display = page === 'chat' ? 'flex' : 'none';
+      
+      if (page === 'provider') loadProvider();
+      if (page === 'models') loadModels();
+      if (page === 'roles') loadRoles();
+      if (page === 'status') loadStatus();
+      if (page === 'agents') loadAgents();
+      if (page === 'logs') loadLogs();
+    }
+
+    document.querySelectorAll('.menu-item').forEach(item => {
+      item.addEventListener('click', () => switchPage(item.dataset.page));
+    });
+
+    // 聊天
+    const chatInput = document.getElementById('chat-input');
+    const sendBtn = document.getElementById('send-btn');
+    const chatMessages = document.getElementById('chat-messages');
+    const memoryBtn = document.getElementById('memory-btn');
+    const newSessionBtn = document.getElementById('new-session-btn');
+    const interruptBtn = document.getElementById('interrupt-btn');
+
+    chatInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+    });
+    sendBtn.addEventListener('click', sendMessage);
+    memoryBtn.addEventListener('click', saveMemory);
+    newSessionBtn.addEventListener('click', startNewSession);
+    interruptBtn.addEventListener('click', interruptExecution);
+    
+    // ==================== 提示词面板逻辑 ====================
+    const promptPanel = document.getElementById('prompt-panel');
+    const promptPanelBody = document.getElementById('prompt-panel-body');
+    const promptToggleBtn = document.getElementById('prompt-toggle-btn');
+    const promptTokenStatsEl = document.getElementById('prompt-token-stats');
+    let promptPanelOpen = false;
+    // 只保留最新一次 LLM 调用的提示词数据
+    let latestPromptData = null;
+
+    function togglePromptPanel() {
+      promptPanelOpen = !promptPanelOpen;
+      if (promptPanelOpen) {
+        promptPanel.classList.add('open');
+        promptToggleBtn.classList.add('active');
+      } else {
+        promptPanel.classList.remove('open');
+        promptToggleBtn.classList.remove('active');
+      }
+    }
+
+    function resetPromptPanel() {
+      latestPromptData = null;
+      promptTokenStatsEl.style.display = 'none';
+      promptTokenStatsEl.textContent = '';
+      promptPanelBody.innerHTML = '<div class="prompt-panel-empty">等待 LLM 调用...</div>';
+    }
+
+    function handleLLMPromptEvent(event) {
+      const categories = event.categories || {};
+      const totalMessages = event.totalMessages || 0;
+      const tokenUsage = event.tokenUsage || null;
+
+      // 只保留最新数据，覆盖旧的
+      latestPromptData = { categories, totalMessages, timestamp: event.timestamp };
+
+      // 更新 TOKEN 统计
+      if (tokenUsage) {
+        const { promptTokens, completionTokens, totalTokens } = tokenUsage;
+        promptTokenStatsEl.style.display = 'inline-flex';
+        promptTokenStatsEl.innerHTML = `<span class="token-stat-item"><span class="token-stat-label">输入</span><span class="token-stat-value">${promptTokens || 0}</span></span><span class="token-stat-divider">/</span><span class="token-stat-item"><span class="token-stat-label">输出</span><span class="token-stat-value">${completionTokens || 0}</span></span><span class="token-stat-divider">/</span><span class="token-stat-item"><span class="token-stat-label">总计</span><span class="token-stat-value">${totalTokens || 0}</span></span>`;
+      }
+
+      // 渲染面板
+      renderPromptPanel();
+    }
+
+    function renderPromptPanel() {
+      if (!latestPromptData) {
+        promptPanelBody.innerHTML = '<div class="prompt-panel-empty">等待 LLM 调用...</div>';
+        return;
+      }
+
+      const data = latestPromptData;
+      let html = '';
+
+      // 三个固定分类：系统提示词、累积对话、当前对话
+      const categoryConfig = [
+        { key: 'system', label: '系统提示词', icon: '⚙️', defaultCollapsed: false },
+        { key: 'user', label: '累积对话', icon: '💬', defaultCollapsed: true },
+        { key: 'assistant', label: '当前对话', icon: '🤖', defaultCollapsed: true },
+      ];
+
+      for (const cfg of categoryConfig) {
+        const msgs = data.categories[cfg.key] || [];
+        if (msgs.length === 0) continue;
+
+        const collapsed = cfg.defaultCollapsed;
+        const callId = `prompt-cat-${cfg.key}`;
+        
+        html += `<div class="prompt-category ${collapsed ? 'collapsed' : ''}" id="${callId}">`;
+        html += `<div class="prompt-category-header" onclick="togglePromptCategory('${callId}')">`;
+        html += `<span class="prompt-category-toggle">▼</span>`;
+        html += `<span>${cfg.icon}</span>`;
+        html += `<span class="prompt-category-label ${cfg.key}">${cfg.label}</span>`;
+        html += `<span class="prompt-category-count">${msgs.length}</span>`;
+        if (cfg.key === 'system') {
+          html += `<span style="font-size:10px;color:#c792ea;margin-left:4px">最新</span>`;
+        }
+        html += `</div>`; // header
+        html += `<div class="prompt-category-body">`;
+
+        // 渲染该分类下的所有消息
+        for (let j = 0; j < msgs.length; j++) {
+          const msg = msgs[j];
+          const content = msg.content || '';
+          const contentLen = content.length;
+          const msgId = `prompt-msg-${cfg.key}-${j}`;
+          const isLong = contentLen > 500;
+          
+          html += `<div class="prompt-msg" id="${msgId}">`;
+          html += `<div class="prompt-msg-header">`;
+          html += `<span class="prompt-msg-role ${cfg.key}">${cfg.key}</span>`;
+          html += `<span class="prompt-msg-index">#${j + 1}</span>`;
+          html += `<span class="prompt-msg-len">${contentLen} 字符</span>`;
+          if (isLong) {
+            html += `<span class="prompt-msg-expand" onclick="togglePromptMsg('${msgId}')" style="cursor:pointer;color:#667eea;font-size:10px;margin-left:4px" title="展开/折叠">展开</span>`;
+          }
+          html += `</div>`;
+          if (isLong) {
+            html += `<div class="prompt-msg-content prompt-msg-preview">${escapeHtml(content.substring(0, 500))}...</div>`;
+            html += `<div class="prompt-msg-content prompt-msg-full" style="display:none">${escapeHtml(content)}</div>`;
+          } else {
+            html += `<div class="prompt-msg-content">${escapeHtml(content)}</div>`;
+          }
+          html += `</div>`;
+        }
+
+        html += `</div>`; // body
+        html += `</div>`; // category
+      }
+
+      if (!html) {
+        html = '<div class="prompt-panel-empty">无提示词数据</div>';
+      }
+
+      promptPanelBody.innerHTML = html;
+
+      // 设置折叠区域的 max-height
+      document.querySelectorAll('.prompt-category:not(.collapsed) .prompt-category-body').forEach(el => {
+        el.style.maxHeight = el.scrollHeight + 'px';
+      });
+    }
+
+    function togglePromptCategory(id) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const isCollapsed = el.classList.contains('collapsed');
+      if (isCollapsed) {
+        el.classList.remove('collapsed');
+        const body = el.querySelector('.prompt-category-body');
+        if (body) body.style.maxHeight = body.scrollHeight + 'px';
+      } else {
+        const body = el.querySelector('.prompt-category-body');
+        if (body) body.style.maxHeight = '0px';
+        el.classList.add('collapsed');
+      }
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function togglePromptMsg(msgId) {
+      const el = document.getElementById(msgId);
+      if (!el) return;
+      const preview = el.querySelector('.prompt-msg-preview');
+      const full = el.querySelector('.prompt-msg-full');
+      const expandBtn = el.querySelector('.prompt-msg-expand');
+      if (!preview || !full) return;
+      const isExpanded = full.style.display !== 'none';
+      if (isExpanded) {
+        full.style.display = 'none';
+        preview.style.display = '';
+        if (expandBtn) expandBtn.textContent = '展开';
+      } else {
+        preview.style.display = 'none';
+        full.style.display = '';
+        if (expandBtn) expandBtn.textContent = '折叠';
+      }
+    }
+    
+    // 当前 SSE 连接
+    let currentEventSource = null;
+    
+    // 停止执行
+    async function interruptExecution() {
+      // 获取当前选中的智能体ID
+      const agentId = document.getElementById('agent-selector').value || currentActiveAgentId;
+      if (!agentId) {
+        console.error('无法确定目标智能体');
+        // 即使出错，也要重置状态
+        isLoading = false;
+        sendBtn.disabled = false;
+        sendBtn.textContent = '发送';
+        showInterruptButton(false);
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API}/api/interrupt`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ agentId })
+        });
+        const data = await res.json();
+        
+        // 无论成功与否，都重置状态
+        addMessage('⏹ 执行已停止', 'assistant');
+        updateStatus('error', '已停止');
+        
+        // 关闭 SSE 连接
+        if (currentEventSource) {
+          currentEventSource.close();
+          currentEventSource = null;
+        }
+        
+        // 重置状态
+        isLoading = false;
+        sendBtn.disabled = false;
+        sendBtn.textContent = '发送';
+        showInterruptButton(false);
+
+      } catch (e) {
+        console.error('中断失败:', e);
+        // 即使出错，也要重置状态
+        isLoading = false;
+        sendBtn.disabled = false;
+        sendBtn.textContent = '发送';
+        showInterruptButton(false);
+        if (currentEventSource) {
+          currentEventSource.close();
+          currentEventSource = null;
+        }
+      }
+    }
+    
+    // 显示/隐藏停止按钮
+    function showInterruptButton(show) {
+      interruptBtn.style.display = show ? 'inline-block' : 'none';
+    }
+    
+    // 发送插话（执行中发送的消息）
+    async function injectUserInput(message) {
+      // 获取当前选中的智能体ID
+      const agentId = document.getElementById('agent-selector').value || currentActiveAgentId;
+      if (!agentId) {
+        console.error('无法确定目标智能体');
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API}/api/user-input`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message, agentId })
+        });
+        const data = await res.json();
+        
+        if (data.success) {
+          // 在聊天区域显示插话
+          const div = document.createElement('div');
+          div.className = 'message user';
+          div.style.opacity = '0.8';
+          div.innerHTML = `<div class="message-bubble" style="background: linear-gradient(135deg, #ff9800, #ffb74d);">💬 ${escapeHtml(message)}</div>`;
+          chatMessages.appendChild(div);
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+          
+          // 添加到执行日志
+          addExecItem('user_input', { message }, 'success', null, null);
+        }
+      } catch (e) {
+        console.error('插话失败:', e);
+      }
+    }
+    
+    // 键盘快捷键 - Escape 停止
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && isLoading) {
+        e.preventDefault();
+        interruptExecution();
+      }
+    });
+
+    // 保存记忆（结束会话，触发记忆提纯）
+    async function saveMemory() {
+      if (!confirm('保存当前对话到记忆？\n\n这将结束当前会话并提取关键信息存储。')) return;
+      
+      memoryBtn.disabled = true;
+      memoryBtn.textContent = '...';
+      
+      try {
+        const res = await fetch(`${API}/api/session/end`, { method: 'POST' });
+        const data = await res.json();
+        
+        if (data.success) {
+          addMessage(`✅ 记忆已保存！提取了 ${data.memoriesCreated || 0} 条记忆。`, 'assistant');
+          updateSessionStatus(false);
+        } else {
+          addMessage(`⚠️ ${data.error || '保存失败'}`, 'assistant');
+        }
+      } catch (e) {
+        addMessage(`❌ 请求失败: ${e.message}`, 'assistant');
+      } finally {
+        memoryBtn.disabled = false;
+        memoryBtn.textContent = '💾';
+      }
+    }
+
+    // 开始新会话
+    async function startNewSession() {
+      if (!confirm('开始新会话？\n\n当前会话的历史将清空。')) return;
+      
+      newSessionBtn.disabled = true;
+      newSessionBtn.textContent = '...';
+      
+      try {
+        const res = await fetch(`${API}/api/session/start`, { method: 'POST' });
+        const data = await res.json();
+        
+        if (data.success) {
+          // 清空聊天记录
+          chatMessages.innerHTML = `
+            <div class="message assistant">
+              <div class="message-bubble">🔄 新会话已开始！<br><br>有什么可以帮助你的吗？</div>
+            </div>
+          `;
+          updateSessionStatus(true);
+        } else {
+          addMessage(`⚠️ ${data.error || '创建失败'}`, 'assistant');
+        }
+      } catch (e) {
+        addMessage(`❌ 请求失败: ${e.message}`, 'assistant');
+      } finally {
+        newSessionBtn.disabled = false;
+        newSessionBtn.textContent = '🔄';
+      }
+    }
+
+    // 更新会话状态显示
+    function updateSessionStatus(active) {
+      const statusText = document.getElementById('session-status-text');
+      if (active) {
+        statusText.textContent = '会话: 活跃';
+        statusText.style.color = '#4caf50';
+      } else {
+        statusText.textContent = '会话: 已保存';
+        statusText.style.color = '#ff9800';
+      }
+    }
+
+    // 获取会话状态
+    async function checkSessionStatus() {
+      try {
+        const res = await fetch(`${API}/api/session/status`);
+        const data = await res.json();
+        updateSessionStatus(data.activeSession !== null);
+      } catch (e) {
+        // ignore
+      }
+    }
+    
+    // ==================== 执行状态面板功能 - 参考 CODEX ExecCell ====================
+    
+    let executionLogEl = null;
+    let statusBadgeEl = null;
+    let statusTextEl = null;
+    let executionPanelEl = null;
+    let executionStartTime = null;
+    let toolCallCount = 0;
+    let userScrolledUp = false;  // 用户是否向上滚动了
+    
+    function initExecutionPanel() {
+      executionLogEl = document.getElementById('execution-log');
+      statusBadgeEl = document.getElementById('status-badge');
+      statusTextEl = document.getElementById('status-text');
+      executionPanelEl = document.getElementById('execution-panel');
+      
+      // 监听滚动事件 - 检测用户是否在底部
+      if (executionLogEl) {
+        executionLogEl.addEventListener('scroll', () => {
+          if (!executionLogEl) return;
+          
+          // 判断是否在底部（允许 30px 误差）
+          const scrollBottom = executionLogEl.scrollHeight - executionLogEl.scrollTop - executionLogEl.clientHeight;
+          const isAtBottom = scrollBottom < 30;
+          
+          // 只有用户主动向上滚动时才标记
+          userScrolledUp = !isAtBottom;
+        });
+      }
+    }
+    
+    // 智能滚动：只有用户在底部时才自动滚动
+    function smartScrollToBottom() {
+      if (!executionLogEl) return;
+      
+      // 强制滚动到底部（如果用户没有手动向上滚动）
+      if (!userScrolledUp) {
+        // 使用 setTimeout 确保 DOM 更新完成
+        setTimeout(() => {
+          if (executionLogEl) {
+            executionLogEl.scrollTop = executionLogEl.scrollHeight;
+          }
+        }, 0);
+      }
+    }
+    
+    function toggleExecutionPanel() {
+      if (executionPanelEl) {
+        executionPanelEl.classList.toggle('collapsed');
+      }
+    }
+    
+    function showExecutionPanel() {
+      if (executionPanelEl) {
+        executionPanelEl.classList.remove('collapsed');
+      }
+    }
+    
+    // 参考 CODEX: 更新状态徽章
+    function updateStatus(status, text) {
+      if (!statusBadgeEl) return;
+      
+      statusBadgeEl.className = 'status-badge ' + status;
+      
+      // 更新头部提示
+      const statusDot = document.getElementById('status-dot');
+      if (statusDot) {
+        if (status === 'running' || status === 'thinking') {
+          statusDot.className = 'status-dot';
+          statusDot.style.background = '#ffc107';
+        } else if (status === 'success') {
+          statusDot.className = 'status-dot';
+          statusDot.style.background = '#4caf50';
+        } else if (status === 'error') {
+          statusDot.className = 'status-dot offline';
+          statusDot.style.background = '#f44336';
+        }
+      }
+      
+      // 根据状态设置图标
+      const icons = {
+        thinking: '<span class="thinking-dots"><span></span><span></span><span></span></span>',
+        running: '<span class="spinner"></span>',
+        success: '<span>✓</span>',
+        error: '<span>✗</span>',
+      };
+      
+      // 执行中时添加快捷键提示
+      let hintText = text;
+      if (isLoading) {
+        hintText += ' <span style="font-size:10px;color:#888">(Esc 停止，可直接输入插话)</span>';
+      }
+      
+      statusBadgeEl.innerHTML = `${icons[status] || ''}<span id="status-text">${hintText}</span>`;
+      statusTextEl = document.getElementById('status-text');
+    }
+    
+    // 参考 CODEX: 添加工具执行项
+    function addExecItem(toolName, args, status, output, duration) {
+      if (!executionLogEl) return;
+      
+      const statusIcons = {
+        running: '<span class="exec-status running"><span class="spinner"></span></span>',
+        success: '<span class="exec-status success">✓</span>',
+        error: '<span class="exec-status error">✗</span>',
+      };
+      
+      const div = document.createElement('div');
+      div.className = 'exec-item';
+      div.id = `exec-${toolName}-${Date.now()}`;
+      
+      let html = `
+        <div class="exec-header">
+          ${statusIcons[status] || '<span class="exec-status">•</span>'}
+          <span class="exec-title">${escapeHtml(toolName)}</span>
+          ${duration ? `<span class="exec-time">${duration}</span>` : ''}
+        </div>
+      `;
+      
+      // 显示参数（如果有）
+      if (args && Object.keys(args).length > 0) {
+        const argsStr = typeof args === 'string' ? args : JSON.stringify(args, null, 2);
+        html += `<div class="exec-cmd">${escapeHtml(argsStr.substring(0, 200))}${argsStr.length > 200 ? '...' : ''}</div>`;
+      }
+      
+      // 显示输出（如果有）
+      if (output) {
+        html += `<div class="exec-output">${escapeHtml(output.substring(0, 500))}${output.length > 500 ? '\n...' : ''}</div>`;
+      }
+      
+      div.innerHTML = html;
+      executionLogEl.appendChild(div);
+      smartScrollToBottom();  // 智能滚动
+      
+      showExecutionPanel();
+      return div.id;
+    }
+    
+    // 更新执行项状态
+    function updateExecItem(elementId, status, output, duration) {
+      const el = document.getElementById(elementId);
+      if (!el) return;
+      
+      const statusEl = el.querySelector('.exec-status');
+      if (statusEl) {
+        const statusIcons = {
+          success: '<span class="exec-status success">✓</span>',
+          error: '<span class="exec-status error">✗</span>',
+        };
+        statusEl.outerHTML = statusIcons[status] || statusEl.innerHTML;
+      }
+      
+      if (duration) {
+        const timeEl = el.querySelector('.exec-time');
+        if (timeEl) {
+          timeEl.textContent = duration;
+        }
+      }
+      
+      if (output) {
+        let outputEl = el.querySelector('.exec-output');
+        if (!outputEl) {
+          outputEl = document.createElement('div');
+          outputEl.className = 'exec-output';
+          el.appendChild(outputEl);
+        }
+        outputEl.textContent = output.substring(0, 500) + (output.length > 500 ? '\n...' : '');
+      }
+      
+      // 更新后智能滚动
+      smartScrollToBottom();
+    }
+    
+    function clearExecutionLog() {
+      if (executionLogEl) {
+        executionLogEl.innerHTML = '';
+      }
+      toolCallCount = 0;
+      userScrolledUp = false;  // 重置滚动状态
+    }
+    
+    // 格式化时间 - 参考 CODEX format_duration
+    function formatDuration(ms) {
+      if (ms < 1000) return `${ms}ms`;
+      if (ms < 60000) return `${(ms / 1000).toFixed(1)}s`;
+      const mins = Math.floor(ms / 60000);
+      const secs = Math.round((ms % 60000) / 1000);
+      return `${mins}m ${secs}s`;
+    }
+
+    // ==================== CORE 核心智能体对话 ====================
+    async function sendMessageToCore(message) {
+      addMessage(message, 'user');
+      chatInput.value = '';
+      isLoading = true;
+      sendBtn.disabled = true;
+      sendBtn.textContent = '...';
+      updateStatus('thinking', 'CORE 处理中...');
+      executionStartTime = Date.now();
+      
+      // 初始化执行面板
+      if (!executionLogEl) initExecutionPanel();
+      clearExecutionLog();
+      showExecutionPanel();
+      showInterruptButton(true);
+      resetPromptPanel();
+      
+      let currentMessageElement = null;
+      let currentMessageContent = '';
+      let currentThinkingContent = '';
+      let finalContent = '';
+      let toolCallsExecuted = 0;
+      const activeTools = new Map();
+      
+      try {
+        const res = await fetch(`${API}/api/ahivecore/chat`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message })
+        });
+        
+        // 检查是否是 SSE 流式响应
+        const contentType = res.headers.get('Content-Type') || '';
+        const isSSE = contentType.includes('text/event-stream');
+        
+        if (isSSE) {
+          // SSE 流式处理
+          const reader = res.body.getReader();
+          const decoder = new TextDecoder();
+          
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            
+            const chunk = decoder.decode(value, { stream: true });
+            
+            // 解析 SSE 格式: "data: {...}\n\n"
+            const lines = chunk.split('\n');
+            for (const line of lines) {
+              if (line.startsWith('data: ')) {
+                const jsonStr = line.slice(6).trim();
+                if (!jsonStr || jsonStr === '[DONE]') continue;
+                
+                try {
+                  const event = JSON.parse(jsonStr);
+                  
+                  // 处理不同类型的事件
+                  if (event.type === 'text-delta' && event.delta) {
+                    // 文本增量
+                    if (!currentMessageElement) {
+                      currentMessageElement = document.createElement('div');
+                      currentMessageElement.className = 'message assistant streaming';
+                      currentMessageElement.innerHTML = '<div class="message-bubble"></div>';
+                      chatMessages.appendChild(currentMessageElement);
+                      currentMessageContent = '';
+                    }
+                    currentMessageContent += event.delta;
+                    currentMessageElement.querySelector('.message-bubble').innerHTML = 
+                      renderMessageContent(currentMessageContent);
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                    
+                  } else if (event.type === 'thinking-delta' && event.delta) {
+                    currentThinkingContent += event.delta;
+                    updateStatus('thinking', '思考中...');
+                    if (!currentMessageElement) {
+                      currentMessageElement = document.createElement('div');
+                      currentMessageElement.className = 'message assistant streaming';
+                      currentMessageElement.innerHTML = '<div class="message-bubble"></div>';
+                      chatMessages.appendChild(currentMessageElement);
+                    }
+                    const thinkingBlock = currentThinkingContent.trim()
+                      ? `<div class="thinking-block"><span class="thinking-toggle">💭 思考过程 [折叠]</span><div class="thinking-content collapsed">${escapeHtml(currentThinkingContent.trim())}</div></div>`
+                      : '';
+                    currentMessageElement.querySelector('.message-bubble').innerHTML =
+                      thinkingBlock + renderMessageContent(currentMessageContent);
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                    
+                  } else if (event.type === 'tool-start') {
+                    // 工具开始
+                    toolCallCount++;
+                    const toolName = event.toolName || 'tool';
+                    const execId = addExecItem(toolName, event.arguments || {}, 'running');
+                    activeTools.set(event.toolCallId, { execId, startTime: Date.now(), toolName });
+                    updateStatus('running', `执行 ${toolName}...`);
+                    
+                  } else if (event.type === 'tool-end') {
+                    // 工具结束
+                    const toolInfo = activeTools.get(event.toolCallId);
+                    if (toolInfo) {
+                      const duration = formatDuration(Date.now() - toolInfo.startTime);
+                      const status = event.success ? 'success' : 'error';
+                      updateExecItem(toolInfo.execId, status, null, duration);
+                      activeTools.delete(event.toolCallId);
+                    }
+                    toolCallsExecuted++;
+                    updateStatus('thinking', '处理响应...');
+                    
+                  } else if (event.type === 'stream-end' || event.type === 'done') {
+                    finalContent = event.response || currentMessageContent;
+                    if (currentMessageElement && currentThinkingContent.trim()) {
+                      const thinkingBlock = `<div class="thinking-block"><span class="thinking-toggle">💭 思考过程 [折叠]</span><div class="thinking-content collapsed">${escapeHtml(currentThinkingContent.trim())}</div></div>`;
+                      currentMessageElement.querySelector('.message-bubble').innerHTML =
+                        thinkingBlock + renderMessageContent(finalContent);
+                    }
+                    
+                  } else if (event.type === 'llm-prompt') {
+                    // LLM 提示词事件 - 更新右侧面板
+                    handleLLMPromptEvent(event);
+                    
+                  } else if (event.type === 'stream-error' || event.type === 'error') {
+                    throw new Error(event.error || event.message || 'Stream error');
+                  }
+                } catch (parseError) {
+                  if (parseError instanceof SyntaxError) continue;
+                  throw parseError;
+                }
+              }
+            }
+          }
+          
+          // 完成
+          const duration = formatDuration(Date.now() - executionStartTime);
+          updateStatus('success', `CORE 完成 • ${duration}`);
+          
+          if (currentMessageElement) {
+            currentMessageElement.classList.remove('streaming');
+          } else if (finalContent) {
+            addMessage(finalContent, 'assistant');
+          }
+          
+          if (toolCallsExecuted > 0) {
+            addExecItem('tools_executed', { count: toolCallsExecuted }, 'success');
+          }
+          
+        } else {
+          // 普通 JSON 响应
+          const data = await res.json();
+          
+          if (data.success) {
+            addMessage(data.response, 'assistant');
+            const duration = formatDuration(Date.now() - executionStartTime);
+            updateStatus('success', `CORE 完成 • ${duration}`);
+            
+            if (data.toolCallsExecuted > 0) {
+              addExecItem('tools_executed', { count: data.toolCallsExecuted }, 'success');
+            }
+          } else {
+            addMessage('❌ ' + (data.error || '请求失败'), 'assistant');
+            updateStatus('error', '出错了');
+          }
+        }
+      } catch (e) {
+        addMessage('❌ 请求失败: ' + e.message, 'assistant');
+        updateStatus('error', '出错了');
+      } finally {
+        isLoading = false;
+        sendBtn.disabled = false;
+        sendBtn.textContent = '发送';
+        showInterruptButton(false);
+      }
+    }
+
+    // ==================== 真实执行状态流 - 参考 CODEX ====================
+    async function sendMessage() {
+      const message = chatInput.value.trim();
+      if (!message) return;
+
+      // 初始化执行面板元素
+      if (!executionLogEl) initExecutionPanel();
+
+      // 如果正在执行，作为插话发送
+      if (isLoading) {
+        chatInput.value = '';
+        await injectUserInput(message);
+        return;
+      }
+
+      // 获取选中的智能体 ID（CORE 的 value 现在是 'ahivecore'）
+      const selectedAgent = document.getElementById('agent-selector').value;
+      const isCoreMode = selectedAgent === 'ahivecore';
+
+      // CORE 模式直接调用 CORE 接口
+      if (isCoreMode) {
+        return sendMessageToCore(message);
+      }
+
+      // 其他智能体：传递明确的 agentId
+      addMessage(message, 'user');
+      chatInput.value = '';
+      isLoading = true;
+      sendBtn.disabled = true;
+      sendBtn.textContent = '...';
+      updateSessionStatus(true);
+
+      // 显示执行状态面板
+      clearExecutionLog();
+      showExecutionPanel();
+      showInterruptButton(true);
+      resetPromptPanel();
+      updateStatus('thinking', '连接中...');
+      executionStartTime = Date.now();
+
+      // 用于追踪工具执行
+      const activeTools = new Map();
+
+      try {
+        // 使用 SSE 流式接口，传递明确的 agentId
+        currentEventSource = new EventSource(
+          `${API}/chat/stream?message=${encodeURIComponent(message)}&agentId=${encodeURIComponent(selectedAgent)}`
+        );
+        
+        let finalContent = '';
+        let toolCallsExecuted = 0;
+        let currentMessageElement = null;
+        let currentMessageContent = '';
+        let currentThinkingContent = '';
+        
+        // 流式文本增量 - 关键：实时显示模型输出
+        currentEventSource.addEventListener('text_delta', (event) => {
+          const data = JSON.parse(event.data);
+          
+          if (!currentMessageElement) {
+            currentMessageElement = document.createElement('div');
+            currentMessageElement.className = 'message assistant streaming';
+            currentMessageElement.innerHTML = '<div class="message-bubble"></div>';
+            chatMessages.appendChild(currentMessageElement);
+            currentMessageContent = '';
+          }
+          
+          currentMessageContent += data.delta;
+          const thinkingBlock = currentThinkingContent.trim()
+            ? `<div class="thinking-block"><span class="thinking-toggle">💭 思考过程 [折叠]</span><div class="thinking-content collapsed">${escapeHtml(currentThinkingContent.trim())}</div></div>`
+            : '';
+          currentMessageElement.querySelector('.message-bubble').innerHTML =
+            thinkingBlock + renderMessageContent(currentMessageContent);
+          
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+        });
+        
+        // 流式思考增量
+        currentEventSource.addEventListener('thinking-delta', (event) => {
+          const data = JSON.parse(event.data);
+          currentThinkingContent += data.delta || '';
+          updateStatus('thinking', '思考中...');
+          if (!currentMessageElement) {
+            currentMessageElement = document.createElement('div');
+            currentMessageElement.className = 'message assistant streaming';
+            currentMessageElement.innerHTML = '<div class="message-bubble"></div>';
+            chatMessages.appendChild(currentMessageElement);
+          }
+          const thinkingBlock = currentThinkingContent.trim()
+            ? `<div class="thinking-block"><span class="thinking-toggle">💭 思考过程 [折叠]</span><div class="thinking-content collapsed">${escapeHtml(currentThinkingContent.trim())}</div></div>`
+            : '';
+          currentMessageElement.querySelector('.message-bubble').innerHTML =
+            thinkingBlock + renderMessageContent(currentMessageContent);
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+        });
+        
+        // CODEX 风格的流式事件
+        currentEventSource.addEventListener('agent_message_delta', (event) => {
+          const data = JSON.parse(event.data);
+          
+          if (!currentMessageElement) {
+            currentMessageElement = document.createElement('div');
+            currentMessageElement.className = 'message assistant streaming';
+            currentMessageElement.innerHTML = '<div class="message-bubble"></div>';
+            chatMessages.appendChild(currentMessageElement);
+            currentMessageContent = '';
+          }
+          
+          currentMessageContent += data.delta || '';
+          const thinkingBlock = currentThinkingContent.trim()
+            ? `<div class="thinking-block"><span class="thinking-toggle">💭 思考过程 [折叠]</span><div class="thinking-content collapsed">${escapeHtml(currentThinkingContent.trim())}</div></div>`
+            : '';
+          currentMessageElement.querySelector('.message-bubble').innerHTML =
+            thinkingBlock + renderMessageContent(currentMessageContent);
+          
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+        });
+        
+        // CODEX 最终消息
+        currentEventSource.addEventListener('agent_message', (event) => {
+          const data = JSON.parse(event.data);
+          
+          if (!currentMessageElement) {
+            addMessage(data.content, 'assistant');
+          } else {
+            currentMessageElement.querySelector('.message-bubble').innerHTML = 
+              renderMessageContent(data.content);
+            currentMessageElement.classList.remove('streaming');
+          }
+        });
+        
+        // LLM 调用状态
+        currentEventSource.addEventListener('llm_call_start', (event) => {
+          updateStatus('thinking', '连接大模型...');
+        });
+        
+        currentEventSource.addEventListener('llm_call_end', (event) => {
+          updateStatus('thinking', '处理响应...');
+        });
+        
+        // LLM 提示词事件
+        currentEventSource.addEventListener('llm_prompt', (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            handleLLMPromptEvent(data);
+          } catch(e) {}
+        });
+        
+        // 工具调用事件
+        currentEventSource.addEventListener('tool_start', (event) => {
+          const data = JSON.parse(event.data);
+          toolCallCount++;
+          const toolName = data.toolName || data.name || 'tool';
+          const args = data.args || data.arguments || {};
+          const execId = addExecItem(toolName, args, 'running');
+          activeTools.set(toolName, { execId, startTime: Date.now() });
+          updateStatus('running', `执行 ${toolName}...`);
+        });
+        
+        currentEventSource.addEventListener('tool_end', (event) => {
+          const data = JSON.parse(event.data);
+          const toolName = data.toolName || data.name || 'tool';
+          const toolInfo = activeTools.get(toolName);
+          if (toolInfo) {
+            const duration = formatDuration(Date.now() - toolInfo.startTime);
+            const status = data.success ? 'success' : 'error';
+            updateExecItem(toolInfo.execId, status, data.result, duration);
+            activeTools.delete(toolName);
+          }
+          updateStatus('thinking', '处理响应...');
+        });
+        
+        currentEventSource.addEventListener('tool_error', (event) => {
+          const data = JSON.parse(event.data);
+          const toolName = data.toolName || data.name || 'tool';
+          const toolInfo = activeTools.get(toolName);
+          if (toolInfo) {
+            const duration = formatDuration(Date.now() - toolInfo.startTime);
+            updateExecItem(toolInfo.execId, 'error', data.error, duration);
+            activeTools.delete(toolName);
+          }
+        });
+        
+        currentEventSource.addEventListener('tool_calls_detected', (event) => {
+          const data = JSON.parse(event.data);
+          updateStatus('running', `发现 ${data.count} 个工具调用...`);
+        });
+        
+        currentEventSource.addEventListener('tool_call', (event) => {
+          const data = JSON.parse(event.data);
+          toolCallCount++;
+          const toolName = data.name || data.tool?.name || 'tool';
+          addExecItem(toolName, data.arguments || data.args, 'running');
+        });
+        
+        currentEventSource.addEventListener('tool_result', (event) => {
+          const data = JSON.parse(event.data);
+          updateStatus('running', '执行工具...');
+        });
+        
+        currentEventSource.addEventListener('exec_start', (event) => {
+          const data = JSON.parse(event.data);
+          toolCallCount++;
+          addExecItem('exec', data.command || '', 'running');
+          updateStatus('running', '执行命令...');
+        });
+        
+        currentEventSource.addEventListener('status', (event) => {
+          const data = JSON.parse(event.data);
+          
+          // 调试日志
+          console.log('[SSE] status event:', data.type, data.tool, data.success);
+          
+          // 更新顶部状态徽章
+          updateStatus(data.type, data.message);
+          
+          // 处理工具执行
+          if (data.tool) {
+            console.log('[SSE] tool event:', data.type, data.tool);
+            if (data.type === 'executing' || data.type === 'running') {
+              // 工具开始执行
+              toolCallCount++;
+              const execId = addExecItem(data.tool, data.args, 'running');
+              activeTools.set(data.tool, { execId, startTime: Date.now() });
+            } else if (data.type === 'success' || data.type === 'error') {
+              // 工具执行完成
+              const toolInfo = activeTools.get(data.tool);
+              if (toolInfo) {
+                const duration = formatDuration(Date.now() - toolInfo.startTime);
+                updateExecItem(toolInfo.execId, data.type, data.result, duration);
+                activeTools.delete(data.tool);
+              }
+            }
+          }
+        });
+        
+        currentEventSource.addEventListener('done', (event) => {
+          const data = JSON.parse(event.data);
+          finalContent = data.content;
+          toolCallsExecuted = data.toolCallsExecuted || 0;
+          
+          const duration = formatDuration(Date.now() - executionStartTime);
+          updateStatus('success', `完成 • ${duration}`);
+          
+          currentEventSource.close();
+          currentEventSource = null;
+          
+          // 如果没有流式内容，显示最终结果
+          if (finalContent && !currentMessageElement) {
+            addMessage(finalContent, 'assistant');
+          } else if (currentMessageElement) {
+            // 流式消息已完成，移除 streaming 类
+            currentMessageElement.classList.remove('streaming');
+          }
+          
+          // 重置
+          currentMessageElement = null;
+          currentMessageContent = '';
+          
+          finishRequest();
+        });
+        
+        currentEventSource.addEventListener('error', (event) => {
+          currentEventSource.close();
+          currentEventSource = null;
+          
+          // 检查是否是正常结束
+          if (event.data) {
+            const data = JSON.parse(event.data);
+            updateStatus('error', '出错了');
+            addMessage('执行错误: ' + (data.message || data.error || '未知错误'), 'assistant');
+          }
+          
+          finishRequest();
+        });
+        
+        currentEventSource.onerror = () => {
+          // 检查 currentEventSource 是否还存在
+          if (currentEventSource) {
+            currentEventSource.close();
+            currentEventSource = null;
+          }
+          updateStatus('error', '连接断开');
+          finishRequest();
+        };
+        
+      } catch (error) {
+        updateStatus('error', '出错了');
+        addMessage('请求失败: ' + (error?.message || '网络错误'), 'assistant');
+        finishRequest();
+      }
+      
+      function finishRequest() {
+        // 清理 EventSource
+        if (currentEventSource) {
+          try {
+            currentEventSource.close();
+          } catch (e) {}
+          currentEventSource = null;
+        }
+        
+        isLoading = false;
+        sendBtn.disabled = false;
+        sendBtn.textContent = '发送';
+        showInterruptButton(false);
+
+        // 5秒后折叠面板
+        setTimeout(() => {
+          if (executionPanelEl && !isLoading) {
+            executionPanelEl.classList.add('collapsed');
+          }
+        }, 5000);
+      }
+    }
+
+    function addMessage(content, role) {
+      const div = document.createElement('div');
+      div.className = `message ${role}`;
+      div.innerHTML = `<div class="message-bubble">${renderMessageContent(content)}</div>`;
+      chatMessages.appendChild(div);
+      
+      // 添加折叠/展开功能
+      div.querySelectorAll('.thinking-toggle').forEach(toggle => {
+        toggle.addEventListener('click', () => {
+          const content = toggle.nextElementSibling;
+          if (content) {
+            content.classList.toggle('collapsed');
+            toggle.textContent = content.classList.contains('collapsed') ? ' [展开]' : ' [折叠]';
+          }
+        });
+      });
+      
+      requestAnimationFrame(() => { chatMessages.scrollTop = chatMessages.scrollHeight; });
+    }
+    
+    /**
+     * 渲染消息内容，支持特殊标签
+     * 参考 CODEX 的 ReasoningSummaryCell 实现
+     */
+    function renderMessageContent(content) {
+      if (typeof content !== 'string') return escapeHtml(String(content));
+      
+      // 处理 <thinking> 标签
+      content = content.replace(/<thinking>([\s\S]*?)<\/thinking>/gi, (match, thinking) => {
+        const trimmed = thinking.trim();
+        if (!trimmed) return '';
+        const preview = trimmed.substring(0, 100) + (trimmed.length > 100 ? '...' : '');
+        return `
+          <div class="thinking-block">
+            <span class="thinking-toggle" title="点击展开/折叠">💭 思考过程 [折叠]</span>
+            <div class="thinking-content collapsed">${escapeHtml(trimmed)}</div>
+          </div>
+        `;
+      });
+      
+      // 处理 ```tool 代码块
+      content = content.replace(/```tool\s*\n([\s\S]*?)```/gi, (match, jsonStr) => {
+        try {
+          const parsed = JSON.parse(jsonStr.trim());
+          const name = parsed.name || 'unknown';
+          const args = JSON.stringify(parsed.arguments || parsed.params || {}, null, 2);
+          return `
+            <div class="tool-call-block">
+              <div class="tool-name">${escapeHtml(name)}</div>
+              <div class="tool-args">${escapeHtml(args)}</div>
+            </div>
+          `;
+        } catch (e) {
+          return `<div class="tool-call-block">${escapeHtml(jsonStr)}</div>`;
+        }
+      });
+      
+      // 处理 [TOOL]...[/TOOL] 格式
+      content = content.replace(/\[TOOL\]([\s\S]*?)\[\/TOOL\]/gi, (match, jsonStr) => {
+        try {
+          const parsed = JSON.parse(jsonStr.trim());
+          const name = parsed.name || 'unknown';
+          const args = JSON.stringify(parsed.arguments || parsed.params || {}, null, 2);
+          return `
+            <div class="tool-call-block">
+              <div class="tool-name">${escapeHtml(name)}</div>
+              <div class="tool-args">${escapeHtml(args)}</div>
+            </div>
+          `;
+        } catch (e) {
+          return `<div class="tool-call-block">${escapeHtml(jsonStr)}</div>`;
+        }
+      });
+      
+      // 处理 <plan> 标签
+      content = content.replace(/<plan>([\s\S]*?)<\/plan>/gi, (match, plan) => {
+        return `<div class="plan-block">${escapeHtml(plan.trim())}</div>`;
+      });
+      
+      // 处理 <exec> 标签 (shell 命令执行结果)
+      content = content.replace(/<exec\s+success=["'](true|false)["']\s*>([\s\S]*?)<\/exec>/gi, (match, success, output) => {
+        const isError = success !== 'true';
+        return `<div class="exec-result-block ${isError ? 'error' : ''}">${escapeHtml(output.trim())}</div>`;
+      });
+      
+      // 转义剩余的 HTML 并保留换行
+      // 注意：只对未被特殊标签包裹的内容进行处理
+      // 已经处理过的标签内的内容不应该再次处理
+      
+      // 处理行内代码
+      content = content.replace(/`([^`]+)`/g, '<code style="background:#2a2a4a;padding:2px 6px;border-radius:4px;font-size:12px">$1</code>');
+      
+      // 处理换行
+      content = content.replace(/\n/g, '<br>');
+      
+      return content;
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // 模型管理
+    async function loadModels() {
+      try {
+        const res = await fetch(`${API}/api/models`);
+        const data = await res.json();
+        currentModel = data.currentModel;
+        
+        const list = document.getElementById('models-list');
+        
+        // 按分类分组
+        const generalModels = data.models.filter(m => m.category === 'general' || !m.category);
+        const functionCallingModels = data.models.filter(m => m.category === 'function-calling');
+        
+        let html = '';
+        
+        // 通用模型
+        html += `
+          <div style="margin-bottom:16px">
+            <div style="font-size:14px;font-weight:bold;margin-bottom:12px;color:#888">📦 通用模型 - 适合日常对话、数学计算、代码编写</div>
+            ${generalModels.map(m => renderModelCard(m)).join('')}
+          </div>
+        `;
+        
+        // 工具调用模型
+        if (functionCallingModels.length > 0) {
+          html += `
+            <div style="margin-bottom:16px">
+              <div style="font-size:14px;font-weight:bold;margin-bottom:12px;color:#f59e0b">🔧 工具调用模型 - 支持自动执行命令、操作文件等</div>
+              ${functionCallingModels.map(m => renderModelCard(m)).join('')}
+            </div>
+          `;
+        }
+        
+        list.innerHTML = html;
+
+        // 更新头部模型名称
+        const current = data.models.find(m => m.id === currentModel);
+        document.getElementById('model-name').textContent = current?.name || 'Unknown';
+        
+      } catch (e) {
+        document.getElementById('models-list').innerHTML = '<div style="color:#f44336">加载失败</div>';
+      }
+    }
+    
+    function renderModelCard(m) {
+      const capabilities = m.capabilities || {};
+      const capHtml = Object.entries(capabilities).map(([k, v]) => {
+        const labels = {
+          chat: '💬 对话',
+          math: '🔢 数学', 
+          code: '💻 代码',
+          functionCalling: '🔧 工具',
+          reasoning: '🧠 推理'
+        };
+        return `<span style="font-size:11px">${labels[k] || k}: ${v}</span>`;
+      }).join(' | ');
+      
+      const isCurrent = m.id === currentModel;
+      const isFunctionCalling = m.category === 'function-calling';
+      
+      return `
+        <div class="model-card ${isCurrent ? 'current' : ''}" data-id="${m.id}" style="${isFunctionCalling ? 'border-left:3px solid #f59e0b' : ''}">
+          <div class="model-icon">${isCurrent ? '✅' : (isFunctionCalling ? '🔧' : '🤖')}</div>
+          <div class="model-info">
+            <div class="model-name">${m.name} ${isFunctionCalling ? '<span style="font-size:10px;background:#f59e0b;color:#000;padding:2px 6px;border-radius:3px;margin-left:8px">工具调用</span>' : ''}</div>
+            <div class="model-desc" style="font-size:11px">${m.description}</div>
+            <div style="font-size:10px;color:#666;margin:4px 0">${capHtml}</div>
+            <div class="model-meta">
+              <span>💾 ${m.requirements?.memory || '-'}</span>
+              <span>💿 ${m.size}</span>
+              <span>👤 ${m.developer || '社区'}</span>
+              <span>${m.downloaded ? '✅ 已下载' : '⬇️ 未下载'}</span>
+            </div>
+            ${m.note ? `<div style="font-size:10px;color:#888;margin-top:4px">💡 ${m.note}</div>` : ''}
+            ${m.downloading ? `<div class="progress-bar"><div class="progress-fill" style="width:${m.progress || 0}%"></div></div>` : ''}
+          </div>
+          <div class="model-actions">
+            ${!m.downloaded ? `<button class="btn btn-sm btn-success" onclick="downloadModel('${m.id}')">下载</button>` : ''}
+            ${m.downloaded && !isCurrent ? `<button class="btn btn-sm" onclick="switchModel('${m.id}')">切换</button>` : ''}
+            ${m.downloaded && !isCurrent ? `<button class="btn btn-sm btn-danger" onclick="deleteModel('${m.id}')">删除</button>` : ''}
+            ${isCurrent ? '<span style="color:#4caf50;font-size:12px">当前使用</span>' : ''}
+          </div>
+        </div>
+      `;
+    }
+
+    async function downloadModel(modelId) {
+      const card = document.querySelector(`.model-card[data-id="${modelId}"]`);
+      if (!card) {
+        alert('找不到模型卡片');
+        return;
+      }
+      const btn = card.querySelector('.btn-success');
+      if (!btn) {
+        alert('找不到下载按钮');
+        return;
+      }
+      
+      btn.disabled = true;
+      btn.textContent = '准备下载...';
+      
+      // 添加下载状态显示区域
+      let statusDiv = card.querySelector('.download-status');
+      if (!statusDiv) {
+        statusDiv = document.createElement('div');
+        statusDiv.className = 'download-status';
+        statusDiv.style.cssText = 'margin-top:8px;font-size:11px;color:#aaa';
+        card.querySelector('.model-info').appendChild(statusDiv);
+      }
+      statusDiv.innerHTML = '正在初始化...';
+      
+      try {
+        console.log('开始下载模型:', modelId);
+        const res = await fetch(`${API}/api/models/download`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ modelId })
+        });
+        
+        console.log('响应状态:', res.status);
+        
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.error || `HTTP ${res.status}`);
+        }
+        
+        // SSE 处理
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          
+          const text = decoder.decode(value);
+          console.log('收到数据:', text);
+          const lines = text.split('\n');
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              try {
+                const data = JSON.parse(line.slice(6));
+                if (data.done) {
+                  if (data.success === false) {
+                    // 下载失败
+                    btn.textContent = '下载失败';
+                    btn.disabled = false;
+                    statusDiv.innerHTML = `<span style="color:#f44336">❌ ${escapeHtml(data.error)}</span>`;
+                    showDownloadError(modelId, data.error);
+                  } else {
+                    btn.textContent = '完成!';
+                    statusDiv.innerHTML = '<span style="color:#4caf50">✅ 下载完成</span>';
+                    setTimeout(() => loadModels(), 1000);
+                  }
+                } else {
+                  // 显示进度和镜像信息
+                  let statusHtml = `⏳ ${data.percent}% (${formatSize(data.downloaded)}/${formatSize(data.total)}) - ${data.speed}`;
+                  if (data.mirror) {
+                    statusHtml += `<br>📦 镜像源: ${escapeHtml(data.mirror)}`;
+                  }
+                  if (data.mirrorIndex && data.totalMirrors && data.totalMirrors > 1) {
+                    statusHtml += ` [${data.mirrorIndex}/${data.totalMirrors}]`;
+                  }
+                  statusDiv.innerHTML = statusHtml;
+                  btn.textContent = `${data.percent}%`;
+                }
+              } catch (e) {
+                console.error('解析数据失败:', line);
+              }
+            }
+          }
+        }
+      } catch (e) {
+        console.error('下载错误:', e);
+        btn.textContent = '下载';
+        btn.disabled = false;
+        statusDiv.innerHTML = `<span style="color:#f44336">❌ ${escapeHtml(e.message)}</span>`;
+        showDownloadError(modelId, e.message);
+      }
+    }
+    
+    function formatSize(bytes) {
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+      if (bytes < 1024 * 1024 * 1024) return (bytes / 1024 / 1024).toFixed(1) + ' MB';
+      return (bytes / 1024 / 1024 / 1024).toFixed(2) + ' GB';
+    }
+
+    async function switchModel(modelId) {
+      try {
+        const res = await fetch(`${API}/api/models/switch`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ modelId })
+        });
+        const data = await res.json();
+        if (data.success) {
+          currentModel = modelId;
+          loadModels();
+          alert('模型已切换，重启服务生效');
+        } else {
+          alert('切换失败: ' + data.error);
+        }
+      } catch (e) {
+        alert('请求失败: ' + e.message);
+      }
+    }
+
+    async function deleteModel(modelId) {
+      if (!confirm('确定删除此模型？')) return;
+      try {
+        const res = await fetch(`${API}/api/models/${modelId}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (data.success) loadModels();
+        else alert('删除失败: ' + data.error);
+      } catch (e) {
+        alert('请求失败: ' + e.message);
+      }
+    }
+    
+    function showDownloadError(modelId, error) {
+      // 更友好的错误提示
+      let msg = '下载失败\n\n';
+      if (error && error.includes('所有镜像源均失败')) {
+        msg += '已尝试所有镜像源，均无法连接。\n\n';
+        msg += '建议：\n';
+        msg += '1. 检查网络连接\n';
+        msg += '2. 稍后重试\n';
+        msg += '3. 手动下载后放入 models 目录\n\n';
+        msg += '错误详情：\n' + error;
+      } else if (error && (error.includes('ETIMEDOUT') || error.includes('ECONNREFUSED') || error.includes('timeout'))) {
+        msg += '连接超时，可能是网络不稳定。\n\n';
+        msg += '建议：\n';
+        msg += '1. 检查网络连接\n';
+        msg += '2. 稍后重试\n\n';
+        msg += '错误详情：' + error;
+      } else {
+        msg += error || '未知错误';
+      }
+      alert(msg);
+    }
+    async function saveSettings() {
+      const settings = {
+        defaultGpuLayers: parseInt(document.getElementById('setting-gpu-layers').value),
+        defaultThreads: parseInt(document.getElementById('setting-threads').value),
+        defaultContextSize: parseInt(document.getElementById('setting-context-size').value),
+        defaultTemperature: parseFloat(document.getElementById('setting-temperature').value),
+      };
+      try {
+        await fetch(`${API}/api/models/settings`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(settings)
+        });
+        alert('设置已保存，重启服务生效');
+      } catch (e) {
+        alert('保存失败: ' + e.message);
+      }
+    }
+
+    // 其他页面加载函数
+    async function loadStatus() {}
+    
+    async function loadAgents() {
+      // 加载统一智能体列表
+      try {
+        const res = await fetch(`${API}/api/unified-agents`);
+        const data = await res.json();
+
+        const tbody = document.getElementById('unified-agents-table');
+
+        // 更新智能体选择器（无论是否有数据都要更新）
+        updateAgentSelector(data.agents || []);
+
+        if (!data.agents || data.agents.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#666">暂无智能体，请先创建</td></tr>';
+        } else {
+          tbody.innerHTML = data.agents.map(agent => `
+            <tr>
+              <td style="font-family:monospace">${agent.id.slice(0, 12)}...</td>
+              <td>
+                <span style="background:${agent.type === 'ahive-worker' ? '#667eea' : '#4caf50'};padding:2px 8px;border-radius:4px;font-size:11px">${agent.type.toUpperCase()}</span>
+              </td>
+              <td>${agent.roleId ? `<span style="color:#9c27b0" title="角色: ${agent.roleId}">🎭 ${agent.roleId}</span>` : '<span style="color:#888">-</span>'}</td>
+              <td>${agent.model?.name || agent.model || '-'}</td>
+              <td>
+                <span style="color:${agent.status === 'active' || agent.status === 'running' ? '#4caf50' : '#888'}">${agent.status}</span>
+              </td>
+              <td>
+                <span style="color:${agent.type === 'ahive-worker' ? '#4caf50' : '#888'}">${agent.type === 'ahive-worker' ? '✅ ON' : '❌ OFF'}</span>
+              </td>
+              <td>
+                <button class="btn btn-sm" onclick="selectAgent('${agent.id}')">选择</button>
+                <button class="btn btn-sm" onclick="viewAgent('${agent.id}')">详情</button>
+                <button class="btn btn-sm btn-danger" onclick="closeAgent('${agent.id}')">关闭</button>
+              </td>
+            </tr>
+          `).join('');
+        }
+
+      } catch (e) {
+        document.getElementById('unified-agents-table').innerHTML =
+          `<tr><td colspan="7" style="text-align:center;color:#f44336">加载失败: ${e.message}</td></tr>`;
+        // 即使出错也要更新选择器（至少显示 CORE）
+        updateAgentSelector([]);
+      }
+      
+      // 加载可用模型
+      try {
+        const res = await fetch(`${API}/api/models/available`);
+        const data = await res.json();
+        
+        const modelsList = document.getElementById('available-models-list');
+        let html = '';
+        
+        for (const [provider, models] of Object.entries(data.models)) {
+          const icons = { openai: '☁️', anthropic: '🤖', ollama: '🔗', local: '🏠', bailian: '🚀' };
+          html += `
+            <div style="margin-bottom:12px">
+              <div style="font-size:13px;font-weight:bold;margin-bottom:8px">${icons[provider] || '📦'} ${provider.toUpperCase()}</div>
+              <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px">
+                ${models.map(m => `
+                  <div style="background:#0f0f1a;padding:8px;border-radius:6px;font-size:11px">
+                    <div style="font-weight:bold">${m.name}</div>
+                    <div style="color:#888;margin-top:4px">${m.description}</div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          `;
+        }
+        
+        modelsList.innerHTML = html;
+        
+      } catch (e) {
+        document.getElementById('available-models-list').innerHTML = 
+          `<div style="color:#f44336">加载失败: ${e.message}</div>`;
+      }
+    }
+    
+    async function loadLogs() {}
+    
+    // ============ 智能体管理 ============
+    
+    function onAgentTypeChange() {
+      const type = document.getElementById('new-agent-type').value;
+      const desc = document.getElementById('agent-type-desc');
+      const roleSelectRow = document.getElementById('role-select-row');
+      
+      if (type === 'ahive-worker') {
+        desc.innerHTML = '<b>AHIVE-Worker 类型：</b>适合对话、问答、一般任务。启用 AMEP 记忆系统，保持对话上下文。';
+        roleSelectRow.style.display = 'block'; // 显示角色选择
+        // 默认本地模型
+        document.getElementById('agent-model-provider').value = 'local';
+        document.getElementById('agent-model-name').value = 'qwen2.5-7b';
+        document.getElementById('agent-model-temperature').value = '0.7';
+      } else {
+        desc.innerHTML = '<b>AHIVE-Coder 类型：</b>适合编程、代码生成。直连大模型，保证编程精度。推荐使用 GPT-4o 或 Qwen-Plus。';
+        roleSelectRow.style.display = 'none'; // 隐藏角色选择
+        // 默认阿里百炼（适合国内用户）
+        document.getElementById('agent-model-provider').value = 'bailian';
+        document.getElementById('agent-model-name').value = 'qwen-plus';
+        document.getElementById('agent-model-temperature').value = '0.3';
+      }
+      
+      onAgentModelProviderChange();
+    }
+    
+    function onAgentModelProviderChange() {
+      const provider = document.getElementById('agent-model-provider').value;
+      const apiConfig = document.getElementById('agent-api-config');
+      const modelInput = document.getElementById('agent-model-name');
+      const baseUrlInput = document.getElementById('agent-api-baseurl');
+      const hintDiv = document.getElementById('api-preset-hint');
+      
+      // 预设配置
+      const presets = {
+        local: {
+          models: ['qwen2.5-7b', 'qwen2.5-1.5b'],
+          placeholder: '本地模型名称',
+          showApi: false,
+          hint: ''
+        },
+        openai: {
+          models: ['gpt-4o', 'gpt-4o-mini', 'gpt-4-turbo'],
+          placeholder: 'gpt-4o / gpt-4o-mini',
+          baseUrl: 'https://api.openai.com/v1',
+          showApi: true,
+          hint: '💡 使用官方 OpenAI API'
+        },
+        anthropic: {
+          models: ['claude-3-opus', 'claude-3-sonnet', 'claude-3-haiku'],
+          placeholder: 'claude-3-sonnet',
+          baseUrl: 'https://api.anthropic.com',
+          showApi: true,
+          hint: '💡 使用 Anthropic API'
+        },
+        bailian: {
+          models: ['qwen-plus', 'qwen-turbo', 'qwen-max', 'qwen-long'],
+          placeholder: 'qwen-plus / qwen-turbo / qwen-max',
+          baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
+          showApi: true,
+          hint: '💡 阿里百炼 API，兼容 OpenAI 格式。模型: qwen-plus, qwen-turbo, qwen-max, qwen-long'
+        },
+        ollama: {
+          models: ['qwen2.5:7b', 'llama3.1:8b', 'codellama:7b'],
+          placeholder: 'qwen2.5:7b',
+          baseUrl: 'http://localhost:11434',
+          showApi: true,
+          showApiKey: false,  // Ollama 不需要 API Key
+          hint: '💡 Ollama 本地服务，默认 http://localhost:11434。如运行在其他服务器，请修改地址。'
+        },
+        custom: {
+          models: [],
+          placeholder: '输入模型名称',
+          showApi: true,
+          hint: '💡 自定义 OpenAI 兼容 API，请填写 API Key 和端点'
+        }
+      };
+      
+      const preset = presets[provider] || presets.custom;
+      
+      // 设置提示
+      hintDiv.innerHTML = preset.hint;
+      
+      // 设置 placeholder
+      modelInput.placeholder = preset.placeholder;
+      
+      // 设置默认 baseUrl
+      if (preset.baseUrl) {
+        baseUrlInput.placeholder = preset.baseUrl;
+      } else {
+        baseUrlInput.placeholder = '留空使用默认';
+      }
+      
+      // 显示/隐藏 API 配置
+      apiConfig.style.display = preset.showApi ? 'block' : 'none';
+      
+      // 自动填充第一个推荐模型（仅作参考）
+      if (preset.models.length > 0 && !modelInput.value) {
+        modelInput.value = preset.models[0];
+      }
+      
+      // 阿里百炼自动填充端点
+      if (provider === 'bailian' && !baseUrlInput.value) {
+        baseUrlInput.value = 'https://dashscope.aliyuncs.com/compatible-mode/v1';
+      }
+    }
+    
+    async function createUnifiedAgent() {
+      const type = document.getElementById('new-agent-type').value;
+      const name = document.getElementById('new-agent-name').value;
+      const roleId = document.getElementById('agent-role-select').value || undefined; // 角色选择
+      const provider = document.getElementById('agent-model-provider').value;
+      const modelName = document.getElementById('agent-model-name').value;
+      const temperature = parseFloat(document.getElementById('agent-model-temperature').value);
+      const maxTokens = parseInt(document.getElementById('agent-model-maxtokens').value);
+      
+      // 验证
+      if (!modelName) {
+        const statusEl = document.getElementById('create-agent-status');
+        statusEl.textContent = '❌ 请输入模型名称';
+        statusEl.style.color = '#f44336';
+        return;
+      }
+      
+      const statusEl = document.getElementById('create-agent-status');
+      statusEl.textContent = '创建中...';
+      statusEl.style.color = '#ff9800';
+      
+      const model = {
+        provider,
+        name: modelName,
+        temperature,
+        maxTokens,
+      };
+      
+      // API 配置
+      if (provider !== 'local') {
+        const apiKey = document.getElementById('agent-api-key').value;
+        const baseUrl = document.getElementById('agent-api-baseurl').value;
+        
+        // Ollama 不需要 API Key，但可以自定义 baseUrl
+        if (provider === 'ollama') {
+          if (baseUrl) model.baseUrl = baseUrl;
+        } else {
+          // 其他类型需要 API Key
+          if (!apiKey) {
+            statusEl.textContent = '❌ 请输入 API Key';
+            statusEl.style.color = '#f44336';
+            return;
+          }
+          model.apiKey = apiKey;
+          if (baseUrl) model.baseUrl = baseUrl;
+        }
+      }
+      
+      try {
+        const res = await fetch(`${API}/api/unified-agents`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type, name, roleId, model }),
+        });
+        
+        const data = await res.json();
+        
+        if (data.agentId) {
+          // 保存分身模型配置
+          const spawnProvider = document.getElementById('spawn-model-provider').value;
+          const spawnModelName = document.getElementById('spawn-model-name').value;
+          const spawnTemperature = document.getElementById('spawn-model-temperature').value;
+          const maxSpawns = document.getElementById('max-spawns').value;
+          
+          if (spawnProvider || spawnModelName) {
+            const spawnModel = {};
+            if (spawnProvider) spawnModel.provider = spawnProvider;
+            if (spawnModelName) spawnModel.name = spawnModelName;
+            if (spawnTemperature) spawnModel.temperature = parseFloat(spawnTemperature);
+            
+            // 分身 API 配置
+            if (spawnProvider && spawnProvider !== 'local') {
+              const spawnApiKey = document.getElementById('spawn-api-key').value;
+              const spawnBaseUrl = document.getElementById('spawn-api-baseurl').value;
+              // Ollama 不需要 API Key，但可能需要自定义 baseUrl
+              if (spawnProvider !== 'ollama' && spawnApiKey) {
+                spawnModel.apiKey = spawnApiKey;
+              }
+              if (spawnBaseUrl) spawnModel.baseUrl = spawnBaseUrl;
+            }
+            
+            // 保存分身模型配置
+            await fetch(`${API}/api/unified-agents/${data.agentId}/spawn-model`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ spawnModel, maxSpawns: parseInt(maxSpawns) }),
+            });
+          }
+          
+          statusEl.textContent = '✅ 创建成功';
+          statusEl.style.color = '#4caf50';
+          
+          // 刷新列表
+          loadAgents();
+        } else {
+          statusEl.textContent = '❌ ' + (data.error || '创建失败');
+          statusEl.style.color = '#f44336';
+        }
+      } catch (e) {
+        statusEl.textContent = '❌ 请求失败: ' + e.message;
+        statusEl.style.color = '#f44336';
+      }
+    }
+    
+    // 分身模型提供者变化
+    function onSpawnModelProviderChange() {
+      const provider = document.getElementById('spawn-model-provider').value;
+      const apiConfig = document.getElementById('spawn-api-config');
+      const apiKeyGroup = document.getElementById('spawn-api-key').parentElement.parentElement.querySelector('.form-group:first-child');
+      const baseUrlInput = document.getElementById('spawn-api-baseurl');
+      
+      // 显示/隐藏 API 配置
+      if (provider && provider !== 'local') {
+        apiConfig.style.display = 'block';
+        
+        // Ollama 只需要 baseUrl，不需要 API Key
+        if (provider === 'ollama') {
+          apiKeyGroup.style.display = 'none';
+          baseUrlInput.placeholder = 'http://localhost:11434';
+          if (!baseUrlInput.value) baseUrlInput.value = 'http://localhost:11434';
+        } else {
+          apiKeyGroup.style.display = 'block';
+          baseUrlInput.placeholder = '自定义端点';
+        }
+      } else {
+        apiConfig.style.display = 'none';
+      }
+      
+      // 预设模型名称
+      const nameInput = document.getElementById('spawn-model-name');
+      if (provider && !nameInput.value) {
+        const presets = {
+          'openai': 'gpt-4o-mini',
+          'anthropic': 'claude-3-haiku',
+          'bailian': 'qwen-turbo',
+          'ollama': 'qwen2.5:7b',
+          'local': 'qwen2.5-7b',
+        };
+        nameInput.placeholder = presets[provider] || '输入模型名称';
+      }
+    }
+    
+    async function viewAgent(agentId) {
+      // 显示智能体详情
+      try {
+        const res = await fetch(`${API}/api/unified-agents/${agentId}/model`);
+        const data = await res.json();
+        
+        const promptRes = await fetch(`${API}/api/unified-agents/${agentId}/prompt`);
+        const promptData = await promptRes.json();
+        
+        // 获取分身模型配置
+        const spawnRes = await fetch(`${API}/api/unified-agents/${agentId}/spawn-model`);
+        const spawnData = await spawnRes.json();
+        
+        let spawnInfo = '未设置 (继承父级模型)';
+        if (spawnData.spawnModel) {
+          spawnInfo = `${spawnData.spawnModel.provider || 'default'} / ${spawnData.spawnModel.name || '继承'}`;
+        }
+        
+        alert(`智能体详情
+
+ID: ${agentId}
+类型: ${data.model?.type || 'unknown'}
+
+📦 主模型: ${data.model?.provider || 'local'} / ${data.model?.name || 'default'}
+
+🤖 分身模型: ${spawnInfo}
+   最大分身数: ${spawnData.maxSpawns || 3}
+
+提示词预览:
+${promptData.prompt?.substring(0, 200)}...`);
+      } catch (e) {
+        alert('获取详情失败: ' + e.message);
+      }
+    }
+    
+    async function closeAgent(agentId) {
+      if (!confirm('确定关闭此智能体？')) return;
+      
+      try {
+        await fetch(`${API}/api/unified-agents/${agentId}`, { method: 'DELETE' });
+        loadAgents();
+      } catch (e) {
+        alert('关闭失败: ' + e.message);
+      }
+    }
+    
+    // ============ 活跃智能体管理 ============
+    
+    let autoDetectEnabled = true;  // 自动识别开关
+    let currentActiveAgentId = null;  // 当前活跃智能体 ID
+    
+    // 更新智能体选择器
+    function updateAgentSelector(agents) {
+      const selector = document.getElementById('agent-selector');
+      const currentValue = selector.value;
+
+      // 第一项：CORE 核心智能体（使用实际 ID 'ahivecore'）
+      selector.innerHTML = '<option value="ahivecore">🎯 CORE (核心智能体)</option>';
+
+      // 其他智能体
+      agents.forEach(agent => {
+        const opt = document.createElement('option');
+        opt.value = agent.id;
+        opt.textContent = `${agent.type.toUpperCase()} - ${agent.nickname || agent.id.slice(0, 8)}`;
+        selector.appendChild(opt);
+      });
+
+      // 恢复选中状态
+      if (currentValue) {
+        selector.value = currentValue;
+      }
+    }
+
+    // 选择智能体（用于表格中的"选择"按钮）
+    function selectAgent(agentId) {
+      document.getElementById('agent-selector').value = agentId;
+      onAgentSelectorChange();
+    }
+
+    // 选择器变化 - 更新当前选中的智能体
+    function onAgentSelectorChange() {
+      const agentId = document.getElementById('agent-selector').value;
+      currentActiveAgentId = agentId;
+
+      // 更新 UI 显示
+      const infoDiv = document.getElementById('active-agent-info');
+      const indicator = document.getElementById('active-agent-indicator');
+      const headerAgentName = document.getElementById('active-agent-name');
+
+      const isCore = agentId === 'ahivecore';
+      const typeColor = isCore ? '#9c27b0' : '#4caf50';
+
+      if (isCore) {
+        infoDiv.innerHTML = `
+          <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+            <div>
+              <span style="background:#9c27b0;padding:4px 12px;border-radius:4px;font-size:12px">🎯 CORE</span>
+              <span style="margin-left:8px;font-family:monospace">AHIVECORE</span>
+            </div>
+          </div>
+        `;
+        indicator.textContent = 'CORE';
+        headerAgentName.textContent = 'CORE';
+      } else {
+        infoDiv.innerHTML = `
+          <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+            <div>
+              <span style="background:#4caf50;padding:4px 12px;border-radius:4px;font-size:12px">智能体</span>
+              <span style="margin-left:8px;font-family:monospace">${agentId.slice(0, 16)}...</span>
+            </div>
+          </div>
+        `;
+        indicator.textContent = '已选中';
+        headerAgentName.textContent = agentId.slice(0, 8);
+      }
+
+      indicator.style.background = typeColor;
+      headerAgentName.style.color = typeColor;
+    }
+
+    // 自动识别开关
+    function onAutoDetectToggle() {
+      autoDetectEnabled = document.getElementById('auto-detect-toggle').checked;
+      
+      if (!autoDetectEnabled && !currentActiveAgentId) {
+        // 关闭自动识别且没有活跃智能体，提示用户
+        const indicator = document.getElementById('active-agent-indicator');
+        indicator.textContent = '未激活';
+        indicator.style.background = '#666';
+      } else if (autoDetectEnabled && !currentActiveAgentId) {
+        const indicator = document.getElementById('active-agent-indicator');
+        indicator.textContent = '自动识别中';
+        indicator.style.background = '#ff9800';
+      }
+    }
+    
+    // 自动识别智能体类型（前端简单版）
+    function detectAgentType(message) {
+      if (!autoDetectEnabled) return null;
+      if (currentActiveAgentId) return null;  // 已有活跃智能体，不自动切换
+      
+      const ahiveCoderKeywords = ['代码', '重构', 'debug', 'bug', '函数', '类', '变量', '算法', '实现', '编写', '修改代码', '编程', 'error', 'exception'];
+      const ahiveWorkerKeywords = ['聊天', '问答', '解释', '告诉我', '什么是', '帮我', '分析'];
+      
+      const lowerMsg = message.toLowerCase();
+      
+      // ahive-coder 关键词权重更高
+      const ahiveCoderScore = ahiveCoderKeywords.filter(k => lowerMsg.includes(k)).length;
+      const ahiveWorkerScore = ahiveWorkerKeywords.filter(k => lowerMsg.includes(k)).length;
+      
+      if (ahiveCoderScore > 0 && ahiveCoderScore >= ahiveWorkerScore) {
+        return 'ahive-coder';
+      } else if (ahiveWorkerScore > 0 && ahiveWorkerScore > ahiveCoderScore) {
+        return 'ahive-worker';
+      }
+      
+      return null;  // 无法判断，使用默认流程
+    }
+    
+    // 在发送消息前检查是否需要自动切换智能体
+    function checkAndAutoSwitchAgent(message) {
+      // 禁用自动切换，使用用户手动选择的智能体
+      return;
+    }
+
+    // 初始化
+    onAgentTypeChange();
+
+    // ============ Provider 管理 ============
+    
+    let apiPresets = [];
+    let currentProviderType = 'local';
+    
+    // 加载 Provider 信息
+    async function loadProvider() {
+      try {
+        // 加载当前 Provider
+        const res = await fetch(`${API}/api/provider`);
+        const data = await res.json();
+        
+        if (data.success) {
+          const { current, health } = data;
+          
+          // 更新 UI
+          updateProviderUI(current.type, current.name, current.config, health);
+          
+          // 设置选择框
+          document.getElementById('provider-type-select').value = current.type;
+          onProviderTypeChange();
+          
+          // 填充配置
+          fillProviderConfig(current.type, current.config);
+        }
+        
+        // 加载预设
+        const presetsRes = await fetch(`${API}/api/provider/presets`);
+        const presetsData = await presetsRes.json();
+        
+        if (presetsData.success) {
+          apiPresets = presetsData.presets;
+          renderPresets();
+          fillApiPresetSelect();
+        }
+        
+      } catch (e) {
+        console.error('加载 Provider 失败:', e);
+      }
+    }
+    
+    // 更新 Provider UI
+    function updateProviderUI(type, name, config, health) {
+      const icons = { local: '🏠', ollama: '🔗', openai: '☁️' };
+      document.getElementById('provider-icon').textContent = icons[type] || '❓';
+      document.getElementById('provider-name').textContent = name;
+      document.getElementById('provider-type').textContent = type.toUpperCase();
+      
+      let model = config.modelName || config.apiModel || config.ollamaModel || '-';
+      document.getElementById('provider-model').textContent = `模型: ${model}`;
+      
+      let desc = health.available ? '✅ 可用' : `❌ ${health.error || '不可用'}`;
+      document.getElementById('provider-desc').textContent = desc;
+      
+      currentProviderType = type;
+    }
+    
+    // 填充 Provider 配置
+    function fillProviderConfig(type, config) {
+      if (type === 'local') {
+        document.getElementById('local-model-path').value = config.modelPath || '';
+        document.getElementById('local-model-name').value = config.modelName || '';
+        document.getElementById('local-gpu-layers').value = config.gpuLayers || 0;
+        document.getElementById('local-threads').value = config.threads || 4;
+        document.getElementById('local-context-size').value = config.contextSize || 2048;
+        document.getElementById('local-sequences').value = config.sequences || 1;
+      } else if (type === 'ollama') {
+        document.getElementById('ollama-host').value = config.ollamaHost || 'http://localhost:11434';
+        document.getElementById('ollama-model').value = config.ollamaModel || '';
+      } else if (type === 'openai') {
+        document.getElementById('api-endpoint').value = config.apiEndpoint || '';
+        document.getElementById('api-key').value = '';  // 不显示真实密钥
+        document.getElementById('api-temperature').value = config.temperature || 0.7;
+        document.getElementById('api-max-tokens').value = config.maxTokens || 4096;
+      }
+    }
+    
+    // Provider 类型切换
+    function onProviderTypeChange() {
+      const type = document.getElementById('provider-type-select').value;
+      
+      document.querySelectorAll('.provider-config').forEach(el => el.style.display = 'none');
+      document.getElementById(type + '-config').style.display = 'block';
+      
+      if (type === 'openai') {
+        fillApiPresetSelect();
+      }
+    }
+    
+    // API 预设选择
+    function onApiPresetChange() {
+      const presetId = document.getElementById('api-preset-select').value;
+      const preset = apiPresets.find(p => p.id === presetId);
+      
+      if (preset) {
+        document.getElementById('api-endpoint').value = preset.endpoint;
+        
+        // 填充模型选择
+        const modelSelect = document.getElementById('api-model-select');
+        modelSelect.innerHTML = preset.models.map(m => 
+          `<option value="${m}">${m}</option>`
+        ).join('');
+        modelSelect.value = preset.defaultModel;
+      }
+    }
+    
+    // 填充 API 预设选择框
+    function fillApiPresetSelect() {
+      const select = document.getElementById('api-preset-select');
+      select.innerHTML = '<option value="">选择预设...</option>' + 
+        apiPresets.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+    }
+    
+    // 渲染预设列表
+    function renderPresets() {
+      const html = apiPresets.map(p => `
+        <div class="model-card" style="cursor:pointer;" onclick="selectPreset('${p.id}')">
+          <div class="model-info">
+            <div class="model-name">${p.name}</div>
+            <div class="model-desc">${p.description || ''}</div>
+            <div class="model-meta">
+              <span>${p.models.length} 个模型</span>
+              <span>默认: ${p.defaultModel}</span>
+            </div>
+          </div>
+        </div>
+      `).join('');
+      
+      document.getElementById('presets-list').innerHTML = html;
+    }
+    
+    // 选择预设
+    function selectPreset(presetId) {
+      document.getElementById('provider-type-select').value = 'openai';
+      onProviderTypeChange();
+      document.getElementById('api-preset-select').value = presetId;
+      onApiPresetChange();
+    }
+    
+    // 切换 Provider
+    async function switchProvider() {
+      const type = document.getElementById('provider-type-select').value;
+      const statusEl = document.getElementById('switch-status');
+      statusEl.textContent = '切换中...';
+      statusEl.style.color = '#ff9800';
+      
+      let config = {
+        type,
+        temperature: 0.7,
+        maxTokens: 4096,
+      };
+      
+      if (type === 'local') {
+        config.modelPath = document.getElementById('local-model-path').value;
+        config.modelName = document.getElementById('local-model-name').value;
+        config.gpuLayers = parseInt(document.getElementById('local-gpu-layers').value);
+        config.threads = parseInt(document.getElementById('local-threads').value);
+        config.contextSize = parseInt(document.getElementById('local-context-size').value);
+        config.sequences = parseInt(document.getElementById('local-sequences').value);
+      } else if (type === 'ollama') {
+        config.ollamaHost = document.getElementById('ollama-host').value;
+        config.ollamaModel = document.getElementById('ollama-model').value;
+      } else if (type === 'openai') {
+        config.presetId = document.getElementById('api-preset-select').value;
+        config.apiEndpoint = document.getElementById('api-endpoint').value;
+        config.apiKey = document.getElementById('api-key').value;
+        config.apiModel = document.getElementById('api-model-select').value;
+        config.temperature = parseFloat(document.getElementById('api-temperature').value);
+        config.maxTokens = parseInt(document.getElementById('api-max-tokens').value);
+      }
+      
+      try {
+        const res = await fetch(`${API}/api/provider/switch`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(config)
+        });
+        const data = await res.json();
+        
+        if (data.success) {
+          statusEl.textContent = '✅ ' + data.message;
+          statusEl.style.color = '#4caf50';
+          
+          // 更新 UI
+          updateProviderUI(type, data.current?.name || type, config, { available: true });
+          
+          // 更新头部模型名称
+          const modelName = config.modelName || config.apiModel || config.ollamaModel || type;
+          document.getElementById('model-name').textContent = modelName;
+        } else {
+          statusEl.textContent = '❌ ' + (data.error || '切换失败');
+          statusEl.style.color = '#f44336';
+        }
+      } catch (e) {
+        statusEl.textContent = '❌ 请求失败: ' + e.message;
+        statusEl.style.color = '#f44336';
+      }
+    }
+
+    // 健康检查
+    async function checkHealth() {
+      try {
+        await fetch(`${API}/health`);
+        document.getElementById('status-dot').classList.remove('offline');
+        document.getElementById('status-text').textContent = '运行中';
+      } catch (e) {
+        document.getElementById('status-dot').classList.add('offline');
+        document.getElementById('status-text').textContent = '离线';
+      }
+    }
+
+    // 加载历史对话（记忆永续）
+    async function loadHistory() {
+      try {
+        const res = await fetch(`${API}/api/session/history?maxMessages=10`);
+        const data = await res.json();
+        
+        if (data.success && data.messages && data.messages.length > 0) {
+          // 清空默认欢迎消息
+          chatMessages.innerHTML = '';
+          
+          // 显示历史对话
+          for (const msg of data.messages) {
+            addMessage(msg.content, msg.role);
+          }
+          
+          // 添加分隔线
+          const divider = document.createElement('div');
+          divider.className = 'message assistant';
+          divider.innerHTML = '<div class="message-bubble" style="text-align:center;color:#888;font-size:12px;">───── 以上是历史对话 ─────</div>';
+          chatMessages.appendChild(divider);
+          
+          // 滚动到底部
+          requestAnimationFrame(() => { chatMessages.scrollTop = chatMessages.scrollHeight; });
+          
+          console.log(`📜 已加载 ${data.messages.length} 条历史对话`);
+        }
+      } catch (e) {
+        console.log('加载历史对话失败:', e.message);
+      }
+    }
+
+    checkHealth();
+    checkSessionStatus();
+    loadHistory();  // 自动加载历史对话
+    loadAgents();   // 加载智能体列表并更新选择器
+    loadRolesForAgentForm();  // 加载角色选项到智能体创建表单
+    setInterval(checkHealth, 30000);
+    
+    // 默认选中 CORE (ahivecore)
+    setTimeout(() => {
+      const selector = document.getElementById('agent-selector');
+      if (selector && selector.value === '') {
+        selector.value = 'ahivecore';
+        onAgentSelectorChange();
+      }
+    }, 500);
+    
+    // ============ 角色管理 ============
+    
+    // 角色数据缓存
+    let rolesData = [];
+    
+    // 加载角色列表
+    async function loadRoles() {
+      try {
+        const res = await fetch(`${API}/api/roles`);
+        const data = await res.json();
+        
+        rolesData = data.roles || [];
+        const rolesList = document.getElementById('roles-list');
+        
+        if (rolesData.length === 0) {
+          rolesList.innerHTML = '<div style="color:#888">暂无角色</div>';
+          return;
+        }
+        
+        rolesList.innerHTML = rolesData.map(role => `
+          <div class="model-card" id="role-card-${role.id}">
+            <div class="model-icon">🎭</div>
+            <div class="model-info">
+              <div class="model-name">${role.name} <span style="color:#888;font-size:12px">(${role.name_zh || role.id})</span></div>
+              <div class="model-desc">${role.description || '-'}</div>
+              <div class="model-meta">
+                <span style="font-family:monospace;font-size:11px;color:#9c27b0">${role.id}</span>
+              </div>
+            </div>
+            <div class="model-actions">
+              <button class="btn btn-sm" onclick="editRole('${role.id}')">编辑</button>
+              ${role.id !== 'default' ? `<button class="btn btn-sm btn-danger" onclick="deleteRole('${role.id}')">删除</button>` : ''}
+            </div>
+          </div>
+        `).join('');
+        
+      } catch (e) {
+        document.getElementById('roles-list').innerHTML = 
+          `<div style="color:#f44336">加载失败: ${e.message}</div>`;
+      }
+    }
+    
+    // 加载角色选项到智能体创建表单
+    async function loadRolesForAgentForm() {
+      try {
+        const res = await fetch(`${API}/api/roles`);
+        const data = await res.json();
+        
+        const select = document.getElementById('agent-role-select');
+        const roles = data.roles || [];
+        
+        select.innerHTML = '<option value="">-- 默认助手 --</option>' +
+          roles.filter(r => r.id !== 'default').map(role => 
+            `<option value="${role.id}">${role.name_zh || role.name} (${role.id})</option>`
+          ).join('');
+        
+        // 绑定选择事件
+        select.onchange = () => {
+          const selectedRole = roles.find(r => r.id === select.value);
+          const descEl = document.getElementById('role-description');
+          if (selectedRole) {
+            descEl.textContent = selectedRole.description || '-';
+          } else {
+            descEl.textContent = '通用对话、基础任务';
+          }
+        };
+        
+      } catch (e) {
+        console.error('加载角色选项失败:', e);
+      }
+    }
+    
+    // 创建角色
+    async function createRole() {
+      const id = document.getElementById('new-role-id').value.trim();
+      const name = document.getElementById('new-role-name').value.trim();
+      const nameZh = document.getElementById('new-role-name-zh').value.trim();
+      const description = document.getElementById('new-role-desc').value.trim();
+      const systemPrompt = document.getElementById('new-role-prompt').value.trim();
+      
+      if (!id || !name || !systemPrompt) {
+        const statusEl = document.getElementById('create-role-status');
+        statusEl.textContent = '❌ 请填写必填项：角色ID、名称、系统提示词';
+        statusEl.style.color = '#f44336';
+        return;
+      }
+      
+      // 验证 ID 格式
+      if (!/^[a-z][a-z0-9_]*$/.test(id)) {
+        const statusEl = document.getElementById('create-role-status');
+        statusEl.textContent = '❌ 角色ID只能使用小写字母、数字和下划线，且以字母开头';
+        statusEl.style.color = '#f44336';
+        return;
+      }
+      
+      const statusEl = document.getElementById('create-role-status');
+      statusEl.textContent = '创建中...';
+      statusEl.style.color = '#ff9800';
+      
+      try {
+        const res = await fetch(`${API}/api/roles`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id, name, name_zh: nameZh, description, systemPrompt }),
+        });
+        
+        const data = await res.json();
+        
+        if (data.success) {
+          statusEl.textContent = '✅ ' + data.message;
+          statusEl.style.color = '#4caf50';
+          
+          // 清空表单
+          document.getElementById('new-role-id').value = '';
+          document.getElementById('new-role-name').value = '';
+          document.getElementById('new-role-name-zh').value = '';
+          document.getElementById('new-role-desc').value = '';
+          document.getElementById('new-role-prompt').value = '';
+          
+          // 刷新列表
+          loadRoles();
+          loadRolesForAgentForm();
+        } else {
+          statusEl.textContent = '❌ ' + (data.error || '创建失败');
+          statusEl.style.color = '#f44336';
+        }
+      } catch (e) {
+        statusEl.textContent = '❌ 请求失败: ' + e.message;
+        statusEl.style.color = '#f44336';
+      }
+    }
+    
+    // 编辑角色
+    async function editRole(roleId) {
+      try {
+        const res = await fetch(`${API}/api/roles/${roleId}`);
+        const data = await res.json();
+        
+        if (!data.success) {
+          alert('获取角色信息失败');
+          return;
+        }
+        
+        const role = data.role;
+        
+        // 填充编辑表单
+        document.getElementById('edit-role-title').textContent = role.name;
+        document.getElementById('edit-role-name').value = role.name;
+        document.getElementById('edit-role-name-zh').value = role.name_zh || '';
+        document.getElementById('edit-role-desc').value = role.description || '';
+        document.getElementById('edit-role-prompt').value = role.fullPrompt || role.systemPrompt || '';
+        
+        // 保存当前编辑的角色ID
+        document.getElementById('edit-role-card').dataset.roleId = roleId;
+        
+        // 显示编辑表单
+        document.getElementById('edit-role-card').style.display = 'block';
+        
+      } catch (e) {
+        alert('请求失败: ' + e.message);
+      }
+    }
+    
+    // 保存角色编辑
+    async function saveRoleEdit() {
+      const roleId = document.getElementById('edit-role-card').dataset.roleId;
+      const name = document.getElementById('edit-role-name').value.trim();
+      const nameZh = document.getElementById('edit-role-name-zh').value.trim();
+      const description = document.getElementById('edit-role-desc').value.trim();
+      const systemPrompt = document.getElementById('edit-role-prompt').value.trim();
+      
+      const statusEl = document.getElementById('edit-role-status');
+      statusEl.textContent = '保存中...';
+      statusEl.style.color = '#ff9800';
+      
+      try {
+        const res = await fetch(`${API}/api/roles/${roleId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, name_zh: nameZh, description, systemPrompt }),
+        });
+        
+        const data = await res.json();
+        
+        if (data.success) {
+          statusEl.textContent = '✅ ' + data.message;
+          statusEl.style.color = '#4caf50';
+          
+          // 刷新列表
+          loadRoles();
+          loadRolesForAgentForm();
+          
+          // 隐藏编辑表单
+          setTimeout(() => {
+            document.getElementById('edit-role-card').style.display = 'none';
+            statusEl.textContent = '';
+          }, 1500);
+        } else {
+          statusEl.textContent = '❌ ' + (data.error || '保存失败');
+          statusEl.style.color = '#f44336';
+        }
+      } catch (e) {
+        statusEl.textContent = '❌ 请求失败: ' + e.message;
+        statusEl.style.color = '#f44336';
+      }
+    }
+    
+    // 取消角色编辑
+    function cancelRoleEdit() {
+      document.getElementById('edit-role-card').style.display = 'none';
+      document.getElementById('edit-role-status').textContent = '';
+    }
+    
+    // 删除角色
+    async function deleteRole(roleId) {
+      if (!confirm(`确定要删除角色 "${roleId}" 吗？\n\n此操作不可撤销。`)) {
+        return;
+      }
+      
+      try {
+        const res = await fetch(`${API}/api/roles/${roleId}`, {
+          method: 'DELETE',
+        });
+        
+        const data = await res.json();
+        
+        if (data.success) {
+          // 刷新列表
+          loadRoles();
+          loadRolesForAgentForm();
+        } else {
+          alert('删除失败: ' + (data.error || '未知错误'));
+        }
+      } catch (e) {
+        alert('请求失败: ' + e.message);
+      }
+    }
+    
+    </script>
+</body>
+</html>

@@ -1,0 +1,74 @@
+{
+  "version": "1.0",
+  "updatedAt": "2026-03-18T14:03:41.854Z",
+  "agents": {
+    "openclaw": {
+      "id": "openclaw",
+      "name": "OpenClaw",
+      "tokenHash": "YOUR_TOKEN_HASH_HERE",
+      "rawToken": "YOUR_RAW_TOKEN_HERE",
+      "enabled": true,
+      "createdAt": "2026-03-18T14:03:41.853Z",
+      "updatedAt": "2026-03-18T14:03:41.853Z",
+      "description": "多通道智能体网关"
+    },
+    "pi": {
+      "id": "pi",
+      "name": "Pi Agent",
+      "tokenHash": "YOUR_TOKEN_HASH_HERE",
+      "rawToken": "YOUR_RAW_TOKEN_HERE",
+      "enabled": true,
+      "createdAt": "2026-03-18T14:03:41.853Z",
+      "updatedAt": "2026-03-18T14:03:41.853Z",
+      "description": "轻量级 AI 助手"
+    },
+    "claude": {
+      "id": "claude",
+      "name": "Claude Code",
+      "tokenHash": "YOUR_TOKEN_HASH_HERE",
+      "rawToken": "YOUR_RAW_TOKEN_HERE",
+      "enabled": true,
+      "createdAt": "2026-03-18T14:03:41.853Z",
+      "updatedAt": "2026-03-18T14:03:41.853Z",
+      "description": "Anthropic 编码助手"
+    }
+  },
+  "quotas": {
+    "openclaw": {
+      "agent_id": "openclaw",
+      "monthly_budget": 500,
+      "daily_budget": 50,
+      "qpm_limit": 60,
+      "concurrent_limit": 5,
+      "token_limit_per_minute": 100000,
+      "updatedAt": "2026-03-18T14:03:41.853Z"
+    },
+    "pi": {
+      "agent_id": "pi",
+      "monthly_budget": 200,
+      "daily_budget": 20,
+      "qpm_limit": 30,
+      "concurrent_limit": 2,
+      "token_limit_per_minute": 50000,
+      "updatedAt": "2026-03-18T14:03:41.853Z"
+    },
+    "claude": {
+      "agent_id": "claude",
+      "monthly_budget": 300,
+      "daily_budget": 30,
+      "qpm_limit": 40,
+      "concurrent_limit": 3,
+      "token_limit_per_minute": 75000,
+      "updatedAt": "2026-03-18T14:03:41.853Z"
+    },
+    "default": {
+      "agent_id": "default",
+      "monthly_budget": 100,
+      "daily_budget": 10,
+      "qpm_limit": 20,
+      "concurrent_limit": 2,
+      "token_limit_per_minute": 30000,
+      "updatedAt": "2026-03-18T14:03:41.853Z"
+    }
+  }
+}

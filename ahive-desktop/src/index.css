@@ -1,0 +1,57 @@
+/* 注意：ahive-electron 不使用 Tailwind CSS，所有样式直接使用原生 CSS */
+
+:root {
+  --hive-primary: #6366f1;
+  --hive-primary-hover: #4f46e5;
+  --hive-bg: #0f0f1a;
+  --hive-bg-secondary: #1a1a2e;
+  --hive-border: #2e2e4e;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background-color: var(--hive-bg);
+  color: white;
+}
+
+/* 自定义滚动条 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--hive-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--hive-border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3e3e5e;
+}
+
+/* 动画 */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}

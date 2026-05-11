@@ -1,0 +1,81 @@
+; AHIVECORE 安装脚本
+!include "MUI2.nsh"
+
+; 界面设置
+!define MUI_ICON "icon.ico"
+!define MUI_UNICON "icon.ico"
+!define MUI_WELCOMEFINISHPAGE_BITMAP "welcome.bmp"
+!define MUI_HEADERIMAGE
+!define MUI_HEADERIMAGE_BITMAP "header.bmp"
+!define MUI_HEADERIMAGE_RIGHT
+
+; 安装页面
+!insertmacro MUI_PAGE_WELCOME
+!insertmacro MUI_PAGE_LICENSE "license.txt"
+!insertmacro MUI_PAGE_DIRECTORY
+!insertmacro MUI_PAGE_INSTFILES
+!insertmacro MUI_PAGE_FINISH
+
+; 卸载页面
+!insertmacro MUI_UNPAGE_WELCOME
+!insertmacro MUI_UNPAGE_CONFIRM
+!insertmacro MUI_UNPAGE_INSTFILES
+!insertmacro MUI_UNPAGE_FINISH
+
+; 语言
+!insertmacro MUI_LANGUAGE "SimpChinese"
+
+; 安装信息
+Name "AHIVECORE"
+OutFile "AHIVECORE-Setup.exe"
+InstallDir "$PROGRAMFILES64\AHIVECORE"
+RequestExecutionLevel admin
+
+; 安装段
+Section "MainSection" SEC01
+  SetOutPath "$INSTDIR"
+  File /r "dist\*.*"
+  File /r "public\*.*"
+  File /r "dictionaries\*.*"
+  File /r "config\*.*"
+  File /r "electron\*.*"
+  
+  ; 创建数据目录
+  CreateDirectory "$INSTDIR\data"
+  CreateDirectory "$INSTDIR\logs"
+  CreateDirectory "$INSTDIR\models"
+  
+  ; 复制 node_modules
+  SetOutPath "$INSTDIR\node_modules"
+  File /r "node_modules\better-sqlite3\*.*"
+  File /r "node_modules\node-llama-cpp\*.*"
+  File /r "node_modules\amep-protocol\*.*"
+SectionEnd
+
+; 创建快捷方式
+Section "Shortcuts" SEC02
+  CreateDirectory "$SMPROGRAMS\AHIVECORE"
+  CreateShortCut "$SMPROGRAMS\AHIVECORE\AHIVECORE.lnk" "$INSTDIR\AHIVECORE.exe"
+  CreateShortCut "$SMPROGRAMS\AHIVECORE\卸载.lnk" "$INSTDIR\uninstall.exe"
+  CreateShortCut "$DESKTOP\AHIVECORE.lnk" "$INSTDIR\AHIVECORE.exe"
+SectionEnd
+
+; 写入卸载信息
+Section -Post
+  WriteUninstaller "$INSTDIR\uninstall.exe"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\AHIVECORE" "DisplayName" "AHIVECORE"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\AHIVECORE" "UninstallString" "$INSTDIR\uninstall.exe"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\AHIVECORE" "DisplayIcon" "$INSTDIR\AHIVECORE.exe"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\AHIVECORE" "Publisher" "星未来软件工作室"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\AHIVECORE" "URLInfoAbout" "https://ahive.starsfuture.cn"
+SectionEnd
+
+; 卸载段
+Section Uninstall
+  Delete "$INSTDIR\*.*"
+  RMDir /r "$INSTDIR"
+  Delete "$SMPROGRAMS\AHIVECORE\*.*"
+  RMDir "$SMPROGRAMS\AHIVECORE"
+  Delete "$DESKTOP\AHIVECORE.lnk"
+  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\AHIVECORE"
+SectionEnd

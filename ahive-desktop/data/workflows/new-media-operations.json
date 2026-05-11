@@ -1,0 +1,562 @@
+{
+  "id": "workflow-new-media-ops",
+  "name": "公司新媒体运营工作流",
+  "description": "完整的新媒体运营流程：调研规划 → 内容创作 → 审核发布 → 数据分析 → 优化迭代",
+  
+  "context": {
+    "projectPath": "{{PROJECT_ROOT}}/new-media-ops",
+    "outputPath": "{{PROJECT_ROOT}}/new-media-ops/output",
+    "assets": {
+      "content": "{{PROJECT_ROOT}}/new-media-ops/content",
+      "images": "{{PROJECT_ROOT}}/new-media-ops/assets/images",
+      "videos": "{{PROJECT_ROOT}}/new-media-ops/assets/videos",
+      "reports": "{{PROJECT_ROOT}}/new-media-ops/reports"
+    },
+    "platforms": ["微信公众号", "微博", "小红书", "抖音", "B站"],
+    "brandInfo": {
+      "name": "公司品牌",
+      "tone": "专业、友好、创新",
+      "targetAudience": "25-40岁职场人群"
+    }
+  },
+  
+  "nodes": [
+    {
+      "id": "init-config",
+      "type": "variable",
+      "name": "初始化运营配置",
+      "position": { "x": 100, "y": 100 },
+      "config": {
+        "variableConfig": {
+          "name": "operationConfig",
+          "value": "{\"cycleDays\":7,\"contentCount\":5,\"platforms\":[\"微信公众号\",\"微博\",\"小红书\",\"抖音\",\"B站\"],\"brandTone\":\"专业、友好、创新\"}",
+          "type": "json"
+        }
+      }
+    },
+    
+    {
+      "id": "phase-research",
+      "type": "milestone",
+      "name": "阶段一：调研规划",
+      "position": { "x": 250, "y": 100 },
+      "config": {
+        "description": "市场调研与选题策划",
+        "waitForCompletion": true
+      }
+    },
+    {
+      "id": "market-research",
+      "type": "agent",
+      "name": "市场调研",
+      "position": { "x": 400, "y": 100 },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [{ "type": "agent", "id": "analyst-agent" }],
+          "failureStrategy": { "action": "abort" }
+        },
+        "taskTemplate": "执行新媒体市场调研：\n1. 分析行业热点话题和趋势\n2. 研究竞品账号内容策略\n3. 分析目标用户兴趣偏好\n4. 识别最佳发布时间和频率\n\n输出调研报告到 {{context.assets.reports}}/market-research.md",
+        "outputs": [
+          { "name": "researchReport", "extractPath": "$" }
+        ],
+        "timeout": 3600000
+      }
+    },
+    {
+      "id": "topic-planning",
+      "type": "agent",
+      "name": "选题策划",
+      "position": { "x": 550, "y": 100 },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [{ "type": "agent", "id": "designer-agent" }],
+          "failureStrategy": { "action": "abort" }
+        },
+        "taskTemplate": "基于市场调研结果，制定内容选题方案：\n1. 确定本周内容主题方向\n2. 规划5-7个选题\n3. 每个选题包含：标题、核心观点、内容形式、目标平台\n4. 制定内容日历（发布时间表）\n\n输入：{{researchReport}}\n输出选题方案到 {{context.assets.reports}}/topic-plan.md",
+        "inputs": [
+          { "name": "researchReport", "source": "prev-output", "sourceKey": "market-research:researchReport" }
+        ],
+        "outputs": [
+          { "name": "topicPlan", "extractPath": "$" }
+        ],
+        "timeout": 1800000
+      }
+    },
+    {
+      "id": "planning-review",
+      "type": "review",
+      "name": "选题审核",
+      "position": { "x": 700, "y": 100 },
+      "config": {
+        "reviewConfig": {
+          "reviewType": "agent",
+          "reviewerAgentId": "reviewer-agent",
+          "title": "选题方案审核",
+          "instruction": "审核选题方案的质量：\n1. 选题是否契合品牌调性\n2. 选题是否有传播价值\n3. 内容日历是否合理\n4. 平台适配是否得当",
+          "scoreMethod": "score",
+          "criteria": [
+            { "name": "品牌契合度", "description": "选题是否符合品牌形象和调性", "weight": 30 },
+            { "name": "传播价值", "description": "选题是否有热度、有争议性、有分享价值", "weight": 35 },
+            { "name": "执行可行性", "description": "内容创作难度是否合理，时间安排是否可行", "weight": 20 },
+            { "name": "平台适配", "description": "各平台内容形式是否匹配平台特点", "weight": 15 }
+          ],
+          "passCondition": {
+            "variableName": "totalScore",
+            "operator": "gte",
+            "threshold": 70
+          },
+          "failAction": {
+            "type": "return",
+            "targetNodeId": "topic-planning",
+            "maxRetries": 2
+          }
+        }
+      }
+    },
+    
+    {
+      "id": "phase-creation",
+      "type": "milestone",
+      "name": "阶段二：内容创作",
+      "position": { "x": 850, "y": 100 },
+      "config": {
+        "description": "并行创作文案、图片、视频内容",
+        "waitForCompletion": true
+      }
+    },
+    {
+      "id": "parallel-creation",
+      "type": "parallel",
+      "name": "并行创作内容",
+      "position": { "x": 1000, "y": 100 },
+      "config": {
+        "branches": ["create-copywriting", "create-images", "create-video"],
+        "mergeType": "all"
+      }
+    },
+    {
+      "id": "create-copywriting",
+      "type": "agent",
+      "name": "文案创作",
+      "position": { "x": 1150, "y": 0 },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [{ "type": "agent", "id": "ahive-worker" }],
+          "failureStrategy": { "action": "retry", "retryCount": 2 }
+        },
+        "taskTemplate": "根据选题方案创作文案内容：\n1. 为每个选题撰写正文内容\n2. 适配不同平台风格（公众号长文、微博短文、小红书笔记等）\n3. 撰写吸引人的标题和摘要\n4. 添加合适的标签和话题\n\n输入：{{topicPlan}}\n输出文案到 {{context.assets.content}}/copywriting/",
+        "inputs": [
+          { "name": "topicPlan", "source": "prev-output", "sourceKey": "topic-planning:topicPlan" }
+        ],
+        "outputs": [
+          { "name": "copywritingOutput", "extractPath": "$" }
+        ],
+        "timeout": 5400000
+      }
+    },
+    {
+      "id": "create-images",
+      "type": "agent",
+      "name": "图片设计",
+      "position": { "x": 1150, "y": 100 },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [{ "type": "agent", "id": "artist-agent" }],
+          "failureStrategy": { "action": "retry", "retryCount": 2 }
+        },
+        "taskTemplate": "根据选题方案设计图片素材：\n1. 设计封面图/头图（适配各平台尺寸）\n2. 制作配图和信息图\n3. 设计海报和宣传图\n4. 保持品牌视觉一致性\n\n输入：{{topicPlan}}\n输出图片到 {{context.assets.images}}/",
+        "inputs": [
+          { "name": "topicPlan", "source": "prev-output", "sourceKey": "topic-planning:topicPlan" }
+        ],
+        "outputs": [
+          { "name": "imagesOutput", "extractPath": "$" }
+        ],
+        "timeout": 5400000
+      }
+    },
+    {
+      "id": "create-video",
+      "type": "agent",
+      "name": "视频制作",
+      "position": { "x": 1150, "y": 200 },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [{ "type": "agent", "id": "artist-agent" }],
+          "failureStrategy": { "action": "continue" }
+        },
+        "taskTemplate": "根据选题方案制作视频内容：\n1. 制作短视频（抖音/视频号风格）\n2. 添加字幕和特效\n3. 配背景音乐\n4. 控制时长在合适范围\n\n输入：{{topicPlan}}\n输出视频到 {{context.assets.videos}}/",
+        "inputs": [
+          { "name": "topicPlan", "source": "prev-output", "sourceKey": "topic-planning:topicPlan" }
+        ],
+        "outputs": [
+          { "name": "videoOutput", "extractPath": "$" }
+        ],
+        "timeout": 7200000
+      }
+    },
+    {
+      "id": "content-integration",
+      "type": "agent",
+      "name": "内容整合",
+      "position": { "x": 1300, "y": 100 },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [{ "type": "agent", "id": "ahive-worker" }],
+          "failureStrategy": { "action": "abort" }
+        },
+        "taskTemplate": "整合所有内容素材：\n1. 将文案与图片/视频配对\n2. 检查内容完整性\n3. 按平台分类整理\n4. 生成内容清单\n\n输入：文案、图片、视频\n输出整合报告到 {{context.assets.reports}}/content-integration.md",
+        "inputs": [
+          { "name": "copywritingOutput", "source": "prev-output", "sourceKey": "create-copywriting:copywritingOutput" },
+          { "name": "imagesOutput", "source": "prev-output", "sourceKey": "create-images:imagesOutput" },
+          { "name": "videoOutput", "source": "prev-output", "sourceKey": "create-video:videoOutput" }
+        ],
+        "outputs": [
+          { "name": "integratedContent", "extractPath": "$" }
+        ],
+        "timeout": 1800000
+      }
+    },
+    
+    {
+      "id": "phase-review",
+      "type": "milestone",
+      "name": "阶段三：审核发布",
+      "position": { "x": 1450, "y": 100 },
+      "config": {
+        "description": "内容审核与多平台发布",
+        "waitForCompletion": true
+      }
+    },
+    {
+      "id": "content-review",
+      "type": "review",
+      "name": "内容质量审核",
+      "position": { "x": 1600, "y": 100 },
+      "config": {
+        "reviewConfig": {
+          "reviewType": "agent",
+          "reviewerAgentId": "reviewer-agent",
+          "title": "内容质量审核",
+          "instruction": "审核内容质量：\n1. 文案是否通顺、有吸引力\n2. 图片/视频是否清晰、美观\n3. 内容是否合规（无敏感信息）\n4. 品牌调性是否一致",
+          "scoreMethod": "score",
+          "criteria": [
+            { "name": "内容质量", "description": "文案通顺、逻辑清晰、有价值", "weight": 35 },
+            { "name": "视觉效果", "description": "图片/视频清晰美观、风格统一", "weight": 25 },
+            { "name": "合规性", "description": "无敏感内容、无侵权风险", "weight": 25 },
+            { "name": "品牌一致性", "description": "符合品牌调性和视觉规范", "weight": 15 }
+          ],
+          "passCondition": {
+            "variableName": "totalScore",
+            "operator": "gte",
+            "threshold": 75
+          },
+          "failAction": {
+            "type": "return",
+            "targetNodeId": "parallel-creation",
+            "maxRetries": 2
+          }
+        }
+      }
+    },
+    {
+      "id": "human-approval",
+      "type": "human",
+      "name": "人工确认发布",
+      "position": { "x": 1750, "y": 100 },
+      "config": {
+        "message": "内容已通过质量审核，请确认是否发布到各平台？\n\n审核评分：{{totalScore}}分\n\n请查看内容后确认发布。",
+        "timeout": 86400000
+      }
+    },
+    {
+      "id": "parallel-publish",
+      "type": "parallel",
+      "name": "多平台发布",
+      "position": { "x": 1900, "y": 100 },
+      "config": {
+        "branches": ["publish-wechat", "publish-weibo", "publish-xiaohongshu", "publish-douyin", "publish-bilibili"],
+        "mergeType": "all"
+      }
+    },
+    {
+      "id": "publish-wechat",
+      "type": "agent",
+      "name": "发布微信公众号",
+      "position": { "x": 2050, "y": -100 },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [{ "type": "agent", "id": "ahive-worker" }],
+          "failureStrategy": { "action": "continue" }
+        },
+        "taskTemplate": "发布内容到微信公众号：\n1. 登录公众号后台\n2. 创建图文消息\n3. 上传图片、填写正文\n4. 设置封面、摘要\n5. 定时/立即发布\n\n记录发布结果",
+        "inputs": [
+          { "name": "integratedContent", "source": "prev-output", "sourceKey": "content-integration:integratedContent" }
+        ],
+        "outputs": [
+          { "name": "wechatResult", "extractPath": "$" }
+        ],
+        "timeout": 1800000
+      }
+    },
+    {
+      "id": "publish-weibo",
+      "type": "agent",
+      "name": "发布微博",
+      "position": { "x": 2050, "y": -50 },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [{ "type": "agent", "id": "ahive-worker" }],
+          "failureStrategy": { "action": "continue" }
+        },
+        "taskTemplate": "发布内容到微博：\n1. 登录微博\n2. 发布图文/视频\n3. 添加话题标签\n4. 设置发布时间\n\n记录发布结果",
+        "inputs": [
+          { "name": "integratedContent", "source": "prev-output", "sourceKey": "content-integration:integratedContent" }
+        ],
+        "outputs": [
+          { "name": "weiboResult", "extractPath": "$" }
+        ],
+        "timeout": 1800000
+      }
+    },
+    {
+      "id": "publish-xiaohongshu",
+      "type": "agent",
+      "name": "发布小红书",
+      "position": { "x": 2050, "y": 0 },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [{ "type": "agent", "id": "ahive-worker" }],
+          "failureStrategy": { "action": "continue" }
+        },
+        "taskTemplate": "发布内容到小红书：\n1. 登录小红书创作者平台\n2. 发布笔记（图文/视频）\n3. 添加标签和话题\n4. 设置封面和标题\n\n记录发布结果",
+        "inputs": [
+          { "name": "integratedContent", "source": "prev-output", "sourceKey": "content-integration:integratedContent" }
+        ],
+        "outputs": [
+          { "name": "xiaohongshuResult", "extractPath": "$" }
+        ],
+        "timeout": 1800000
+      }
+    },
+    {
+      "id": "publish-douyin",
+      "type": "agent",
+      "name": "发布抖音",
+      "position": { "x": 2050, "y": 50 },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [{ "type": "agent", "id": "ahive-worker" }],
+          "failureStrategy": { "action": "continue" }
+        },
+        "taskTemplate": "发布内容到抖音：\n1. 登录抖音创作者平台\n2. 上传视频\n3. 添加标题、话题、标签\n4. 设置封面\n5. 选择发布时间\n\n记录发布结果",
+        "inputs": [
+          { "name": "integratedContent", "source": "prev-output", "sourceKey": "content-integration:integratedContent" }
+        ],
+        "outputs": [
+          { "name": "douyinResult", "extractPath": "$" }
+        ],
+        "timeout": 1800000
+      }
+    },
+    {
+      "id": "publish-bilibili",
+      "type": "agent",
+      "name": "发布B站",
+      "position": { "x": 2050, "y": 100 },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [{ "type": "agent", "id": "ahive-worker" }],
+          "failureStrategy": { "action": "continue" }
+        },
+        "taskTemplate": "发布内容到B站：\n1. 登录B站创作者中心\n2. 上传视频\n3. 填写标题、简介、标签\n4. 设置分区和封面\n5. 发布\n\n记录发布结果",
+        "inputs": [
+          { "name": "integratedContent", "source": "prev-output", "sourceKey": "content-integration:integratedContent" }
+        ],
+        "outputs": [
+          { "name": "bilibiliResult", "extractPath": "$" }
+        ],
+        "timeout": 1800000
+      }
+    },
+    
+    {
+      "id": "phase-analysis",
+      "type": "milestone",
+      "name": "阶段四：数据分析",
+      "position": { "x": 2200, "y": 100 },
+      "config": {
+        "description": "数据监测与效果分析",
+        "waitForCompletion": true
+      }
+    },
+    {
+      "id": "delay-monitor",
+      "type": "delay",
+      "name": "等待数据积累",
+      "position": { "x": 2350, "y": 100 },
+      "config": {
+        "delayConfig": {
+          "duration": 24,
+          "unit": "hours"
+        }
+      }
+    },
+    {
+      "id": "data-collection",
+      "type": "agent",
+      "name": "数据采集",
+      "position": { "x": 2500, "y": 100 },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [{ "type": "agent", "id": "ahive-worker" }],
+          "failureStrategy": { "action": "retry", "retryCount": 3 }
+        },
+        "taskTemplate": "采集各平台数据：\n1. 微信公众号：阅读量、点赞、在看、分享、评论\n2. 微博：阅读量、点赞、评论、转发\n3. 小红书：浏览量、点赞、收藏、评论\n4. 抖音：播放量、点赞、评论、分享\n5. B站：播放量、点赞、投币、收藏、评论\n\n汇总数据到 {{context.assets.reports}}/data-collection.json",
+        "inputs": [
+          { "name": "wechatResult", "source": "prev-output", "sourceKey": "publish-wechat:wechatResult" },
+          { "name": "weiboResult", "source": "prev-output", "sourceKey": "publish-weibo:weiboResult" },
+          { "name": "xiaohongshuResult", "source": "prev-output", "sourceKey": "publish-xiaohongshu:xiaohongshuResult" },
+          { "name": "douyinResult", "source": "prev-output", "sourceKey": "publish-douyin:douyinResult" },
+          { "name": "bilibiliResult", "source": "prev-output", "sourceKey": "publish-bilibili:bilibiliResult" }
+        ],
+        "outputs": [
+          { "name": "collectedData", "extractPath": "$" }
+        ],
+        "timeout": 3600000
+      }
+    },
+    {
+      "id": "data-analysis",
+      "type": "agent",
+      "name": "效果分析",
+      "position": { "x": 2650, "y": 100 },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [{ "type": "agent", "id": "analyst-agent" }],
+          "failureStrategy": { "action": "abort" }
+        },
+        "taskTemplate": "分析内容效果：\n1. 各平台数据对比分析\n2. 识别表现最好的内容\n3. 分析用户互动行为\n4. 找出内容优化方向\n5. 提出改进建议\n\n输入：{{collectedData}}\n输出分析报告到 {{context.assets.reports}}/performance-analysis.md",
+        "inputs": [
+          { "name": "collectedData", "source": "prev-output", "sourceKey": "data-collection:collectedData" }
+        ],
+        "outputs": [
+          { "name": "analysisReport", "extractPath": "$" }
+        ],
+        "timeout": 3600000
+      }
+    },
+    {
+      "id": "optimization-suggestions",
+      "type": "agent",
+      "name": "优化建议",
+      "position": { "x": 2800, "y": 100 },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [{ "type": "agent", "id": "analyst-agent" }],
+          "failureStrategy": { "action": "abort" }
+        },
+        "taskTemplate": "基于数据分析，制定优化方案：\n1. 内容选题优化建议\n2. 发布时间优化建议\n3. 平台策略调整建议\n4. 下期内容规划方向\n\n输入：{{analysisReport}}\n输出优化方案到 {{context.assets.reports}}/optimization-plan.md",
+        "inputs": [
+          { "name": "analysisReport", "source": "prev-output", "sourceKey": "data-analysis:analysisReport" }
+        ],
+        "outputs": [
+          { "name": "optimizationPlan", "extractPath": "$" }
+        ],
+        "timeout": 1800000
+      }
+    },
+    
+    {
+      "id": "notify-team",
+      "type": "notify",
+      "name": "通知团队",
+      "position": { "x": 2950, "y": 100 },
+      "config": {
+        "notifyConfig": {
+          "channels": ["email", "dingtalk"],
+          "recipients": ["marketing-team@company.com"],
+          "template": "新媒体运营周期报告已完成！\n\n📊 本期数据概览：\n- 发布平台：5个\n- 内容数量：{{contentCount}}篇\n\n详细报告请查看：{{context.assets.reports}}/"
+        }
+      }
+    },
+    {
+      "id": "final-output",
+      "type": "output",
+      "name": "运营报告输出",
+      "position": { "x": 3100, "y": 100 },
+      "config": {
+        "outputConfig": {
+          "name": "新媒体运营周期报告",
+          "description": "包含市场调研、选题方案、内容素材、数据分析、优化建议的完整报告",
+          "type": "document",
+          "isFinalOutput": true
+        }
+      }
+    }
+  ],
+  
+  "edges": [
+    { "id": "e1", "source": "init-config", "target": "phase-research" },
+    { "id": "e2", "source": "phase-research", "target": "market-research" },
+    { "id": "e3", "source": "market-research", "target": "topic-planning" },
+    { "id": "e4", "source": "topic-planning", "target": "planning-review" },
+    
+    { "id": "e5", "source": "planning-review", "target": "phase-creation" },
+    
+    {
+      "id": "e-fail-1",
+      "source": "planning-review",
+      "target": "topic-planning",
+      "label": "审核不通过",
+      "failCondition": {
+        "variableName": "totalScore",
+        "operator": "lt",
+        "value": 70
+      }
+    },
+    
+    { "id": "e6", "source": "phase-creation", "target": "parallel-creation" },
+    { "id": "e7", "source": "parallel-creation", "target": "content-integration" },
+    
+    { "id": "e8", "source": "content-integration", "target": "phase-review" },
+    { "id": "e9", "source": "phase-review", "target": "content-review" },
+    { "id": "e10", "source": "content-review", "target": "human-approval" },
+    
+    {
+      "id": "e-fail-2",
+      "source": "content-review",
+      "target": "parallel-creation",
+      "label": "审核不通过",
+      "failCondition": {
+        "variableName": "totalScore",
+        "operator": "lt",
+        "value": 75
+      }
+    },
+    
+    { "id": "e11", "source": "human-approval", "target": "parallel-publish" },
+    
+    { "id": "e12", "source": "parallel-publish", "target": "phase-analysis" },
+    { "id": "e13", "source": "phase-analysis", "target": "delay-monitor" },
+    { "id": "e14", "source": "delay-monitor", "target": "data-collection" },
+    { "id": "e15", "source": "data-collection", "target": "data-analysis" },
+    { "id": "e16", "source": "data-analysis", "target": "optimization-suggestions" },
+    
+    { "id": "e17", "source": "optimization-suggestions", "target": "notify-team" },
+    { "id": "e18", "source": "notify-team", "target": "final-output" }
+  ]
+}

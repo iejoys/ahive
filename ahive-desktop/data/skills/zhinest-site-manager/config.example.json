@@ -1,0 +1,11 @@
+{
+  "$schema": "zhinest-site-manager.json",
+  "skill_id": "zhinest-site-manager",
+  "config": {
+    "api_url": "http://localhost:3000/api",
+    "api_key": "zhinest-你的32位key",
+    "admin_token": "",
+    "default_status": "published",
+    "timeout": 30000
+  }
+}

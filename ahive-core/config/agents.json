@@ -1,0 +1,181 @@
+{
+  "version": "1.0",
+  "mainAgentId": "ahivecore",
+  "activeAgentId": "ahivecore",
+  "agents": [
+    {
+      "id": "mmuhsh8c-2v8mxf",
+      "type": "ahive-coder",
+      "nickname": "",
+      "role": "main",
+      "model": {
+        "provider": "bailian",
+        "name": "qwen3.6-plus",
+        "temperature": 0.3,
+        "contextSize": 8192,
+        "maxTokens": 65536,
+        "contextWindow": 262144,
+        "autoCompactTokenLimit": 180000,
+        "autoCompactRatio": 0.85,
+        "apiKey": "YOUR_API_KEY_HERE",
+        "baseUrl": "https://coding.dashscope.aliyuncs.com/v1"
+      },
+      "maxDepth": 3,
+      "currentDepth": 0,
+      "createdAt": "2026-03-17T10:51:28.956Z"
+    },
+    {
+      "id": "mmutn7fs-7w2qpo",
+      "type": "ahive-worker",
+      "nickname": "",
+      "role": "main",
+      "model": {
+        "provider": "bailian",
+        "name": "glm-5",
+        "temperature": 0.7,
+        "maxTokens": 200000,
+        "apiKey": "YOUR_API_KEY_HERE",
+        "baseUrl": "https://coding.dashscope.aliyuncs.com/v1"
+      },
+      "maxDepth": 3,
+      "currentDepth": 0,
+      "createdAt": "2026-03-17T16:23:18.376Z"
+    },
+    {
+      "id": "mmutq08z-zyjavd",
+      "type": "ahive-coder",
+      "nickname": "",
+      "role": "main",
+      "model": {
+        "provider": "bailian",
+        "name": "glm-5",
+        "temperature": 0.3,
+        "maxTokens": 200000,
+        "apiKey": "YOUR_API_KEY_HERE",
+        "baseUrl": "https://coding.dashscope.aliyuncs.com/v1"
+      },
+      "maxDepth": 3,
+      "currentDepth": 0,
+      "createdAt": "2026-03-17T16:25:29.027Z"
+    },
+    {
+      "id": "agent-1774862641397-x1x0ac6yk",
+      "type": "ahive-coder",
+      "nickname": "454556",
+      "role": "main",
+      "model": {
+        "provider": "bailian",
+        "name": "qwen-plus",
+        "temperature": 0.3,
+        "maxTokens": 20000,
+        "apiKey": "YOUR_API_KEY_HERE",
+        "baseUrl": "https://coding.dashscope.aliyuncs.com/v1"
+      },
+      "maxDepth": 3,
+      "currentDepth": 0,
+      "createdAt": "2026-03-30T09:24:01.397Z"
+    },
+    {
+      "id": "agent-ollama",
+      "type": "ahive-worker",
+      "nickname": "ahive-worker-agent-17",
+      "role": "main",
+      "model": {
+        "provider": "ollama",
+        "name": "qwen3.5-9b-uncensored",
+        "temperature": 0.7,
+        "maxTokens": 13000,
+        "baseUrl": "http://YOUR_OLLAMA_HOST:11434",
+        "modelConfig": {
+          "provider": "ollama",
+          "name": "qwen3.5-9b-uncensored",
+          "ollamaHost": "http://YOUR_OLLAMA_HOST:11434",
+          "temperature": 0.7,
+          "maxTokens": 13000
+        },
+        "ollamaHost": "http://YOUR_OLLAMA_HOST:11434"
+      },
+      "maxDepth": 3,
+      "currentDepth": 0,
+      "createdAt": "2026-04-01T14:06:09.128Z"
+    },
+    {
+      "id": "ollama-coder",
+      "type": "ahive-coder",
+      "nickname": "ollama-coder",
+      "role": "main",
+      "model": {
+        "provider": "ollama",
+        "name": "gemma-4-e4b",
+        "temperature": 0.3,
+        "maxTokens": 25000,
+        "baseUrl": "http://YOUR_OLLAMA_HOST:1234",
+        "modelConfig": {
+          "provider": "ollama",
+          "name": "gemma-4-e4b",
+          "ollamaHost": "http://YOUR_OLLAMA_HOST:1234",
+          "temperature": 0.3,
+          "maxTokens": 10000
+        },
+        "ollamaHost": "http://YOUR_OLLAMA_HOST:1234"
+      },
+      "maxDepth": 3,
+      "currentDepth": 0,
+      "createdAt": "2026-04-02T01:50:05.751Z"
+    },
+    {
+      "id": "agent-1775108557900-vuaqn44da",
+      "type": "ahive-worker",
+      "nickname": "ahive-worker-agent-17",
+      "role": "main",
+      "model": {
+        "provider": "local",
+        "name": "qwen2.5-1.5b",
+        "temperature": 0.7,
+        "maxTokens": 4096
+      },
+      "maxDepth": 3,
+      "currentDepth": 0,
+      "createdAt": "2026-04-02T05:42:37.900Z"
+    },
+    {
+      "id": "agent-1775806810261-mt26m1ki9",
+      "type": "ahive-worker",
+      "nickname": "项目经理",
+      "role": "main",
+      "model": {
+        "temperature": 0.3,
+        "maxTokens": 20000,
+        "provider": "bailian",
+        "name": "glm-5",
+        "apiKey": "YOUR_API_KEY_HERE",
+        "baseUrl": "https://coding.dashscope.aliyuncs.com/v1",
+        "nickname": "项目经理"
+      },
+      "maxDepth": 3,
+      "currentDepth": 0,
+      "createdAt": "2026-04-10T07:40:11.050Z"
+    },
+    {
+      "id": "agent-1777458963776-igg73zhfv",
+      "type": "ahive-coder",
+      "nickname": "mimo",
+      "role": "main",
+      "model": {
+        "temperature": 0.3,
+        "contextSize": 1048576,
+        "maxTokens": 131072,
+        "contextWindow": 1048576,
+        "provider": "custom",
+        "name": "mimo-v2.5-pro",
+        "apiKey": "YOUR_API_KEY_HERE",
+        "baseUrl": "https://token-plan-cn.xiaomimimo.com/v1",
+        "nickname": "mimo"
+      },
+      "maxDepth": 3,
+      "currentDepth": 0,
+      "createdAt": "2026-04-29T10:36:04.140Z"
+    }
+  ],
+  "updatedAt": "2026-05-11T09:40:26.167Z"
+}

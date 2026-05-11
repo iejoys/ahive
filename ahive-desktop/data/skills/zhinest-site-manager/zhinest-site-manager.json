@@ -1,0 +1,549 @@
+{
+  "skill_id": "zhinest-site-manager",
+  "name": "智巢网站管理",
+  "name_en": "Zhinest Site Manager",
+  "version": "2.1.0",
+  "description": "通过 API 管理智巢网站，支持动态菜单、页面模块组装、布局模板、静态渲染、版本控制、智能体组合操作、站点配置、媒体管理、管理员认证",
+  "author": "AHIVE",
+  "category": "web-management",
+  "tags": ["website", "cms", "content", "api", "layout", "template", "render", "agent", "media", "auth"],
+
+  "config_schema": {
+    "required": ["api_url", "api_key"],
+    "properties": {
+      "api_url": {
+        "type": "string",
+        "description": "Zhinest API 服务地址",
+        "default": "http://localhost:3000/api",
+        "examples": ["http://localhost:3000/api", "https://zhinest.ahive.cn/api"]
+      },
+      "api_key": {
+        "type": "string",
+        "description": "API 认证密钥，通过请求头 x-api-key 传递",
+        "sensitive": true
+      },
+      "admin_token": {
+        "type": "string",
+        "description": "管理后台认证 Token（通过 /api/admin/auth/login 获取），通过 Authorization: Bearer {token} 传递",
+        "sensitive": true
+      },
+      "default_status": {
+        "type": "string",
+        "description": "默认发布状态",
+        "default": "published",
+        "enum": ["draft", "published"]
+      },
+      "timeout": {
+        "type": "integer",
+        "description": "请求超时时间（毫秒）",
+        "default": 30000
+      }
+    }
+  },
+
+  "auth_info": {
+    "api_auth": {
+      "header": "x-api-key",
+      "description": "所有 /api/* 路由（除公开只读接口外）都需要此认证"
+    },
+    "admin_auth": {
+      "header": "Authorization: Bearer {token}",
+      "description": "所有 /api/admin/* 路由需要此认证，通过 POST /api/admin/auth/login 获取",
+      "token_ttl": "24小时"
+    },
+    "public_routes": [
+      "GET /public/menus",
+      "GET /public/pages/:slug",
+      "GET /public/articles",
+      "GET /public/articles/:slug",
+      "GET /public/layouts",
+      "GET /public/templates"
+    ]
+  },
+
+  "tools": [
+    {
+      "name": "zhinest_page_list",
+      "description": "获取页面列表",
+      "input_schema": { "type": "object", "properties": { "status": { "type": "string", "default": "published" }, "limit": { "type": "integer", "default": 50 }, "offset": { "type": "integer", "default": 0 } } },
+      "implementation": { "method": "GET", "endpoint": "/pages" },
+      "response_format": { "items": "页面数组", "total": "总数", "limit": "每页数量", "offset": "偏移量" }
+    },
+    {
+      "name": "zhinest_page_get",
+      "description": "通过 slug 获取单个页面详情",
+      "input_schema": { "type": "object", "required": ["slug"], "properties": { "slug": { "type": "string" } } },
+      "implementation": { "method": "GET", "endpoint": "/pages/${input.slug}" },
+      "response_format": "单个页面对象"
+    },
+    {
+      "name": "zhinest_page_create",
+      "description": "创建页面",
+      "input_schema": { "type": "object", "required": ["title", "slug"], "properties": { "title": { "type": "string" }, "slug": { "type": "string" }, "content": { "type": "string" }, "template": { "type": "string", "default": "default" }, "layout_id": { "type": "integer" }, "status": { "type": "string", "default": "draft" }, "meta_title": { "type": "string" }, "meta_desc": { "type": "string" }, "sort_order": { "type": "integer", "default": 0 } } },
+      "implementation": { "method": "POST", "endpoint": "/pages" },
+      "response_format": "创建的页面对象"
+    },
+    {
+      "name": "zhinest_page_update",
+      "description": "更新页面",
+      "input_schema": { "type": "object", "required": ["id"], "properties": { "id": { "type": "integer" }, "title": { "type": "string" }, "slug": { "type": "string" }, "content": { "type": "string" }, "template": { "type": "string" }, "layout_id": { "type": "integer" }, "status": { "type": "string" }, "meta_title": { "type": "string" }, "meta_desc": { "type": "string" }, "sort_order": { "type": "integer" } } },
+      "implementation": { "method": "PUT", "endpoint": "/pages/${input.id}" },
+      "response_format": "更新后的页面对象"
+    },
+    {
+      "name": "zhinest_page_delete",
+      "description": "删除页面",
+      "input_schema": { "type": "object", "required": ["id"], "properties": { "id": { "type": "integer" } } },
+      "implementation": { "method": "DELETE", "endpoint": "/pages/${input.id}" },
+      "response_format": { "success": "boolean", "message": "string" }
+    },
+    {
+      "name": "zhinest_menu_list",
+      "description": "获取菜单列表（含关联页面信息）",
+      "input_schema": { "type": "object", "properties": { "location": { "type": "string", "default": "all" } } },
+      "implementation": { "method": "GET", "endpoint": "/menus" },
+      "response_format": { "items": "菜单数组，每项含 page_slug/page_title" }
+    },
+    {
+      "name": "zhinest_menu_add",
+      "description": "添加菜单项",
+      "input_schema": { "type": "object", "required": ["name"], "properties": { "name": { "type": "string" }, "location": { "type": "string", "default": "header" }, "slug": { "type": "string" }, "url": { "type": "string" }, "page_id": { "type": "integer" }, "parent_id": { "type": "integer" }, "icon": { "type": "string" }, "badge": { "type": "string" }, "target": { "type": "string" }, "sort_order": { "type": "integer", "default": 0 }, "is_visible": { "type": "integer", "default": 1 } } },
+      "implementation": { "method": "POST", "endpoint": "/menus" },
+      "response_format": "创建的菜单对象"
+    },
+    {
+      "name": "zhinest_menu_update",
+      "description": "更新菜单项",
+      "input_schema": { "type": "object", "required": ["id"], "properties": { "id": { "type": "integer" }, "name": { "type": "string" }, "location": { "type": "string" }, "parent_id": { "type": "integer" }, "page_id": { "type": "integer" }, "url": { "type": "string" }, "icon": { "type": "string" }, "sort_order": { "type": "integer" } } },
+      "implementation": { "method": "PUT", "endpoint": "/menus/${input.id}" },
+      "response_format": "更新后的菜单对象"
+    },
+    {
+      "name": "zhinest_menu_delete",
+      "description": "删除菜单项（同时删除子菜单）",
+      "input_schema": { "type": "object", "required": ["id"], "properties": { "id": { "type": "integer" } } },
+      "implementation": { "method": "DELETE", "endpoint": "/menus/${input.id}" },
+      "response_format": { "success": "boolean", "message": "string" }
+    },
+    {
+      "name": "zhinest_menu_reorder",
+      "description": "批量调整菜单排序和层级",
+      "input_schema": { "type": "object", "required": ["items"], "properties": { "items": { "type": "array", "items": { "type": "object", "required": ["id", "sort_order"], "properties": { "id": { "type": "integer" }, "sort_order": { "type": "integer" }, "parent_id": { "type": "integer" } } } } } },
+      "implementation": { "method": "PUT", "endpoint": "/menus/reorder" },
+      "response_format": { "success": "boolean" }
+    },
+    {
+      "name": "zhinest_module_list",
+      "description": "获取模块列表",
+      "input_schema": { "type": "object", "properties": { "type": { "type": "string" }, "status": { "type": "string", "default": "active" } } },
+      "implementation": { "method": "GET", "endpoint": "/modules" },
+      "response_format": { "items": "模块数组" }
+    },
+    {
+      "name": "zhinest_module_get",
+      "description": "获取单个模块详情",
+      "input_schema": { "type": "object", "required": ["id"], "properties": { "id": { "type": "integer" } } },
+      "implementation": { "method": "GET", "endpoint": "/modules/${input.id}" },
+      "response_format": "单个模块对象"
+    },
+    {
+      "name": "zhinest_module_create",
+      "description": "创建模块",
+      "input_schema": { "type": "object", "required": ["name"], "properties": { "name": { "type": "string" }, "type": { "type": "string", "default": "custom" }, "content": { "type": "string", "description": "JSON字符串，模块配置" }, "html": { "type": "string" }, "css": { "type": "string" }, "js": { "type": "string" }, "props": { "type": "object" }, "category": { "type": "string" }, "is_shared": { "type": "integer" }, "status": { "type": "string", "default": "active" } } },
+      "implementation": { "method": "POST", "endpoint": "/modules" },
+      "response_format": "创建的模块对象"
+    },
+    {
+      "name": "zhinest_module_update",
+      "description": "更新模块",
+      "input_schema": { "type": "object", "required": ["id"], "properties": { "id": { "type": "integer" }, "name": { "type": "string" }, "type": { "type": "string" }, "content": { "type": "string" }, "html": { "type": "string" }, "css": { "type": "string" }, "js": { "type": "string" }, "props": { "type": "object" }, "category": { "type": "string" }, "status": { "type": "string" } } },
+      "implementation": { "method": "PUT", "endpoint": "/modules/${input.id}" },
+      "response_format": "更新后的模块对象"
+    },
+    {
+      "name": "zhinest_module_delete",
+      "description": "删除模块",
+      "input_schema": { "type": "object", "required": ["id"], "properties": { "id": { "type": "integer" } } },
+      "implementation": { "method": "DELETE", "endpoint": "/modules/${input.id}" },
+      "response_format": { "success": "boolean", "message": "string" }
+    },
+    {
+      "name": "zhinest_layout_list",
+      "description": "获取布局列表",
+      "input_schema": { "type": "object", "properties": {} },
+      "implementation": { "method": "GET", "endpoint": "/layouts" },
+      "response_format": { "items": "布局数组，按 is_default 降序" }
+    },
+    {
+      "name": "zhinest_layout_get",
+      "description": "获取单个布局详情",
+      "input_schema": { "type": "object", "required": ["id"], "properties": { "id": { "type": "integer" } } },
+      "implementation": { "method": "GET", "endpoint": "/layouts/${input.id}" },
+      "response_format": "单个布局对象"
+    },
+    {
+      "name": "zhinest_layout_create",
+      "description": "创建布局",
+      "input_schema": { "type": "object", "required": ["name"], "properties": { "name": { "type": "string" }, "regions": { "type": "string", "description": "JSON数组字符串，如 [\"hero\",\"content\",\"footer\"]" }, "html": { "type": "string" }, "css": { "type": "string" }, "is_default": { "type": "integer", "default": 0 } } },
+      "implementation": { "method": "POST", "endpoint": "/layouts" },
+      "response_format": "创建的布局对象"
+    },
+    {
+      "name": "zhinest_layout_update",
+      "description": "更新布局",
+      "input_schema": { "type": "object", "required": ["id"], "properties": { "id": { "type": "integer" }, "name": { "type": "string" }, "regions": { "type": "string" }, "html": { "type": "string" }, "css": { "type": "string" }, "is_default": { "type": "integer" } } },
+      "implementation": { "method": "PUT", "endpoint": "/layouts/${input.id}" },
+      "response_format": "更新后的布局对象"
+    },
+    {
+      "name": "zhinest_layout_delete",
+      "description": "删除布局",
+      "input_schema": { "type": "object", "required": ["id"], "properties": { "id": { "type": "integer" } } },
+      "implementation": { "method": "DELETE", "endpoint": "/layouts/${input.id}" },
+      "response_format": { "success": "boolean" }
+    },
+    {
+      "name": "zhinest_template_list",
+      "description": "获取模板列表",
+      "input_schema": { "type": "object", "properties": {} },
+      "implementation": { "method": "GET", "endpoint": "/templates" },
+      "response_format": { "items": "模板数组" }
+    },
+    {
+      "name": "zhinest_template_get",
+      "description": "获取单个模板详情",
+      "input_schema": { "type": "object", "required": ["id"], "properties": { "id": { "type": "integer" } } },
+      "implementation": { "method": "GET", "endpoint": "/templates/${input.id}" },
+      "response_format": "单个模板对象"
+    },
+    {
+      "name": "zhinest_template_create",
+      "description": "创建模板",
+      "input_schema": { "type": "object", "required": ["name"], "properties": { "name": { "type": "string" }, "description": { "type": "string" }, "layout_id": { "type": "integer" }, "default_modules": { "type": "array", "description": "默认模块配置数组" }, "preview_image": { "type": "string" } } },
+      "implementation": { "method": "POST", "endpoint": "/templates" },
+      "response_format": "创建的模板对象"
+    },
+    {
+      "name": "zhinest_template_update",
+      "description": "更新模板",
+      "input_schema": { "type": "object", "required": ["id"], "properties": { "id": { "type": "integer" }, "name": { "type": "string" }, "description": { "type": "string" }, "layout_id": { "type": "integer" }, "default_modules": { "type": "array" }, "preview_image": { "type": "string" } } },
+      "implementation": { "method": "PUT", "endpoint": "/templates/${input.id}" },
+      "response_format": "更新后的模板对象"
+    },
+    {
+      "name": "zhinest_template_delete",
+      "description": "删除模板",
+      "input_schema": { "type": "object", "required": ["id"], "properties": { "id": { "type": "integer" } } },
+      "implementation": { "method": "DELETE", "endpoint": "/templates/${input.id}" },
+      "response_format": { "success": "boolean" }
+    },
+    {
+      "name": "zhinest_page_modules",
+      "description": "获取页面的模块列表（按region分组，含merged_props）",
+      "input_schema": { "type": "object", "required": ["page_id"], "properties": { "page_id": { "type": "integer" }, "region": { "type": "string" } } },
+      "implementation": { "method": "GET", "endpoint": "/page-modules/${input.page_id}/modules" },
+      "response_format": { "page_id": "integer", "regions": "{ region_name: [模块数组] }" }
+    },
+    {
+      "name": "zhinest_page_module_add",
+      "description": "为页面添加模块",
+      "input_schema": { "type": "object", "required": ["page_id", "module_id"], "properties": { "page_id": { "type": "integer" }, "module_id": { "type": "integer" }, "region": { "type": "string", "default": "content" }, "sort_order": { "type": "integer", "default": 0 }, "override_props": { "type": "object" } } },
+      "implementation": { "method": "POST", "endpoint": "/page-modules/${input.page_id}/modules" },
+      "response_format": { "id": "关联ID", "page_id": "integer", "module_id": "integer", "region": "string", "sort_order": "integer" }
+    },
+    {
+      "name": "zhinest_page_module_update",
+      "description": "更新页面模块实例",
+      "input_schema": { "type": "object", "required": ["page_id", "pm_id"], "properties": { "page_id": { "type": "integer" }, "pm_id": { "type": "integer" }, "region": { "type": "string" }, "sort_order": { "type": "integer" }, "override_props": { "type": "object" } } },
+      "implementation": { "method": "PUT", "endpoint": "/page-modules/${input.page_id}/modules/${input.pm_id}" },
+      "response_format": { "success": "boolean" }
+    },
+    {
+      "name": "zhinest_page_module_remove",
+      "description": "从页面移除模块",
+      "input_schema": { "type": "object", "required": ["page_id", "pm_id"], "properties": { "page_id": { "type": "integer" }, "pm_id": { "type": "integer" } } },
+      "implementation": { "method": "DELETE", "endpoint": "/page-modules/${input.page_id}/modules/${input.pm_id}" },
+      "response_format": { "success": "boolean" }
+    },
+    {
+      "name": "zhinest_page_module_reorder",
+      "description": "批量调整页面模块排序",
+      "input_schema": { "type": "object", "required": ["page_id", "items"], "properties": { "page_id": { "type": "integer" }, "items": { "type": "array", "items": { "type": "object", "properties": { "id": { "type": "integer" }, "sort_order": { "type": "integer" }, "region": { "type": "string" } } } } } },
+      "implementation": { "method": "PUT", "endpoint": "/page-modules/${input.page_id}/modules/reorder" },
+      "response_format": { "success": "boolean", "updated": "更新数量" }
+    },
+    {
+      "name": "zhinest_render_all",
+      "description": "全站静态渲染",
+      "input_schema": { "type": "object", "properties": {} },
+      "implementation": { "method": "POST", "endpoint": "/render" },
+      "response_format": { "success": "boolean", "duration": "耗时ms", "pages": "渲染页面数", "results": "[{success, slug, path}]" }
+    },
+    {
+      "name": "zhinest_render_incremental",
+      "description": "增量渲染（仅渲染变更页面）",
+      "input_schema": { "type": "object", "properties": {} },
+      "implementation": { "method": "POST", "endpoint": "/render/incremental" },
+      "response_format": "同 render_all"
+    },
+    {
+      "name": "zhinest_render_page",
+      "description": "渲染指定页面",
+      "input_schema": { "type": "object", "required": ["slug"], "properties": { "slug": { "type": "string" } } },
+      "implementation": { "method": "POST", "endpoint": "/render/page/${input.slug}" },
+      "response_format": "同 render_all"
+    },
+    {
+      "name": "zhinest_render_status",
+      "description": "获取渲染状态",
+      "input_schema": { "type": "object", "properties": {} },
+      "implementation": { "method": "GET", "endpoint": "/render/status" },
+      "response_format": "渲染状态对象"
+    },
+    {
+      "name": "zhinest_version_list",
+      "description": "获取内容版本历史",
+      "input_schema": { "type": "object", "required": ["type", "id"], "properties": { "type": { "type": "string", "enum": ["page", "article", "module"] }, "id": { "type": "integer" } } },
+      "implementation": { "method": "GET", "endpoint": "/versions/${input.type}/${input.id}" },
+      "response_format": { "items": "版本数组，按 version 降序" }
+    },
+    {
+      "name": "zhinest_version_rollback",
+      "description": "回滚到指定版本",
+      "input_schema": { "type": "object", "required": ["type", "id", "version"], "properties": { "type": { "type": "string", "enum": ["page", "article", "module"] }, "id": { "type": "integer" }, "version": { "type": "integer" } } },
+      "implementation": { "method": "POST", "endpoint": "/versions/${input.type}/${input.id}/rollback" },
+      "response_format": { "success": "boolean", "type": "string", "id": "integer", "version": "integer" }
+    },
+    {
+      "name": "zhinest_agent_create_column",
+      "description": "一键创建完整栏目（菜单+页面+模板模块）",
+      "input_schema": { "type": "object", "required": ["name", "slug"], "properties": { "name": { "type": "string" }, "slug": { "type": "string" }, "location": { "type": "string", "default": "header" }, "sort_order": { "type": "integer", "default": 99 }, "icon": { "type": "string" }, "template": { "type": "string", "default": "category" }, "description": { "type": "string" } } },
+      "implementation": { "method": "POST", "endpoint": "/agent/create-column" },
+      "response_format": { "success": "boolean", "page_id": "integer", "menu_id": "integer" }
+    },
+    {
+      "name": "zhinest_agent_publish_article",
+      "description": "一键发布文章（创建+版本+渲染标记）",
+      "input_schema": { "type": "object", "required": ["title", "content"], "properties": { "title": { "type": "string" }, "content": { "type": "string" }, "category": { "type": "string", "default": "未分类" }, "tags": { "type": "array", "items": { "type": "string" } }, "author": { "type": "string", "default": "AI" } } },
+      "implementation": { "method": "POST", "endpoint": "/agent/publish-article" },
+      "response_format": { "success": "boolean", "article_id": "integer", "slug": "string" }
+    },
+    {
+      "name": "zhinest_agent_update_homepage",
+      "description": "更新首页（添加模块或替换内容）",
+      "input_schema": { "type": "object", "required": ["action"], "properties": { "action": { "type": "string", "enum": ["add_module", "replace_content"] }, "module_id": { "type": "integer" }, "region": { "type": "string", "default": "content" }, "content": { "type": "string" }, "sort_order": { "type": "integer", "default": 0 } } },
+      "implementation": { "method": "POST", "endpoint": "/agent/update-homepage" },
+      "response_format": { "success": "boolean", "action": "string" }
+    },
+    {
+      "name": "zhinest_agent_batch",
+      "description": "批量操作（创建多个页面/文章/菜单）",
+      "input_schema": { "type": "object", "required": ["operations"], "properties": { "operations": { "type": "array", "items": { "type": "object", "properties": { "type": { "type": "string", "enum": ["create_page", "create_article", "create_menu"] } } } } } },
+      "implementation": { "method": "POST", "endpoint": "/agent/batch-operations" },
+      "response_format": { "success": "boolean", "results": "[{type, success, id?, error?}]" }
+    },
+    {
+      "name": "zhinest_article_list",
+      "description": "获取文章列表（支持分类、标签、搜索筛选）",
+      "input_schema": { "type": "object", "properties": { "category": { "type": "string" }, "tag": { "type": "string" }, "status": { "type": "string", "default": "published" }, "search": { "type": "string" }, "limit": { "type": "integer", "default": 50 }, "offset": { "type": "integer", "default": 0 } } },
+      "implementation": { "method": "GET", "endpoint": "/articles" },
+      "response_format": { "items": "文章数组", "categories": "所有分类列表", "total": "总数", "limit": "integer", "offset": "integer" }
+    },
+    {
+      "name": "zhinest_article_get",
+      "description": "通过 slug 获取文章详情（自动增加浏览数）",
+      "input_schema": { "type": "object", "required": ["slug"], "properties": { "slug": { "type": "string" } } },
+      "implementation": { "method": "GET", "endpoint": "/articles/${input.slug}" },
+      "response_format": "文章对象，tags 已解析为数组"
+    },
+    {
+      "name": "zhinest_article_create",
+      "description": "创建文章",
+      "input_schema": { "type": "object", "required": ["title", "slug"], "properties": { "title": { "type": "string" }, "slug": { "type": "string" }, "content": { "type": "string" }, "category": { "type": "string", "default": "未分类" }, "tags": { "type": "array", "items": { "type": "string" } }, "author": { "type": "string", "default": "AI" }, "status": { "type": "string", "default": "published" } } },
+      "implementation": { "method": "POST", "endpoint": "/articles" },
+      "response_format": "创建的文章对象"
+    },
+    {
+      "name": "zhinest_article_update",
+      "description": "更新文章",
+      "input_schema": { "type": "object", "required": ["id"], "properties": { "id": { "type": "integer" }, "title": { "type": "string" }, "slug": { "type": "string" }, "content": { "type": "string" }, "category": { "type": "string" }, "tags": { "type": "array", "items": { "type": "string" } }, "author": { "type": "string" }, "status": { "type": "string" } } },
+      "implementation": { "method": "PUT", "endpoint": "/articles/${input.id}" },
+      "response_format": "更新后的文章对象"
+    },
+    {
+      "name": "zhinest_article_delete",
+      "description": "删除文章",
+      "input_schema": { "type": "object", "required": ["id"], "properties": { "id": { "type": "integer" } } },
+      "implementation": { "method": "DELETE", "endpoint": "/articles/${input.id}" },
+      "response_format": { "success": "boolean", "message": "string" }
+    },
+    {
+      "name": "zhinest_media_list",
+      "description": "获取媒体文件列表",
+      "input_schema": { "type": "object", "properties": { "limit": { "type": "integer", "default": 50 }, "offset": { "type": "integer", "default": 0 } } },
+      "implementation": { "method": "GET", "endpoint": "/media" },
+      "response_format": { "items": "媒体数组", "total": "总数", "limit": "integer", "offset": "integer" }
+    },
+    {
+      "name": "zhinest_media_upload",
+      "description": "上传媒体文件（支持 jpg/png/gif/webp/pdf，最大10MB）",
+      "input_schema": { "type": "object", "required": ["file_path"], "properties": { "file_path": { "type": "string" }, "alt": { "type": "string" } } },
+      "implementation": { "method": "POST", "endpoint": "/media/upload", "body_type": "multipart", "field_name": "file" },
+      "response_format": "媒体对象，含 filepath（如 /uploads/xxx.jpg）"
+    },
+    {
+      "name": "zhinest_media_delete",
+      "description": "删除媒体文件（同时删除物理文件）",
+      "input_schema": { "type": "object", "required": ["id"], "properties": { "id": { "type": "integer" } } },
+      "implementation": { "method": "DELETE", "endpoint": "/media/${input.id}" },
+      "response_format": { "success": "boolean", "message": "string" }
+    },
+    {
+      "name": "zhinest_health",
+      "description": "健康检查",
+      "input_schema": { "type": "object", "properties": {} },
+      "implementation": { "method": "GET", "endpoint": "/health" },
+      "response_format": { "status": "ok", "timestamp": "ISO时间" }
+    },
+    {
+      "name": "zhinest_stats",
+      "description": "获取网站统计数据",
+      "input_schema": { "type": "object", "properties": {} },
+      "implementation": { "method": "GET", "endpoint": "/stats" },
+      "response_format": { "pages": "页面数", "articles": "文章数", "menus": "菜单数", "modules": "模块数", "media": "媒体数", "recent_pages": "最近更新的5个页面", "recent_articles": "最近更新的5篇文章", "config": "站点配置" }
+    },
+    {
+      "name": "zhinest_config_get",
+      "description": "获取站点配置",
+      "input_schema": { "type": "object", "properties": {} },
+      "implementation": { "method": "GET", "endpoint": "/config" },
+      "response_format": "{ key: value } 对象"
+    },
+    {
+      "name": "zhinest_config_update",
+      "description": "更新站点配置（key不存在则创建）",
+      "input_schema": { "type": "object", "required": ["key", "value"], "properties": { "key": { "type": "string" }, "value": { "type": "string" } } },
+      "implementation": { "method": "PUT", "endpoint": "/config" },
+      "response_format": { "success": "boolean", "key": "string", "value": "string" }
+    },
+    {
+      "name": "zhinest_admin_login",
+      "description": "管理员登录获取 admin token",
+      "input_schema": { "type": "object", "required": ["username", "password"], "properties": { "username": { "type": "string" }, "password": { "type": "string" } } },
+      "implementation": { "method": "POST", "endpoint": "/admin/auth/login" },
+      "response_format": { "success": "boolean", "token": "string", "user": "{id, username, role}" }
+    },
+    {
+      "name": "zhinest_admin_me",
+      "description": "获取当前管理员信息",
+      "input_schema": { "type": "object", "properties": {} },
+      "implementation": { "method": "GET", "endpoint": "/admin/auth/me" },
+      "response_format": "{ id, username, role, last_login }"
+    },
+    {
+      "name": "zhinest_admin_change_password",
+      "description": "修改管理员密码",
+      "input_schema": { "type": "object", "required": ["old_password", "new_password"], "properties": { "old_password": { "type": "string" }, "new_password": { "type": "string" } } },
+      "implementation": { "method": "PUT", "endpoint": "/admin/auth/change-password" },
+      "response_format": { "success": "boolean" }
+    },
+    {
+      "name": "zhinest_operation_logs",
+      "description": "获取操作日志",
+      "input_schema": { "type": "object", "properties": { "operator_type": { "type": "string" }, "target_type": { "type": "string" }, "limit": { "type": "integer", "default": 50 }, "offset": { "type": "integer", "default": 0 } } },
+      "implementation": { "method": "GET", "endpoint": "/operation-logs" },
+      "response_format": { "items": "日志数组", "total": "总数" }
+    }
+  ],
+
+  "module_types": [
+    { "type": "hero", "description": "首屏横幅", "props": { "title": "string", "subtitle": "string", "cta_text": "string", "cta_url": "string", "bg_image": "string" } },
+    { "type": "feature-grid", "description": "特性卡片网格", "props": { "columns": "number", "items": "[{icon, title, desc}]" } },
+    { "type": "stats-bar", "description": "统计数据条", "props": { "items": "[{value, label}]" } },
+    { "type": "cta-block", "description": "行动号召区块", "props": { "title": "string", "desc": "string", "btn_text": "string", "btn_url": "string" } },
+    { "type": "card-list", "description": "卡片列表", "props": { "items": "[{title, desc, image, link}]" } },
+    { "type": "text-block", "description": "纯文本块", "props": { "content": "string (Markdown)" } },
+    { "type": "image-gallery", "description": "图片画廊", "props": { "images": "[{src, alt}]", "columns": "number" } },
+    { "type": "custom", "description": "自定义模块", "props": { "html": "string", "css": "string", "js": "string" } }
+  ],
+
+  "usage_examples": [
+    {
+      "scenario": "一键创建栏目",
+      "description": "Agent 创建一个完整的网站栏目",
+      "steps": [
+        { "tool": "zhinest_agent_create_column", "input": { "name": "产出物", "slug": "deliveries", "location": "header", "sort_order": 3, "template": "category" }, "purpose": "创建栏目（菜单+页面+模块）" }
+      ]
+    },
+    {
+      "scenario": "组装页面模块",
+      "description": "Agent 为页面添加和排列模块",
+      "steps": [
+        { "tool": "zhinest_module_create", "input": { "name": "首页Hero", "type": "hero", "props": { "title": "欢迎", "subtitle": "描述", "cta_text": "开始", "cta_url": "/kb" } }, "purpose": "创建Hero模块" },
+        { "tool": "zhinest_page_module_add", "input": { "page_id": 1, "module_id": 1, "region": "hero", "sort_order": 0 }, "purpose": "添加hero模块到首页" },
+        { "tool": "zhinest_render_all", "input": {}, "purpose": "全站渲染" }
+      ]
+    },
+    {
+      "scenario": "版本回滚",
+      "description": "Agent 发现内容错误，回滚到之前版本",
+      "steps": [
+        { "tool": "zhinest_version_list", "input": { "type": "page", "id": 1 }, "purpose": "查看页面版本历史" },
+        { "tool": "zhinest_version_rollback", "input": { "type": "page", "id": 1, "version": 3 }, "purpose": "回滚到版本3" }
+      ]
+    },
+    {
+      "scenario": "发布文章",
+      "description": "Agent 一键发布文章并触发渲染",
+      "steps": [
+        { "tool": "zhinest_agent_publish_article", "input": { "title": "智巢v2发布", "content": "# 智巢v2正式发布\n\n新功能包括...", "category": "新闻", "tags": ["发布", "v2"] }, "purpose": "发布文章" },
+        { "tool": "zhinest_render_incremental", "input": {}, "purpose": "增量渲染" }
+      ]
+    },
+    {
+      "scenario": "管理站点配置",
+      "description": "Agent 读取和修改站点配置",
+      "steps": [
+        { "tool": "zhinest_config_get", "input": {}, "purpose": "获取当前配置" },
+        { "tool": "zhinest_config_update", "input": { "key": "site_name", "value": "智巢" }, "purpose": "更新站点名称" }
+      ]
+    }
+  ],
+
+  "automation_scenarios": [
+    {
+      "name": "每日资讯更新",
+      "trigger": "schedule",
+      "schedule": "0 9 * * *",
+      "workflow": ["获取行业资讯", "zhinest_agent_publish_article: 发布资讯", "zhinest_render_incremental: 增量渲染"]
+    },
+    {
+      "name": "产品发布公告",
+      "trigger": "event",
+      "event_type": "product_release",
+      "workflow": ["zhinest_agent_create_column: 创建产品栏目", "zhinest_agent_publish_article: 发布公告", "zhinest_render_all: 全站渲染"]
+    },
+    {
+      "name": "SEO 优化检查",
+      "trigger": "schedule",
+      "schedule": "0 0 * * 0",
+      "workflow": ["zhinest_page_list: 获取所有页面", "检查 meta_title 和 meta_desc", "zhinest_page_update: 补充缺失的 SEO 信息"]
+    }
+  ],
+
+  "error_handling": {
+    "400": "请求参数错误，检查必填字段",
+    "401": "API Key 无效或过期，请检查 x-api-key 请求头",
+    "403": "权限不足，检查 API Key 的 permissions",
+    "404": "资源不存在",
+    "409": "资源冲突（如 slug 已存在）",
+    "500": "服务器错误"
+  },
+
+  "metadata": {
+    "created_at": "2024-01-01",
+    "updated_at": "2026-04-21",
+    "license": "MIT",
+    "repository": "https://github.com/ahive/ahive-zhinest"
+  }
+}

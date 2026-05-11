@@ -1,0 +1,77 @@
+# LSP Servers Configuration
+#
+# Language Server Protocol 服务器配置
+# 启用/禁用服务器，安装对应命令即可使用
+#
+# 安装命令：
+# TypeScript: npm install -g typescript-language-server typescript
+# Python: npm install -g pyright
+# Go: go install golang.org/x/tools/gopls@latest
+# C/C++: 系统包管理器安装 clangd
+
+version: "1.0"
+
+servers:
+  # TypeScript / JavaScript (使用 vtsls)
+  typescript:
+    enabled: true
+    command: "vtsls"
+    args:
+      - "--stdio"
+    extensions:
+      - ".ts"
+      - ".tsx"
+      - ".js"
+      - ".jsx"
+      - ".mjs"
+      - ".cjs"
+
+  # Python
+  pyright:
+    enabled: true
+    command: "pyright-langserver"
+    args:
+      - "--stdio"
+    extensions:
+      - ".py"
+      - ".pyi"
+
+  # Go
+  gopls:
+    enabled: false
+    command: "gopls"
+    args: []
+    extensions:
+      - ".go"
+
+  # C / C++
+  clangd:
+    enabled: false
+    command: "clangd"
+    args:
+      - "--background-index"
+    extensions:
+      - ".c"
+      - ".cpp"
+      - ".cc"
+      - ".cxx"
+      - ".h"
+      - ".hpp"
+
+  # Rust (需要安装 rust-analyzer)
+  rust-analyzer:
+    enabled: false
+    command: "rust-analyzer"
+    args: []
+    extensions:
+      - ".rs"
+
+  # Godot GDScript (需要 Godot 编辑器运行 LSP 服务)
+  godot:
+    enabled: false
+    command: "godot"
+    args:
+      - "--headless"
+      - "--editor"
+    extensions:
+      - ".gd"

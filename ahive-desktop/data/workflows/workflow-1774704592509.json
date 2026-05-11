@@ -1,0 +1,300 @@
+{
+  "nodes": [
+    {
+      "id": "node-init",
+      "type": "variable",
+      "name": "初始化配置",
+      "position": {
+        "x": 100,
+        "y": 200
+      },
+      "config": {
+        "variableConfig": {
+          "name": "testConfig",
+          "value": {
+            "projectPath": "./",
+            "testEnvironment": "development",
+            "unitTest": {
+              "enabled": true,
+              "coverage": true,
+              "coverageThreshold": 80,
+              "testMatch": [
+                "**/*.test.ts",
+                "**/*.spec.ts"
+              ],
+              "exclude": [
+                "node_modules",
+                "dist"
+              ]
+            },
+            "integrationTest": {
+              "enabled": true,
+              "timeout": 30000,
+              "testMatch": [
+                "**/*.integration.test.ts"
+              ],
+              "setupFiles": [
+                "./tests/setup.ts"
+              ]
+            },
+            "qualityCheck": {
+              "enabled": true,
+              "linter": "eslint",
+              "formatter": "prettier",
+              "rules": {
+                "maxLineLength": 120,
+                "noUnusedVars": true
+              }
+            },
+            "report": {
+              "outputPath": "./test-reports",
+              "formats": [
+                "html",
+                "json",
+                "junit"
+              ],
+              "includeCoverage": true,
+              "includeQualityMetrics": true
+            }
+          },
+          "type": "json"
+        }
+      }
+    },
+    {
+      "id": "node-unit-test",
+      "type": "agent",
+      "name": "单元测试",
+      "position": {
+        "x": 300,
+        "y": 200
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "agent-tester",
+              "weight": 1
+            }
+          ]
+        },
+        "taskTemplate": "执行单元测试任务：\n1. 读取项目配置：{{projectConfig}}\n2. 识别测试框架（Jest/Mocha/PyTest等）\n3. 运行所有单元测试用例\n4. 收集测试结果和覆盖率数据\n5. 记录失败的测试用例及错误信息",
+        "inputs": [
+          {
+            "name": "projectConfig",
+            "source": "node-init",
+            "sourceKey": "config",
+            "required": true
+          },
+          {
+            "name": "testEnvironment",
+            "source": "blackboard",
+            "sourceKey": "testEnvironment",
+            "required": false
+          }
+        ],
+        "outputs": [
+          {
+            "name": "unitTestResults",
+            "extractPath": "$.testResults",
+            "required": true
+          },
+          {
+            "name": "coverage",
+            "extractPath": "$.coverage",
+            "required": true
+          },
+          {
+            "name": "failedTests",
+            "extractPath": "$.failedTests",
+            "required": false
+          },
+          {
+            "name": "testSummary",
+            "extractPath": "$.summary",
+            "required": true
+          }
+        ],
+        "timeout": 180000,
+        "retryCount": 1
+      }
+    },
+    {
+      "id": "node-integration-test",
+      "type": "agent",
+      "name": "集成测试",
+      "position": {
+        "x": 500,
+        "y": 200
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "agent-tester",
+              "weight": 1
+            }
+          ]
+        },
+        "taskTemplate": "执行集成测试任务：\n\n1. 读取项目配置：{{projectConfig}}\n2. 分析单元测试结果：{{unitTestResults}}\n3. 执行以下集成测试：\n   - 模块间接口测试\n   - 数据流集成测试\n   - API端到端测试\n   - 数据库集成测试\n   - 第三方服务集成测试\n4. 验证模块间交互正确性\n5. 检测集成边界问题\n6. 生成集成测试报告\n\n测试环境：{{testEnvironment}}\n测试范围：模块集成、服务集成、数据流集成\n\n请详细记录每个测试用例的执行结果，包括通过/失败状态、错误信息和性能数据。",
+        "inputs": [
+          {
+            "name": "projectConfig",
+            "source": "blackboard",
+            "sourceKey": "projectConfig",
+            "required": true
+          },
+          {
+            "name": "unitTestResults",
+            "source": "blackboard",
+            "sourceKey": "unitTestResults",
+            "required": false
+          },
+          {
+            "name": "testEnvironment",
+            "source": "blackboard",
+            "sourceKey": "testEnvironment",
+            "required": true
+          }
+        ],
+        "outputs": [
+          {
+            "name": "integrationTestResults",
+            "extractPath": "$.testResults",
+            "required": true
+          },
+          {
+            "name": "integrationTestReport",
+            "extractPath": "$.report",
+            "required": true
+          },
+          {
+            "name": "integrationCoverage",
+            "extractPath": "$.coverage",
+            "required": false
+          },
+          {
+            "name": "failedIntegrations",
+            "extractPath": "$.failedCases",
+            "required": false
+          }
+        ],
+        "timeout": 300000,
+        "retryCount": 1
+      }
+    },
+    {
+      "id": "node-quality-check",
+      "type": "agent",
+      "name": "代码质量检查",
+      "position": {
+        "x": 700,
+        "y": 200
+      },
+      "config": {
+        "executor": {
+          "mode": "single",
+          "executors": [
+            {
+              "type": "agent",
+              "id": "agent-quality-checker",
+              "weight": 1
+            }
+          ]
+        },
+        "taskTemplate": "执行代码质量检查任务：\n\n1. 代码规范检查：使用ESLint/Pylint等工具检查代码风格和规范\n2. 代码复杂度分析：计算圈复杂度、认知复杂度等指标\n3. 代码重复检测：识别重复代码块和相似代码\n4. 安全漏洞扫描：使用SonarQube/Snyk等工具扫描潜在安全问题\n5. 依赖安全检查：检查第三方依赖的已知漏洞\n\n项目配置：{{projectConfig}}\n单元测试结果：{{unitTestResults}}\n集成测试结果：{{integrationTestResults}}\n\n请输出详细的代码质量检查报告，包括：\n- 代码规范问题列表\n- 复杂度指标统计\n- 重复代码检测结果\n- 安全漏洞清单\n- 改进建议",
+        "inputs": [
+          {
+            "name": "projectConfig",
+            "source": "blackboard",
+            "sourceKey": "projectConfig",
+            "required": true
+          },
+          {
+            "name": "unitTestResults",
+            "source": "blackboard",
+            "sourceKey": "unitTestResults",
+            "required": true
+          },
+          {
+            "name": "integrationTestResults",
+            "source": "blackboard",
+            "sourceKey": "integrationTestResults",
+            "required": true
+          }
+        ],
+        "outputs": [
+          {
+            "name": "qualityCheckResults",
+            "extractPath": "$.qualityCheckResults",
+            "required": true
+          },
+          {
+            "name": "codeMetrics",
+            "extractPath": "$.codeMetrics",
+            "required": true
+          },
+          {
+            "name": "securityIssues",
+            "extractPath": "$.securityIssues",
+            "required": false
+          },
+          {
+            "name": "qualityScore",
+            "extractPath": "$.qualityScore",
+            "required": true
+          }
+        ],
+        "timeout": 180000,
+        "retryCount": 2
+      }
+    },
+    {
+      "id": "node-report",
+      "type": "output",
+      "name": "生成测试报告",
+      "position": {
+        "x": 900,
+        "y": 200
+      },
+      "config": {
+        "outputConfig": {
+          "name": "testReport",
+          "description": "完整的测试报告，包含单元测试结果、集成测试结果、代码质量检查结果以及整体测试统计",
+          "type": "json",
+          "isFinalOutput": true
+        }
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge-1",
+      "source": "node-init",
+      "target": "node-unit-test"
+    },
+    {
+      "id": "edge-2",
+      "source": "node-unit-test",
+      "target": "node-integration-test"
+    },
+    {
+      "id": "edge-3",
+      "source": "node-integration-test",
+      "target": "node-quality-check"
+    },
+    {
+      "id": "edge-4",
+      "source": "node-quality-check",
+      "target": "node-report"
+    }
+  ],
+  "id": "workflow-1774704592509",
+  "createdAt": "2026-03-28T13:29:52.509Z",
+  "updatedAt": "2026-03-28T13:29:52.509Z",
+  "version": "1.0.0"
+}

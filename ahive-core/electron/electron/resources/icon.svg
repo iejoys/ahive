@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1a2e"/>
+      <stop offset="100%" style="stop-color:#16213e"/>
+    </linearGradient>
+    <linearGradient id="hex" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#e94560"/>
+      <stop offset="100%" style="stop-color:#ff6b6b"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- 背景 -->
+  <rect width="512" height="512" rx="80" fill="url(#bg)"/>
+  
+  <!-- 六边形 -->
+  <polygon points="256,80 400,160 400,320 256,400 112,320 112,160" 
+           fill="none" stroke="url(#hex)" stroke-width="12"/>
+  
+  <!-- 内部六边形 -->
+  <polygon points="256,140 350,195 350,305 256,360 162,305 162,195" 
+           fill="url(#hex)" opacity="0.3"/>
+  
+  <!-- 蜜蜂图标 -->
+  <g transform="translate(256, 240)">
+    <!-- 身体 -->
+    <ellipse cx="0" cy="20" rx="35" ry="45" fill="#f4d03f"/>
+    <!-- 条纹 -->
+    <rect x="-35" y="5" width="70" height="10" fill="#1a1a2e"/>
+    <rect x="-35" y="25" width="70" height="10" fill="#1a1a2e"/>
+    <!-- 头 -->
+    <circle cx="0" cy="-35" r="25" fill="#f4d03f"/>
+    <!-- 眼睛 -->
+    <circle cx="-10" cy="-40" r="5" fill="#1a1a2e"/>
+    <circle cx="10" cy="-40" r="5" fill="#1a1a2e"/>
+    <!-- 翅膀 -->
+    <ellipse cx="-45" cy="0" rx="25" ry="35" fill="white" opacity="0.6"/>
+    <ellipse cx="45" cy="0" rx="25" ry="35" fill="white" opacity="0.6"/>
+  </g>
+  
+  <!-- 文字 -->
+  <text x="256" y="470" text-anchor="middle" font-family="Arial, sans-serif" 
+        font-size="36" font-weight="bold" fill="#e94560">AHIVE</text>
+</svg>

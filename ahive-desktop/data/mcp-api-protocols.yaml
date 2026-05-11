@@ -1,0 +1,273 @@
+# MCP API 平台协议配置文件
+# 内置三个平台：阿里云百炼、OpenAI、Anthropic
+# 用户配置保存在 protocol-config.json 的 mcpApiConfigs 字段中
+
+platforms:
+  # ==================== 阿里云百炼 ====================
+  bailian:
+    id: bailian
+    name: "阿里云百炼"
+    description: "阿里云百炼 Responses API + MCP"
+    version: "1.0"
+    
+    # 平台类型（决定请求/响应格式）
+    platformType: openai-compatible
+    
+    # ========== 输入字段定义（UI 动态渲染表单） ==========
+    # 注：MCP Server 配置在下方单独区域配置，支持多个 Server
+    inputFields:
+      - name: endpoint
+        label: "API 端点"
+        type: text
+        required: true
+        default: "https://dashscope.aliyuncs.com/api/v2/apps/protocols/compatible-mode/v1"
+        placeholder: "https://dashscope.aliyuncs.com/api/v2/apps/protocols/compatible-mode/v1"
+        description: "百炼 API 地址"
+      
+      - name: apiKey
+        label: "API Key"
+        type: password
+        required: true
+        placeholder: "sk-xxx"
+        description: "百炼 API Key"
+        sensitive: true
+      
+      - name: model
+        label: "模型"
+        type: select
+        required: true
+        default: "qwen3.5-plus"
+        description: "使用的模型"
+        options:
+          - value: "qwen3.5-plus"
+            label: "Qwen3.5 Plus"
+          - value: "qwen3.5-flash"
+            label: "Qwen3.5 Flash"
+          - value: "qwen3-235b-a22b"
+            label: "Qwen3 235B"
+    
+    # ========== 请求模板配置 ==========
+    request:
+      path: "/responses"
+      method: POST
+      timeout: 300000
+      headers:
+        Content-Type: application/json
+        Authorization: "Bearer ${apiKey}"
+      # template 中的 MCP Server 变量从 UI 的 "MCP Server 配置" 区域获取
+      template:
+        model: "${model}"
+        input: "${message}"
+        tools:
+          - type: "mcp"
+            server_protocol: "sse"
+            server_label: "${mcpServerLabel}"
+            server_description: "${mcpServerDescription}"
+            server_url: "${mcpServerUrl}"
+            headers:
+              Authorization: "Bearer ${apiKey}"
+    
+    # ========== 响应解析配置 ==========
+    response:
+      paths:
+        text: "output_text"
+        usage: "usage"
+        inputTokens: "usage.input_tokens"
+        outputTokens: "usage.output_tokens"
+        totalTokens: "usage.total_tokens"
+      streaming:
+        events:
+          contentPartAdded:
+            eventType: "response.content_part.added"
+          textDelta:
+            eventType: "response.output_text.delta"
+            textField: "delta"
+          completed:
+            eventType: "response.completed"
+            responseField: "response"
+      error:
+        path: "error"
+        messagePath: "error.message"
+    
+    # ========== 认证配置 ==========
+    auth:
+      type: bearer
+      header: Authorization
+      prefix: "Bearer "
+    
+    # ========== 特性支持 ==========
+    features:
+      streaming: true
+      multipleMcpServers: true
+      toolApproval: false
+      maxMcpServers: 10
+
+  # ==================== OpenAI ====================
+  openai:
+    id: openai
+    name: "OpenAI"
+    description: "OpenAI Responses API + MCP"
+    version: "1.0"
+    
+    platformType: openai-compatible
+    
+    # 注：MCP Server 配置在下方单独区域配置，支持多个 Server
+    inputFields:
+      - name: endpoint
+        label: "API 端点"
+        type: text
+        required: true
+        default: "https://api.openai.com/v1"
+        placeholder: "https://api.openai.com/v1"
+        description: "OpenAI API 地址"
+      
+      - name: apiKey
+        label: "API Key"
+        type: password
+        required: true
+        placeholder: "sk-xxx"
+        description: "OpenAI API Key"
+        sensitive: true
+      
+      - name: model
+        label: "模型"
+        type: select
+        required: true
+        default: "gpt-5"
+        description: "使用的模型"
+        options:
+          - value: "gpt-5"
+            label: "GPT-5"
+          - value: "gpt-5.4"
+            label: "GPT-5.4"
+          - value: "gpt-4o"
+            label: "GPT-4o"
+    
+    request:
+      path: "/responses"
+      method: POST
+      timeout: 300000
+      headers:
+        Content-Type: application/json
+        Authorization: "Bearer ${apiKey}"
+      template:
+        model: "${model}"
+        input: "${message}"
+        tools:
+          - type: "mcp"
+            server_label: "${mcpServerLabel}"
+            server_url: "${mcpServerUrl}"
+            require_approval: "never"
+    
+    response:
+      paths:
+        text: "output_text"
+        usage: "usage"
+        inputTokens: "usage.input_tokens"
+        outputTokens: "usage.output_tokens"
+        totalTokens: "usage.total_tokens"
+      streaming:
+        events:
+          textDelta:
+            eventType: "response.output_text.delta"
+            textField: "delta"
+          completed:
+            eventType: "response.completed"
+    
+    auth:
+      type: bearer
+      header: Authorization
+      prefix: "Bearer "
+    
+    features:
+      streaming: true
+      multipleMcpServers: true
+      toolApproval: true
+      maxMcpServers: 10
+
+  # ==================== Anthropic Claude ====================
+  anthropic:
+    id: anthropic
+    name: "Anthropic Claude"
+    description: "Anthropic Claude Messages API + MCP Connector"
+    version: "1.0"
+    
+    platformType: anthropic
+    
+    # 注：MCP Server 配置在下方单独区域配置，支持多个 Server
+    inputFields:
+      - name: endpoint
+        label: "API 端点"
+        type: text
+        required: true
+        default: "https://api.anthropic.com/v1"
+        placeholder: "https://api.anthropic.com/v1"
+        description: "Anthropic API 地址"
+      
+      - name: apiKey
+        label: "API Key"
+        type: password
+        required: true
+        placeholder: "sk-ant-xxx"
+        description: "Anthropic API Key"
+        sensitive: true
+      
+      - name: model
+        label: "模型"
+        type: select
+        required: true
+        default: "claude-sonnet-4-20250514"
+        description: "使用的模型"
+        options:
+          - value: "claude-sonnet-4-20250514"
+            label: "Claude Sonnet 4"
+          - value: "claude-opus-4-20250514"
+            label: "Claude Opus 4"
+          - value: "claude-3-5-sonnet-20241022"
+            label: "Claude 3.5 Sonnet"
+    
+    request:
+      path: "/messages"
+      method: POST
+      timeout: 300000
+      headers:
+        Content-Type: application/json
+        x-api-key: "${apiKey}"
+        anthropic-version: "2023-06-01"
+        anthropic-beta: "mcp-client-2025-11-20"
+      template:
+        model: "${model}"
+        max_tokens: 4096
+        mcp_servers:
+          - url: "${mcpServerUrl}"
+            name: "${mcpServerName}"
+        messages:
+          - role: "user"
+            content: "${message}"
+    
+    response:
+      paths:
+        text: "content[0].text"
+        usage: "usage"
+        inputTokens: "usage.input_tokens"
+        outputTokens: "usage.output_tokens"
+      streaming:
+        events:
+          contentBlockDelta:
+            eventType: "content_block_delta"
+            textField: "delta.text"
+          messageStop:
+            eventType: "message_stop"
+    
+    auth:
+      type: api-key
+      header: x-api-key
+    
+    features:
+      streaming: true
+      multipleMcpServers: true
+      toolApproval: true
+      maxMcpServers: 5
+
+# 默认平台
+defaultPlatform: bailian
